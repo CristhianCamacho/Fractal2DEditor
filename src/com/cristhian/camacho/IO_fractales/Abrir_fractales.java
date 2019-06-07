@@ -54,9 +54,24 @@ public class Abrir_fractales
 		//		aus=aus.substring(0,i+dir_base.length());	
 		//	}				
 						
-		aus=aus.substring(0,aus.length()-2);
-		aux=null;
-		aux=new File(aus + "/src/com/cristhian/camacho/Modelos_fractales/");
+		//aus=aus.substring(0,aus.length()-2);
+		//aux=null;
+		//aux=new File(aus + "/src/com/cristhian/camacho/Modelos_fractales/");
+
+		System.out.println( "System.getProperty(\"user.dir\")"+System.getProperty("user.dir") );
+		String aux_=System.getProperty("user.dir");
+
+		if( aux_.contains("out\\production") )
+		{
+			aux_=aux_.substring( 0 , aux_.indexOf("out\\production") );
+			aux_+="Modelos_fractales";
+		}
+		else
+		{
+			aux_+="/Modelos_fractales";
+		}
+
+		aux=new File(aux_);
 
 		filechooser.setCurrentDirectory(aux);
 		

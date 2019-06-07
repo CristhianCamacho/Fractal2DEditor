@@ -63,15 +63,28 @@ public class Guardar_fractales_como_PNG
 //		System.out.println("actionPerformed:Abrir "+aus);
 		
 				
-		aus=aus.substring(0,aus.length()-2);
-		aux=null;
-		aux=new File(aus+"/src/com/cristhian/camacho/Modelos_fractales/");
-		
-		filechooser.setCurrentDirectory(aux);
+		//aus=aus.substring(0,aus.length()-2);
+		//aux=null;
+		//aux=new File(aus+"/src/com/cristhian/camacho/Modelos_fractales/");
+
+		System.out.println( "System.getProperty(\"user.dir\")"+System.getProperty("user.dir") );
+		String aux_2=System.getProperty("user.dir");
+
+		if( aux_2.contains("out\\production") )
+		{
+			aux_2=aux_2.substring( 0 , aux_2.indexOf("out\\production") );
+			aux_2+="Modelos_fractales";
+		}
+		else
+		{
+			aux_2+="/Modelos_fractales";
+		}
+
+		filechooser.setCurrentDirectory(new File(aux_2));
 				
 		nomb_model=elementos_UI.get_nombre_del_modelo();
 		
-		File aux_=new File (aux+"/"+nomb_model);
+		File aux_=new File (aux_2+"/"+nomb_model);
 		
 		filechooser.setSelectedFile(aux_);
 				

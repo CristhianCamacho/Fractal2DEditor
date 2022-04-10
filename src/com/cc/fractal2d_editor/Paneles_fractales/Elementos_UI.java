@@ -67,8 +67,12 @@ public class Elementos_UI implements Runnable {
 
         public static int splitDividerLoation = 100;
 
+        public static Elementos_UI instance;
+
         public Elementos_UI(JFrame f)
         {
+            instance = this;
+
             jf_principal=f;
 
             Dimension Size = f.getSize();
@@ -652,8 +656,19 @@ public class Elementos_UI implements Runnable {
         //Crear_Algoritmo ca=new Crear_Algoritmo(pb,pr,g,orden);
         Crear_Algoritmo ca;
 
+        public boolean calculandoFractales = false;
+
+        public void setCalculandoFractales(boolean calculandoFract) {
+            calculandoFractales = calculandoFract;
+        }
+
+        public boolean getCalculandoFractales() {
+            return calculandoFractales;
+        }
+
         public synchronized void calcular_fractales()
         {
+            setCalculandoFractales(true);
             //if(calcular_fractales)
             //{
             Point2D[] pb=panel_patron_inicial.panel_de_dibujo.get_puntos();

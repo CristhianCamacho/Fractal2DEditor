@@ -25,6 +25,8 @@ public class Panel_resultado extends JPanel {
 	
 	public JProgressBar progresoRutina;
 	public JLabel tiempoRestanteRutina;
+
+	public JCheckBox check_liveDrawing;
 		
 	Elementos_UI elementos_UI;
 	
@@ -39,6 +41,9 @@ public class Panel_resultado extends JPanel {
 	public static String CONTINUAR = "continuar";
 	public static String CLEAR = "Clear Screen";
 	public static String COLOR_LINEAS = "Color";
+
+	public static String LIVE_DRAWING = "Live Drawing";
+
 	public Panel_resultado(Elementos_UI elementos_ui)
 	{
 		elementos_UI=elementos_ui;		
@@ -191,7 +196,16 @@ public class Panel_resultado extends JPanel {
 	panelProgresoRutina.add(tiempoRestanteRutina);
 	
 	panel_de_controles.add(panelProgresoRutina);
-	
+
+	JPanel panelLiveDrawing = new JPanel();
+	TitledBorder titleLiveDrawing;
+	titleLiveDrawing = BorderFactory.createTitledBorder(LIVE_DRAWING);
+	panelLiveDrawing.setBorder(titleLiveDrawing);
+	check_liveDrawing = new JCheckBox(LIVE_DRAWING);
+	check_liveDrawing.setSelected(false);
+	panelLiveDrawing.add(check_liveDrawing);
+	panel_de_controles.add(panelLiveDrawing);
+
 	//panel_de_dibujo=new JInternalFrame("panel_de_dibujo");
 	panel_de_dibujo=new Panel_de_dibujo_resultado();
 	//panel_de_dibujo.setLayout(null);

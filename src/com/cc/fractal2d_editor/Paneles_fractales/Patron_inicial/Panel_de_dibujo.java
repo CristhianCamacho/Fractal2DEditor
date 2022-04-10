@@ -1,5 +1,7 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial;
 
+import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -125,6 +127,19 @@ public class Panel_de_dibujo extends JPanel {
             //pintar_puntos();
             this.repaint();
         }
+
+        //
+        if( Elementos_UI.instance.panel_de_dibujo.check_liveDrawing.isSelected() && !Elementos_UI.instance.getCalculandoFractales() ) {
+
+            //Elementos_UI.instance.panel_de_dibujo.jcb_nivel.setSelectedIndex(2);
+            //Elementos_UI.instance.panel_de_dibujo.panel_de_dibujo;
+
+            Elementos_UI.instance.clear();
+            Elementos_UI.instance.calcular_fractales();
+
+        }
+
+
     }
 
     public void mover_todos_los_puntos(double x ,double y)

@@ -423,6 +423,9 @@ public class Crear_Algoritmo implements Runnable{
 		// Save the screenshot as a png
 		//file = new File("C:/Documents and Settings/Administrador/Escritorio/screen.png");
 		//ImageIO.write(bufferedImage, "png", file);
+
+            Elementos_UI.instance.setCalculandoFractales(false);
+
 		} catch (Exception e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

@@ -337,6 +337,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             if(aux.equals(Panel_resultado.DETENER))
             {
                 System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
+                elementos_ui.setCalculandoFractales(false);
                 elementos_ui.detenerHilo();
                 //set_calcular_fractales(true);
                 elementos_ui.detenerRutina1();

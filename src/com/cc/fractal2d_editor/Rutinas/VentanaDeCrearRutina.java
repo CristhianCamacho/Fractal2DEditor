@@ -415,6 +415,8 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 				{
 					public void actionPerformed(ActionEvent arg0) {
 						instance.setVisible(false);
+
+						elementosUI.setCalculandoFractales(false);
 						
 						elementosUI.ejecutarRutina1( ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()).equalsIgnoreCase(GRADIENTE) || 
 								                     ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()).equalsIgnoreCase(GRADIENTE_ALEATORIO),

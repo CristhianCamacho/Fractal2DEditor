@@ -733,6 +733,7 @@ public class Elementos_UI implements Runnable {
         {
             System.out.println(this.getClass().getName()+":detenerHilo(); 1");
             //ca.continuarHilo();
+            this.setCalculandoFractales(true);
             ca.set_detener(false);
             ca.set_continuar(true);
             Thread hilo = new Thread(ca);
@@ -815,7 +816,7 @@ public class Elementos_UI implements Runnable {
             //hiloRutina1.interrupt();
         }
 
-        public void ejecutarRutina1_run()
+        public synchronized void ejecutarRutina1_run()
         {
 
 
@@ -916,6 +917,16 @@ public class Elementos_UI implements Runnable {
 
                     // evento de seleccion de color de lineas
                     setColorLineas_Panel_resultado(colorTemp);
+
+                    // to draw one fractal until the end before to begin to draw another one, when doing Rutina1
+                    while (getCalculandoFractales()) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+
 
                     // evento del boton de calcular
                     calcular_fractales();

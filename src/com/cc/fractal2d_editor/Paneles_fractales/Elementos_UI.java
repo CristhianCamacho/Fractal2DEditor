@@ -7,7 +7,7 @@ import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales;
 import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Crear_Algoritmo;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_patron_inicial;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 import org.w3c.dom.Document;
 
 import javax.swing.*;
@@ -17,7 +17,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 import java.util.Vector;
 
@@ -36,11 +39,10 @@ public class Elementos_UI implements Runnable {
         /////
         public JTabbedPane tabbedpane;
 
-        public Panel_patron_inicial panel_patron_inicial;
+        public Panel_patron_disenio panel_patron_inicial;
         public int PANEL_PATRON_INICIAL;
 
-        //public Panel_patron_recursivo panel_patron_recursivo;
-        public Panel_patron_inicial panel_patron_recursivo;
+        public Panel_patron_disenio panel_patron_recursivo;
         public int PANEL_PATRON_RECURSIVO;
 
         public Panel_resultado panel_de_dibujo;
@@ -68,6 +70,47 @@ public class Elementos_UI implements Runnable {
         public static int splitDividerLoation = 100;
 
         public static Elementos_UI instance;
+
+        public static String COLOCAR_PUNTOS = "colocar_puntos";
+        public static String MOVER_PUNTOS = "mover_puntos";
+        public static String BORRAR_PUNTOS = "borrar_puntos";
+        public static String BORRAR_TODO = "borrar_todo";
+
+        public static String RutinaActual = "";
+        public static String RUTINA_1 = "RUTINA_1";
+        public static String RUTINA_2 = "RUTINA_2";
+
+        public Point2D.Double puntoAleatorio = null;
+
+        public boolean dibujarTriangulos = false;
+        public boolean dibujarCircunferenciaInscrita = false;
+        public boolean dibujarNoRectaDeEuler_linea = false;
+        public boolean dibujarNoRectaDeEuler_puntos = false;
+        public int timerRutina2 = 0;
+
+        public int nroIteracionesMaxRutina2 = 20000;
+
+        public final String SIERPINSKI = "Ratio por ejem: Punto Medio, Sierpinski";
+        public Double ratioOfMiddlePoint = 1.0;
+        public final  String INCENTRO = "Incentro, Circ. Inscrita, Bisectricez";
+        public final  String BARICENTRO = "Baricentro, Medianas";
+        public Double nroPuntosBaricentro = 3.0;
+        public final  String CIRCUNCENTRO = "Circuncentro, Circ. que contiene, Mediatricez";
+        public final  String ORTOCENTRO = "Ortocentro, Alturas";
+        public String TipoDeCalculo = INCENTRO;
+
+        public String ALEATORIO_RUTINA_2 = "Colores Aleatorios";
+        public String DEFINIDO_POR_EL_PANEL_RUTINA_2 = "Color Definido por el Panel de dibujo";
+
+        public boolean coloresAletoriosRutina2 = false;
+
+        public static String CALCULAR = "Calcular";
+
+        public static String AL_INICIO = "Al inicio";
+        public static String AL_FINAL = "Al final";
+        public String sentidoColocadoDePuntos = AL_FINAL;
+
+        public static int dimensionPrefPanel_de_controles_width = 80;
 
         public Elementos_UI(JFrame f)
         {
@@ -143,6 +186,12 @@ public class Elementos_UI implements Runnable {
             archivo.add(m);
             archivo.addSeparator();
 
+            m=new JMenuItem("Mover pts Patron Inicial --> Patron Recursivo",KeyEvent.VK_P);
+            m.setAccelerator (KeyStroke.getKeyStroke (KeyEvent.VK_P,ActionEvent.ALT_MASK));
+            m.setToolTipText("para mover los puntos de Patron Inicial al Patron Recursivo");
+            m.addActionListener(new Eventos(null,this));
+            archivo.add(m);
+
             jm_barra_de_menu.add(archivo);
 
             //jf_principal.addKeyListener(new RedoUndoKeyListener());
@@ -193,6 +242,14 @@ public class Elementos_UI implements Runnable {
             archivo.add(m);
             archivo.addSeparator();
 
+            m=new JMenuItem("rutina 2",KeyEvent.VK_2);
+            m.setAccelerator (KeyStroke.getKeyStroke (KeyEvent.VK_2,ActionEvent.ALT_MASK));
+            m.setToolTipText("para ejecutar al rutina 2");
+            m.addActionListener(new Eventos(null,this));
+            archivo.add(m);
+
+            archivo.addSeparator();
+
             jm_barra_de_menu.add(archivo);
             /////
 
@@ -221,8 +278,8 @@ public class Elementos_UI implements Runnable {
             jf_principal.add(jm_barra_de_menu,BorderLayout.NORTH);
 
             // creamos los paneles
-            panel_patron_inicial=new Panel_patron_inicial(this);
-            panel_patron_recursivo=new Panel_patron_inicial(this);
+            panel_patron_inicial=new Panel_patron_disenio(this);
+            panel_patron_recursivo=new Panel_patron_disenio(this);
             //panel_patron_recursivo=new Panel_patron_recursivo(this);
             panel_de_dibujo=new Panel_resultado(this);
 
@@ -239,6 +296,11 @@ public class Elementos_UI implements Runnable {
 
                 case PERSPECTIVA_TRES_TABBEDS:
                 {
+                    //Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
+                    //jf_principal.setSize(new Dimension(dim.width-100,dim.height-100));
+                    jf_principal.setSize(new Dimension(1280+20,720+10));
+                    //jf_principal.pack();
+
                     if(panelUnoSolo!=null)
                     {
                         jf_principal.remove(panelUnoSolo);
@@ -268,13 +330,19 @@ public class Elementos_UI implements Runnable {
                     jf_principal.add(tabbedpane);
                     llenar_CONSTANTES();//para saber en que panel estamos
 
-                    Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
-                    jf_principal.setSize(new Dimension(dim.width-100,dim.height-100));
+                    tabbedpane.updateUI();
+
+
                     center();
                     break;
                 }
                 case PERSPECTIVA_UN_SOLO_PANEL:
                 {
+                    //Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
+                    //jf_principal.setSize(new Dimension(dim.width-10,(int)(dim.height/1.5)));
+                    jf_principal.setSize(new Dimension(1280+20,720+10));
+                    //jf_principal.pack();
+
                     if(tabbedpane!=null)
                     {
                         jf_principal.remove(tabbedpane);
@@ -296,22 +364,24 @@ public class Elementos_UI implements Runnable {
                     }
                     splitPanePatrones.setLeftComponent(panel_patron_inicial);
                     splitPanePatrones.setRightComponent(panel_patron_recursivo);
-                    splitPanePatrones.setDividerLocation((int)(jf_principal.getWidth()*1/3));
+                    splitPanePatrones.setDividerLocation((int)(jf_principal.getWidth()*1/3)-splitPanePatrones.getDividerSize());
 
                     splitPane.setLeftComponent(splitPanePatrones);
                     splitPane.setRightComponent(panel_de_dibujo);
-                    splitPane.setDividerLocation((int)(jf_principal.getWidth()*2/3));
+                    splitPane.setDividerLocation((int)(jf_principal.getWidth()*2/3)-2*splitPanePatrones.getDividerSize());
 
                     panelUnoSolo.add(splitPane);
-//				panelUnoSolo.repaint();
-//				splitPanePatrones.repaint();
-//				splitPane.repaint();
 
                     jf_principal.add(panelUnoSolo);
+                    panel_patron_inicial.updateUI();
+                    panel_patron_recursivo.updateUI();
+                    panel_de_dibujo.updateUI();
 //				jf_principal.repaint();
 
-                    Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
-                    jf_principal.setSize(new Dimension(dim.width-10,(int)(dim.height/1.5)));
+
+
+                    //jf_principal.setSize(new Dimension(dim.width-10,(int)(dim.height/1.5)));
+                    //jf_principal.pack();
                     center();
                     break;
                 }
@@ -683,7 +753,10 @@ public class Elementos_UI implements Runnable {
 
             //panel_de_dibujo.panel_de_dibujo.updateColorLineas();
             Graphics g = panel_de_dibujo.panel_de_dibujo.getGraphics();
-            g.setColor(panel_de_dibujo.panel_de_dibujo.getColorLineas());
+            //((Graphics2D)(g)).setBackground(panel_de_dibujo.panel_de_dibujo.getColor_fondo());
+//g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_fondo());
+//g.fillRect(0, 0, panel_de_dibujo.panel_de_dibujo.getWidth(), panel_de_dibujo.panel_de_dibujo.getHeight());
+            g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             System.out.println(this.getClass().getName()+".calcular_fractales() Color"+g.getColor());
             //((Graphics2D)(g)).setBackground(Color.WHITE);
             int orden=panel_de_dibujo.jcb_nivel.getSelectedIndex();
@@ -716,7 +789,7 @@ public class Elementos_UI implements Runnable {
         */
         public void detenerHilo()
         {
-            System.out.println(this.getClass().getName()+":detenerHilo(); 1");
+            System.out.println(this.getClass().getName()+":detenerHilo(); inicio");
             //ca.detenerHilo();
             if(ca!=null)
             {
@@ -726,12 +799,12 @@ public class Elementos_UI implements Runnable {
             // la barra de progreso al 0%
             //panel_de_dibujo.progresoFractal.setValue(0);
 
-            System.out.println(this.getClass().getName()+":detenerHilo(); 2");
+            System.out.println(this.getClass().getName()+":detenerHilo(); fin");
         }
 
         public void continuarHilo()
         {
-            System.out.println(this.getClass().getName()+":detenerHilo(); 1");
+            System.out.println(this.getClass().getName()+":continuarHilo(); inicio");
             //ca.continuarHilo();
             this.setCalculandoFractales(true);
             ca.set_detener(false);
@@ -766,6 +839,13 @@ public class Elementos_UI implements Runnable {
             //panel_de_dibujo.panel_de_dibujo.repaint();
         }
 
+        public void setColorFondo_Panel_resultado(Color color1)
+        {
+            panel_de_dibujo.color_fondo.setBackground(color1);
+            panel_de_dibujo.panel_de_dibujo.setColor_fondo(color1);
+            //panel_de_dibujo.panel_de_dibujo.setBackground(color1);
+        }
+
         ////
         boolean isGradiente = true;
         Color[] coloresGradientes = {Color.WHITE, Color.BLACK};
@@ -776,6 +856,8 @@ public class Elementos_UI implements Runnable {
         int nivelDeRecursividad = 2;
         int porcentajeZoomMin = 1;
         int porcentajeZoomMax = 100;
+        Double porcentajeRotacionMin = 0.0;
+        Double porcentajeRotacionMax = 0.0;
         //// rutina 1
         public void ejecutarRutina1(boolean isGradiente,
                                     Color[] coloresGradiente,
@@ -783,9 +865,13 @@ public class Elementos_UI implements Runnable {
                                     int nroDeGradientes,
                                     int nivelDeRecursividad,
                                     int porcentajeZoomMin,
-                                    int porcentajeZoomMax
+                                    int porcentajeZoomMax,
+                                    Double porcentajeRotacionMin,
+                                    Double porcentajeRotacionMax
         )
         {
+            RutinaActual = RUTINA_1;
+
             this.isGradiente = isGradiente;
             coloresGradientes = coloresGradiente;
             //this.colorIni = colorIni;
@@ -795,6 +881,8 @@ public class Elementos_UI implements Runnable {
             this.nivelDeRecursividad = nivelDeRecursividad;
             this.porcentajeZoomMin = porcentajeZoomMin;
             this.porcentajeZoomMax = porcentajeZoomMax;
+            this.porcentajeRotacionMin = porcentajeRotacionMin;
+            this.porcentajeRotacionMax = porcentajeRotacionMax;
 
             detenerRutina1 = false;
 
@@ -802,18 +890,47 @@ public class Elementos_UI implements Runnable {
             hiloRutina1.start();
         }
 
-        public void run()
-        {
-            ejecutarRutina1_run();
+        public void checkCurrentTabSelectedAndOpen(int select) {
+            if (PERSPECTIVA_actual == PERSPECTIVA_TRES_TABBEDS) {
+                if (tabbedpane.getSelectedIndex() != select) {
+                    tabbedpane.setSelectedIndex(select);
+                }
+            }
         }
 
-        //Thread hiloRutina1;
+        int count = 0;
+        public void run()
+        {
+            if(RutinaActual == RUTINA_1) {
+                ejecutarRutina1_run();
+            } else
+            if(RutinaActual == RUTINA_2) {
+                count = 0;
+                Thread hilo = new Thread() {
+                    public void run () {
+                        while(!detenerRutina2 && count<=nroIteracionesMaxRutina2) {
+                            ejecutarRutina2_run();
+                            count++;
+                        }
+                    }
+                };
+                hilo.start();
+            }
+        }
+
         public boolean detenerRutina1 = false;
+        public boolean detenerRutina2 = false;
+        public boolean isDentro = false;
+        public boolean isFuera = false;
 
         public void detenerRutina1()
         {
             detenerRutina1 = true;
-            //hiloRutina1.interrupt();
+        }
+
+        public void detenerRutina2()
+        {
+            detenerRutina2 = true;
         }
 
         public synchronized void ejecutarRutina1_run()
@@ -833,6 +950,7 @@ public class Elementos_UI implements Runnable {
 
             //int ZoomIni = panel_patron_inicial.js_zoom.getValue();
             int ZoomSalto = 1;//(int)(panel_patron_inicial.totalZoom/(2*nroIteraciones));
+            Double RotarSalto = 1.0;
 
             /// fijamos el mivel de recursividad si es 0
             //if(nivel==0)
@@ -855,7 +973,9 @@ public class Elementos_UI implements Runnable {
             int nroIteraciones = (porcentajeZoomMax-porcentajeZoomMin)/nroDeGradientes;
             ////
             settearBarraDeProgresoValoresIniciales(nroDeGradientes*nroIteraciones);
+            RotarSalto = (this.porcentajeRotacionMax-this.porcentajeRotacionMin)/ nroIteraciones;
 
+            int rotacionInicial = (int)(panel_patron_inicial.js_rotar.getValue());
 
             for(int j=0;j<nroDeGradientes;j++)
             {
@@ -915,6 +1035,9 @@ public class Elementos_UI implements Runnable {
                     panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_zoom.getValue()+ZoomSalto);
                     //panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_POS_INI+ZoomSalto*i);
 
+                    // evento de rotacion
+                    panel_patron_inicial.js_rotar.setValue((int)(rotacionInicial+i*RotarSalto));
+
                     // evento de seleccion de color de lineas
                     setColorLineas_Panel_resultado(colorTemp);
 
@@ -937,6 +1060,589 @@ public class Elementos_UI implements Runnable {
             }
 
         }
+
+    //// rutina 1
+    public void ejecutarRutina2(boolean isDentro,
+                                boolean isFuera)
+    {
+        RutinaActual = RUTINA_2;
+
+        detenerRutina2 = false;
+        this.isDentro = isDentro;
+        this.isFuera = isFuera;
+
+
+            // calcular Punto Aletorio inicial
+            if (isDentro) {
+                //panel_patron_inicial.calcularPuntoAleatorioDentro();
+                puntoAleatorio = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.getPuntoAleatorioDentro();
+            } else if(isFuera) {
+                //panel_patron_inicial.calcularPuntoAleatorioFuera();
+                puntoAleatorio = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.getPuntoAleatorioFuera();
+            }
+
+
+        Thread hiloRutina2 = new Thread(this);
+        hiloRutina2.start();
+    }
+
+    public synchronized void ejecutarRutina2_run()
+    {
+        if(detenerRutina2)
+        {
+            return;
+        }
+
+        int v_puntos_incial_size = panel_patron_inicial.panel_de_dibujo.v_puntos.size();
+        if (v_puntos_incial_size!=0) {
+
+            Shape s_p0 = panel_patron_inicial.panel_de_dibujo.get_punto_de_control(
+                    ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(0) ), panel_patron_inicial.panel_de_dibujo.TAM
+            );
+
+            /*
+            if (((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(0) ).x ==
+               ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(v_puntos_incial_size-1) ).x &&
+               ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(0) ).y ==
+               ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(v_puntos_incial_size-1) ).y )
+               */
+            if (s_p0.contains(((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(v_puntos_incial_size-1) )))
+            {
+                v_puntos_incial_size = panel_patron_inicial.panel_de_dibujo.v_puntos.size()-1;
+            }
+        }
+
+        Point2D.Double v1 = new Point2D.Double();
+        Point2D.Double v2 = new Point2D.Double();
+        // como hacer y controlar una lista de vertices para el centroide o baricentro
+        Point2D.Double[] v_array = new Point2D.Double[this.nroPuntosBaricentro.intValue()-1];
+        if (TipoDeCalculo == BARICENTRO && this.nroPuntosBaricentro.intValue() > 3) {
+
+            int randomArrayPos = (int)(Math.random()*v_puntos_incial_size);
+            int ptsBariIndex = 0;
+            v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( randomArrayPos );
+            ptsBariIndex++;
+            int randomPointLeftRight = Math.random()>0.5?1:-1;
+
+            while (ptsBariIndex<v_array.length) {
+                if ( randomPointLeftRight < 0 )
+                {
+                    if ( randomArrayPos-1 < 0 )
+                    {
+                        randomArrayPos = v_puntos_incial_size-1;
+
+                    } else
+                    {
+                        randomArrayPos -= 1;
+                    }
+                    v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( randomArrayPos );
+                    ptsBariIndex++;
+                }
+                else
+                if  (randomPointLeftRight > 0)
+                {
+                    v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (randomArrayPos+1)%v_puntos_incial_size );
+                    ptsBariIndex++;
+                }
+            }
+
+            // Type 1 // random Points
+            /*
+            int ptsBariIndex = 0;
+            v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+            ptsBariIndex++;
+            v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+
+            while( ptsBariIndex < (this.nroPuntosBaricentro.intValue()-2) ) {
+                while (v_array[ptsBariIndex-1].equals(v_array[ptsBariIndex])) {
+                    v_array[ptsBariIndex-1] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+                    v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+                }
+                ptsBariIndex++;
+                v_array[ptsBariIndex] = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+            }
+            */
+        } else {
+            // Type 2 // a random side
+            int randomArrayPos = (int)(Math.random()*v_puntos_incial_size);
+            v1 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( randomArrayPos );
+            int randomPointLeftRight = Math.random()>0.5?1:-1;
+            if (randomArrayPos+randomPointLeftRight < 0) {
+                v2 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( v_puntos_incial_size-1 );
+            } else {
+                v2 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (randomArrayPos+randomPointLeftRight)%v_puntos_incial_size );
+            }
+            // Type 1 // random Points
+            /*
+            v1 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+            v2 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+            while (v1.equals(v2)) {
+                v1 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+                v2 = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.v_puntos.get( (int)(Math.random()*v_puntos_incial_size) );
+            }
+            */
+        }
+
+        Point2D.Double inPunto_a_calcular = new Point2D.Double();
+
+
+        // calcular punto a marcar por ejemplo incentro con dos vertices aleatorios
+        switch(TipoDeCalculo) {
+
+            case SIERPINSKI: {
+                inPunto_a_calcular = new Point2D.Double(
+                        (puntoAleatorio.x+ratioOfMiddlePoint*v1.x)/(1+ratioOfMiddlePoint),
+                        (puntoAleatorio.y+ratioOfMiddlePoint*v1.y)/(1+ratioOfMiddlePoint));
+                //(ratioOfMiddlePoint*puntoAleatorio.x+v1.x)/(1+ratioOfMiddlePoint),
+                //(ratioOfMiddlePoint*puntoAleatorio.y+v1.y)/(1+ratioOfMiddlePoint));
+                break;
+            }
+
+            case INCENTRO: {
+                inPunto_a_calcular = calcular_incentro(v1, v2, puntoAleatorio);
+                break;
+            }
+
+            case BARICENTRO: {
+                inPunto_a_calcular = calcular_baricentro(v1, v2, puntoAleatorio, v_array);
+                break;
+            }
+
+            case CIRCUNCENTRO: {
+                inPunto_a_calcular = calcular_circuncentro(v1, v2, puntoAleatorio);
+                break;
+            }
+
+            case ORTOCENTRO: {
+                inPunto_a_calcular = calcular_ortocentro(v1, v2, puntoAleatorio);
+                break;
+            }
+
+            default: {
+                break;
+            }
+        }
+
+        //
+/*
+        if (inPunto_a_calcular.x==0 || inPunto_a_calcular.y==0)
+        {
+            return;
+        }
+*/
+        int lado = 1;
+        //Shape incentroShape = new Ellipse2D.Double( incentro.getX()-lado/2 , incentro.getY()-lado/2 , lado , lado );
+
+        // dibujar incentro
+        Graphics g = panel_de_dibujo.panel_de_dibujo.getGraphics();
+        Graphics2D g2d = (Graphics2D)g;
+        String iterationMessage = "iterationNro = " + count;
+        if(count % 2 == 0) {
+            int _width = g.getFontMetrics().stringWidth(iterationMessage);
+            int _height = g.getFontMetrics().getHeight();
+            g2d.clearRect(0,0, _width + 5, _height);
+        }
+        g.drawString(iterationMessage,5,15);
+
+        if (coloresAletoriosRutina2) {
+            g.setColor(
+                    new Color((int)(Math.random()*255),
+                            (int)(Math.random()*255),
+                            (int)(Math.random()*255))
+            );
+        }
+        else {
+        g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
+        }
+
+        g.drawOval((int)(inPunto_a_calcular.getX()-lado/2) , (int)(inPunto_a_calcular.getY()-lado/2) , lado , lado);
+
+        if(count % 1000 == 0) {
+            // this is to keep the dot visible if there is repaint or rezise o se cambia a tabbeds
+            Rectangle rectangle = new Rectangle(panel_de_dibujo.panel_de_dibujo.getLocationOnScreen().x,
+                    panel_de_dibujo.panel_de_dibujo.getLocationOnScreen().y,
+                    panel_de_dibujo.panel_de_dibujo.getSize().width,
+                    panel_de_dibujo.panel_de_dibujo.getSize().height);
+            Robot robot;
+            try {
+                robot = new Robot();
+                BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
+
+                Image image = Toolkit.getDefaultToolkit().createImage(bufferedImage.getSource());
+                panel_de_dibujo.panel_de_dibujo.setBackgroundBufferedImage(bufferedImage);
+                panel_de_dibujo.panel_de_dibujo.setBackgroundImage(image);
+
+                panel_patron_inicial.panel_de_dibujo.setBackgroundImage(image);
+                panel_patron_inicial.panel_de_dibujo.repaint();
+
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        Paint p = g2d.getPaint();
+
+        if (dibujarTriangulos)
+        {
+            g2d.setPaint(Color.RED);
+
+            // no dibujar to do el triangulo solo dos puntos para el punto medio
+            if (TipoDeCalculo == SIERPINSKI) {
+                g2d.draw(new Line2D.Double(puntoAleatorio, v1));
+            }
+            if (TipoDeCalculo == BARICENTRO && nroPuntosBaricentro > 3) {
+                g2d.draw(new Line2D.Double(puntoAleatorio, v_array[0]));
+                for(int i=0;i<v_array.length-1;i++) {
+                    g2d.draw(new Line2D.Double(v_array[i], v_array[(i + 1) % v_array.length]));
+                }
+                g2d.draw(new Line2D.Double(v_array[v_array.length-1], puntoAleatorio));
+            }
+            else {
+                g2d.draw(new Line2D.Double(puntoAleatorio, v1));
+                g2d.draw(new Line2D.Double(v1, v2));
+                g2d.draw(new Line2D.Double(v2, puntoAleatorio));
+            }
+
+        }
+
+        if (dibujarCircunferenciaInscrita)
+        {
+            g2d.setPaint(Color.GREEN);
+
+           if (TipoDeCalculo == INCENTRO) {
+               Double radio = getRadioCircInscrita(v1,v2,puntoAleatorio, inPunto_a_calcular);
+               g2d.draw(new Ellipse2D.Double(inPunto_a_calcular.x-radio, inPunto_a_calcular.y-radio, 2*radio, 2*radio));
+           }
+           else
+           if (TipoDeCalculo == CIRCUNCENTRO) {
+               Double radio = getRadioCircCircunscrita(v1,v2,puntoAleatorio);
+               g2d.draw(new Ellipse2D.Double(inPunto_a_calcular.x-radio, inPunto_a_calcular.y-radio, 2*radio, 2*radio));
+           }
+
+        }
+
+
+        if ( (dibujarNoRectaDeEuler_puntos || dibujarNoRectaDeEuler_linea) &&
+                (TipoDeCalculo == INCENTRO || TipoDeCalculo == BARICENTRO) )
+        {
+                g2d.setPaint(Color.MAGENTA);
+
+                Point2D _incentro = calcular_incentro(v1, v2, puntoAleatorio);
+                Point2D.Double[] _v_array = new Point2D.Double[0];
+                Point2D _baricentro = calcular_baricentro(v1, v2, puntoAleatorio, _v_array);
+
+//g2d.draw(new Line2D.Double(_incentro, _baricentro));
+
+                //Point2D _circuncentro = calcular_circuncentro(v1, v2, puntoAleatorio);
+//g2d.draw(new Line2D.Double(_incentro, _baricentro));
+
+                //Point2D _ortocentro = calcular_ortocentro(v1, v2, puntoAleatorio);
+//g2d.draw(new Line2D.Double(_incentro, _ortocentro));
+
+                g2d.setPaint(Color.ORANGE);
+                //g2d.draw(new Line2D.Double(_incentro, _circuncentro));
+                //g2d.draw(new Line2D.Double(_incentro, _ortocentro));
+                //g2d.draw(new Line2D.Double(_circuncentro, _baricentro));
+                //g2d.draw(new Line2D.Double(_circuncentro, _ortocentro));
+if(dibujarNoRectaDeEuler_linea) {
+    g2d.draw(new Line2D.Double(_incentro, _baricentro));
+}
+//g2d.draw(new Line2D.Double(_incentro, _ortocentro));
+//g2d.draw(new Line2D.Double(_baricentro, _ortocentro));
+            if(dibujarNoRectaDeEuler_puntos) {
+                g2d.setPaint(new Color(50, 100 , 255));
+                g.drawOval((int)(_incentro.getX()-lado) , (int)(_incentro.getY()-lado) , 2*lado , 2*lado);
+                g.drawOval((int)(_baricentro.getX()-lado) , (int)(_baricentro.getY()-lado) , 2*lado , 2*lado);
+            }
+        }
+
+        g2d.setPaint(p);
+
+        if (timerRutina2 != 0)
+        {
+            try {
+                Thread.sleep(timerRutina2);
+            }
+            catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+
+
+        puntoAleatorio = inPunto_a_calcular;
+    }
+
+    public Double getRadioCircInscrita(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3, Point2D.Double inc) {
+
+           return Math.abs( (p2.y - p1.y)*inc.x - (p2.x - p1.x)*inc.y + (p2.x - p1.x)*p1.y - (p2.y - p1.y)*p1.x )
+                    / Math.sqrt( Math.pow((p2.y - p1.y),2) + Math.pow((p2.x - p1.x),2) );
+
+
+    }
+
+    public Double getRadioCircCircunscrita(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
+
+        Double a = p1.distance(p2);
+        Double b = p2.distance(p3);
+        Double c = p3.distance(p1);
+        Double s = ( a + b + c )/2;
+        return a*b*c/(4*Math.sqrt(s*(s-a)*(s-b)*(s-c)));
+    }
+
+    public Point2D.Double calcular_incentro(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
+
+        Double d1 = p1.distance(p2); //calcular_distancia(p1, p2);
+        Double d2 = p2.distance(p3); //calcular_distancia(p2, p3);
+        Double d3 = p3.distance(p1); //calcular_distancia(p3, p1);
+
+        // debe ser la longitud de lado opuesto al vertice
+        Double x = (d1*p3.x + d2*p1.x + d3*p2.x)/(d1 + d2 + d3);
+        Double y = (d1*p3.y + d2*p1.y + d3*p2.y)/(d1 + d2 + d3);
+
+        // interesantes
+        //Double x = (d1*p1.x + d2*p2.x + d3*p3.x)/(d1 + d2 + d3);
+        //Double y = (d1*p1.y + d2*p2.y + d3*p3.y)/(d1 + d2 + d3);
+        //Double x = (d1*p2.x + d2*p3.x + d3*p1.x)/(d1 + d2 + d3);
+        //Double y = (d1*p2.y + d2*p3.y + d3*p1.y)/(d1 + d2 + d3);
+        //Double x = (d1*p2.x + d2*p3.x + d3*p1.x)/(d1 + d2 + d3);
+        //Double y = (d1*p2.y + d2*p3.y + d3*p1.y)/(d1 + d2 + d3);
+
+        // cualquier cosa
+        //Double x = (d1*p2.x + d2*p1.x + d3*p3.x)/(d1 + d2 + d3);
+        //Double y = (d1*p2.y + d2*p1.y + d3*p3.y)/(d1 + d2 + d3);
+
+
+
+
+
+        return new Point2D.Double(x,y);
+    }
+
+
+    public Point2D.Double calcular_baricentro(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3, Point2D.Double[] pArray) {
+
+        Double x = 0.0;
+        Double y = 0.0;
+
+        if (nroPuntosBaricentro > 3) {
+            Double xSum = 0.0;
+            Double ySum = 0.0;
+            for(int i=0;i<pArray.length;i++) {
+                xSum += pArray[i].x;
+                ySum += pArray[i].y;
+            }
+            x = xSum/pArray.length;
+            y = ySum/pArray.length;
+        } else {
+            x = (p1.x + p2.x + p3.x)/3;
+            y = (p1.y + p2.y + p3.y)/3;
+        }
+
+        return new Point2D.Double(x,y);
+    }
+
+    public Point2D.Double calcular_circuncentro(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
+
+        Double m1 = (p1.y - p2.y)/(p1.x - p2.x);
+        Double m2 = (p2.y - p3.y)/(p2.x - p3.x);
+        Double m3 = (p3.y - p1.y)/(p3.x - p1.x);
+
+        Point2D.Double p1_medio = new Point2D.Double((p1.x + p2.x)/2, (p1.y + p2.y)/2);
+        Point2D.Double p2_medio = new Point2D.Double((p2.x + p3.x)/2, (p2.y + p3.y)/2);
+        Point2D.Double p3_medio = new Point2D.Double((p3.x + p1.x)/2, (p3.y + p1.y)/2);
+
+        //Double m1_perpendicular = -1/m1;
+        Double m2_perpendicular = -1/m2;
+        Double m3_perpendicular = -1/m3;
+
+        if (p1.x == p2.x) {
+            // TODO implementar control para pendientes infinitas o 0
+            Double x, y;
+            y = p1_medio.y;
+            x = (m2_perpendicular*p2_medio.x - p2_medio.y + p1_medio.y)/m2_perpendicular ;
+
+            return new Point2D.Double(x,y);
+        }
+
+        if (p2.x == p3.x) {
+            // TODO implementar control para pendientes infinitas o 0
+            Double x, y;
+            y = p1_medio.y;
+            x = (m3_perpendicular*p3_medio.x - p3_medio.y + p2_medio.y)/m3_perpendicular ;
+
+            return new Point2D.Double(x,y);
+        }
+
+        // ecuacion 1
+        //y-p1_medio.y = m1_perpendicular *(x - p1_medio.x);
+        // ecuacion 2
+        //y-p2_medio.y = m2_perpendicular *(x - p2_medio.x);
+
+        //m1_perpendicular *x - y = m1_perpendicular*p1_medio.x - p1_medio.y ;
+        //m2_perpendicular *x - y = m2_perpendicular*p2_medio.x - p2_medio.y ;
+
+        /*
+
+        Double x = deteminate(
+                m1_perpendicular*p1_medio.x - p1_medio.y,
+                m2_perpendicular*p2_medio.x - p2_medio.y,
+                -1.0,
+                -1.0)/
+                    deteminate(
+                            m1_perpendicular,
+                            m2_perpendicular,
+                            -1.0,
+                            -1.0);
+        Double y = deteminate(
+                m1_perpendicular,
+                m2_perpendicular,
+                m1_perpendicular*p1_medio.x - p1_medio.y,
+                m2_perpendicular*p2_medio.x - p2_medio.y)/
+                    deteminate(
+                            m1_perpendicular,
+                            m2_perpendicular,
+                            -1.0,
+                            -1.0);
+
+        */
+
+        //(y-p1_medio.y)*(-m1) = (x - p1_medio.x);
+        //(y-p2_medio.y)*(-m2) = (x - p2_medio.x);
+
+        //(-m1*y + m1*p1_medio.y) = (x - p1_medio.x);
+        //(-m2*y + m2*p2_medio.y) = (x - p2_medio.x);
+
+        //m1_perpendicular *x - y = m1_perpendicular*p1_medio.x - p1_medio.y ;
+        //m2_perpendicular *x - y = m2_perpendicular*p2_medio.x - p2_medio.y ;
+
+        //x + m1*y = m1*p1_medio.y+p1_medio.x;
+        //x + m2*y = m2*p2_medio.y+p2_medio.x;
+
+
+
+        Double x = deteminate(
+                m1*p1_medio.y+p1_medio.x,
+                m2*p2_medio.y+p2_medio.x,
+                m1,
+                m2
+        )/deteminate(
+                1.0,
+                1.0,
+                m1,
+                m2
+        );
+
+        Double y = deteminate(
+                1.0,
+                1.0,
+                m1*p1_medio.y+p1_medio.x,
+                m2*p2_medio.y+p2_medio.x
+        )/deteminate(
+                1.0,
+                1.0,
+                m1,
+                m2
+        );
+
+        // if NaN
+        // TODO implementar control para pendientes infinitas o 0
+        return new Point2D.Double(x,y);
+    }
+
+    public Double deteminate(Double a11, Double a21, Double a12, Double a22) {
+            Double result = a11*a22 - a21*a12;
+        return result;
+    }
+
+    public Point2D.Double calcular_ortocentro(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
+
+        Double m1 = (p1.y - p2.y)/(p1.x - p2.x);
+        Double m2 = (p2.y - p3.y)/(p2.x - p3.x);
+        Double m3 = (p3.y - p1.y)/(p3.x - p1.x);
+
+        //Point2D.Double p1_medio = new Point2D.Double((p1.x + p2.x)/2, (p1.y + p2.y)/2);
+        //Point2D.Double p2_medio = new Point2D.Double((p2.x + p3.x)/2, (p2.y + p3.y)/2);
+        //Point2D.Double p3_medio = new Point2D.Double((p3.x + p1.x)/2, (p3.y + p1.y)/2);
+
+        Double m1_perpendicular = -1/m1;
+        Double m2_perpendicular = -1/m2;
+        Double m3_perpendicular = -1/m3;
+
+        if (p1.x == p2.x) {
+            // TODO implementar control para pendientes infinitas o 0
+            Double x, y;
+            y = p1.y;
+            x = (m2_perpendicular*p2.x - p2.y + p1.y)/m2_perpendicular ;
+
+            return new Point2D.Double(x,y);
+        }
+
+        if (p2.x == p3.x) {
+            // TODO implementar control para pendientes infinitas o 0
+            Double x, y;
+            y = p1.y;
+            x = (m3_perpendicular*p3.x - p3.y + p2.y)/m3_perpendicular ;
+
+            return new Point2D.Double(x,y);
+        }
+
+        // m1_perpendicular * x - y = m1_perpendicular * p3.x - p3.y
+        // m2_perpendicular * x - y = m2_perpendicular * p1.x - p1.y
+
+        //a1 x + b1 y = c1
+        //a2 x + b2 y = c2
+        // resolver sistema de ecuaciones 2 ecuaciones 2 incognitas
+        //resolverSitemaDeEcuaciones(a1, a2, b1, b2, c1, c2);
+
+        // if NaN
+        // TODO implementar control para pendientes infinitas o 0
+        return resolverSitemaDeEcuaciones(m1_perpendicular, m2_perpendicular, -1.0, -1.0, m1_perpendicular * p3.x - p3.y, m2_perpendicular * p1.x - p1.y);
+    }
+
+
+
+    public Point2D.Double resolverSitemaDeEcuaciones(Double a11,
+                                              Double a21,
+                                              Double a12,
+                                              Double a22,
+                                              Double a13,
+                                              Double a23) {
+            Double detSistema = deteminate(
+                a11,
+                a21,
+                a12,
+                a22
+        );
+
+        Double detX = deteminate(
+                a13,
+                a23,
+                a12,
+                a22
+        );
+
+        Double detY = deteminate(
+                a11,
+                a21,
+                a13,
+                a23
+        );
+
+        Double x = detX/detSistema;
+
+        Double y = detY/detSistema;
+
+        return new Point2D.Double(x,y);
+    }
+
+/*
+    public Double calcular_distancia(Point2D.Double p1, Point2D.Double p2) {
+         return Math.sqrt( Math.pow(p1.x - p2.x,2) + Math.pow(p1.y - p2.y,2) );
+    }
+*/
+
+
 
         public void settearBarraDeProgresoValoresIniciales(int maximo)
         {

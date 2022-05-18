@@ -1,11 +1,13 @@
-package com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial;
+package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Panel_de_dibujo extends JPanel {
@@ -20,10 +22,10 @@ public class Panel_de_dibujo extends JPanel {
     Point2D mSelectedPoint;
     int i_mSelectedPoint;
 
-    Panel_patron_inicial panel_patron_inicial;
+    Panel_patron_disenio panel_patron_inicial;
 
     Point2D oldPuntoInicial;
-    int TAM = 10;
+    public static int TAM = 10;
 
     boolean mostrarPuntosDeControl = true;
     boolean mostrarDistancias = true;
@@ -31,10 +33,11 @@ public class Panel_de_dibujo extends JPanel {
     boolean mostrarAngulosEntreLineas = true;
 
     Double oldZoom;
+    Double oldRotacion;
 
     Image backgroundImage;
 
-    public Panel_de_dibujo(String string, Panel_patron_inicial panel_patron_inicial)
+    public Panel_de_dibujo(String string, Panel_patron_disenio panel_patron_inicial)
     {
         //super(string);
         this.panel_patron_inicial = panel_patron_inicial;
@@ -42,17 +45,21 @@ public class Panel_de_dibujo extends JPanel {
 
     public void dibujar_punto(double x ,double y)
     {
-        //Graphics2D g2=(Graphics2D)getGraphics();
-
         Point2D punto;
         punto= new Point2D.Double( x , y );
 
         if(mas_puntos)
         {
-            v_puntos.add(punto);
+            if (Elementos_UI.instance.sentidoColocadoDePuntos.equalsIgnoreCase(Elementos_UI.instance.AL_FINAL)) {
+                v_puntos.add(punto);
+            }
+            else
+            if (Elementos_UI.instance.sentidoColocadoDePuntos.equalsIgnoreCase(Elementos_UI.instance.AL_INICIO))
+            {
+                v_puntos.add(0, punto);
+            }
+
             panel_patron_inicial.jta_estado.setText("mas_puntos");
-            //pintar_puntos();
-            //this.repaint();
         }
         else
         if(mover_puntos)
@@ -70,11 +77,7 @@ public class Panel_de_dibujo extends JPanel {
                     i_mSelectedPoint=i;
                     break;
                 }
-
-                //pintar_puntos();
-
             }
-            //this.repaint();
         }
         else
         if(borrar_puntos)
@@ -105,8 +108,6 @@ public class Panel_de_dibujo extends JPanel {
             v_puntos=new Vector();
             mSelectedPoint = null;
             i_mSelectedPoint = -1;
-            //pintar_puntos();
-            //this.repaint();
         }
 
         this.repaint();
@@ -122,17 +123,11 @@ public class Panel_de_dibujo extends JPanel {
             mSelectedPoint.setLocation(punto);
 
             v_puntos.setElementAt(mSelectedPoint,i_mSelectedPoint);
-
-
-            //pintar_puntos();
             this.repaint();
         }
 
         //
         if( Elementos_UI.instance.panel_de_dibujo.check_liveDrawing.isSelected() && !Elementos_UI.instance.getCalculandoFractales() ) {
-
-            //Elementos_UI.instance.panel_de_dibujo.jcb_nivel.setSelectedIndex(2);
-            //Elementos_UI.instance.panel_de_dibujo.panel_de_dibujo;
 
             Elementos_UI.instance.clear();
             Elementos_UI.instance.calcular_fractales();
@@ -295,6 +290,42 @@ public class Panel_de_dibujo extends JPanel {
         this.repaint();
     }
 
+    public void aplicarRotacion(String rotar)
+    {
+        if(oldRotacion == null)
+        {
+            oldRotacion = Double.valueOf(rotar);
+            //return;
+        }
+
+        Point2D punto_centro_de_gravedad = getCentroDeGravedad();
+        Double _rotarGrados = Double.valueOf(rotar) - oldRotacion;
+
+        for(int i=0; i<v_puntos.size(); i++)
+        {
+            Point2D punto_i = (Point2D) v_puntos.get(i);
+            Double alpha_radianes = Math.toRadians( _rotarGrados );
+
+            System.out.println("alpha_radianes="+alpha_radianes);
+
+            Double x = punto_centro_de_gravedad.getX() +
+                    (punto_i.getX() - punto_centro_de_gravedad.getX() )*Math.cos( alpha_radianes )
+                    - (punto_i.getY() - punto_centro_de_gravedad.getY() )*Math.sin( alpha_radianes );
+            Double y = punto_centro_de_gravedad.getY() +
+                    (punto_i.getX() - punto_centro_de_gravedad.getX() )*Math.sin( alpha_radianes )
+                    + (punto_i.getY() - punto_centro_de_gravedad.getY() )*Math.cos( alpha_radianes );
+
+            Point2D punto_fin = new Point2D.Double( x,y);
+
+            v_puntos.setElementAt(punto_fin, i);
+        }
+
+        oldRotacion = Double.valueOf(rotar);
+
+        this.repaint();
+
+    }
+
     public Point2D getCentroDeGravedad(double d_zoom)
     {
         Point2D result = null;
@@ -325,6 +356,36 @@ public class Panel_de_dibujo extends JPanel {
 		y_centro_de_gravedad = (1-d_zoom)*this.getHeight()/2;//y_centro_de_gravedad/v_puntos.size();
 		*/
         result = new Point2D.Double(x_centro_de_gravedad ,
+                y_centro_de_gravedad );
+
+        return result;
+    }
+
+    public Point2D getCentroDeGravedad()
+    {
+        Point2D result = null;
+        double x_centro_de_gravedad = 0;
+        double y_centro_de_gravedad = 0;
+
+        int max_i=v_puntos.size();
+        if(!v_puntos.isEmpty())
+            if(this.get_punto_de_control((Point2D)v_puntos.get(0), TAM)
+                    .contains((Point2D)v_puntos.get(v_puntos.size()-1)))
+            {
+                max_i=v_puntos.size()-1;
+            }
+
+        for(int i=0; i<max_i; i++)
+        {
+            Point2D punto_i = (Point2D) v_puntos.get(i);
+
+            x_centro_de_gravedad += punto_i.getX();
+            y_centro_de_gravedad += punto_i.getY();
+        }
+        x_centro_de_gravedad = x_centro_de_gravedad/max_i;
+        y_centro_de_gravedad = y_centro_de_gravedad/max_i;
+
+		result = new Point2D.Double(x_centro_de_gravedad ,
                 y_centro_de_gravedad );
 
         return result;
@@ -443,9 +504,12 @@ public class Panel_de_dibujo extends JPanel {
 
                         // para dibujar valor del angulo con el eje X
                         // verde oscuro
+                        int random1 = (int)Math.pow(-1,Math.random()>0.5?1:0);
+
                         g2.setPaint(new Color(0,153,0));
-                        g2.drawString(""+(int)angulo_i_degrees, (float)( punto_0.getX() + largoLineaEjeX ),
-                                (float)( punto_0.getY() + largoLineaEjeX ) );
+                        g2.drawString(""+(int)angulo_i_degrees,
+                                (float)( punto_0.getX() + random1*largoLineaEjeX ),
+                                (float)( punto_0.getY() + random1*largoLineaEjeX ) );
                     }
 
                     if(mostrarAngulosEntreLineas)
@@ -467,9 +531,20 @@ public class Panel_de_dibujo extends JPanel {
 
                             // para dibujar valor del angulo con el eje X
                             // verde oscuro
+                            //int StringWidth = g2.getFontMetrics().stringWidth(""+(int)Math.abs(ang_i_degrees));
+                            //java.awt.geom.Rectangle2D StringRectangle2D = g2.getFontMetrics().getStringBounds(""+(int)Math.abs(ang_i_degrees), (Graphics) g2);
+                            //Rectangle r = new Rectangle(
+                            //        (int)( punto_0.getX() + 2*largoLineaEjeX*Math.cos(ang_i_rad_inicial + ang_i_rad/2) ),
+                            //        (int)( punto_0.getY() - 2*largoLineaEjeX*Math.sin(ang_i_rad_inicial + ang_i_rad/2) ),
+                            //        StringWidth,
+                            //        (int)StringRectangle2D.getHeight());
+
+                            int random1 = (int)Math.pow(-1,Math.random()>0.5?1:0);
+
                             g2.setPaint(new Color(0,0,153));
-                            g2.drawString(""+(int)Math.abs(ang_i_degrees), (float)( punto_0.getX() + 2*largoLineaEjeX*Math.cos(ang_i_rad_inicial + ang_i_rad/2) ),
-                                    (float)( punto_0.getY() - 2*largoLineaEjeX*Math.sin(ang_i_rad_inicial + ang_i_rad/2) ) );
+                            g2.drawString(""+(int)Math.abs(ang_i_degrees),
+                                    (float)( punto_0.getX() + random1*2*largoLineaEjeX*Math.cos(ang_i_rad_inicial + ang_i_rad/2) ),
+                                    (float)( punto_0.getY() - random1*2*largoLineaEjeX*Math.sin(ang_i_rad_inicial + ang_i_rad/2) ) );
                         }
                     }
 
@@ -493,6 +568,11 @@ public class Panel_de_dibujo extends JPanel {
             }
         }
 
+        pintarPanelSizeEnLaEsquinaInferiorDerecha(g);
+    }
+
+    public void pintarPanelSizeEnLaEsquinaInferiorDerecha(Graphics g)
+    {
         FontMetrics fm=g.getFontMetrics();
         String panelSize = "("+(int)getSize().getWidth()
                 +","
@@ -500,6 +580,7 @@ public class Panel_de_dibujo extends JPanel {
 
         int textWidth = fm.stringWidth(panelSize);
         ///// to fill a rectagle background
+        Graphics2D g2=(Graphics2D)g;
         g2.setPaint(Color.GRAY);
         g2.fillRect((int)(getSize().getWidth()-textWidth),
                 (int)(getSize().getHeight()-5-fm.getHeight()),
@@ -717,7 +798,7 @@ public class Panel_de_dibujo extends JPanel {
     }
 
     //// para calcular una estrella de n puntas
-    public void calcularEstrella(int nroPuntas, int lado, int salto)
+    public void calcularEstrella(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
         //int lado = 100;
 
@@ -749,11 +830,18 @@ public class Panel_de_dibujo extends JPanel {
             //System.out.println(this.getClass()+" agregando "+puntos[auxPuntoActual]);
         }
 
+        if (sentidoDeAgregado == 0) {
+            // como esta
+        } else {
+            // invertir los valores del vector
+            v_puntos = invertiVector(v_puntos);
+        }
+
         this.repaint();
     }
 
     ////para calcular una estrella de n puntas
-    public void calcularEstrella1(int nroPuntas, int lado, int salto)
+    public void calcularEstrella1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
         int centroX = this.getWidth()/2;
         int centroY = this.getHeight()/2;
@@ -808,6 +896,14 @@ public class Panel_de_dibujo extends JPanel {
         }
         v_puntos.add(puntos3[0].clone());
 
+
+        if (sentidoDeAgregado == 0) {
+            // como esta
+        } else {
+            // invertir los valores del vector
+            v_puntos = invertiVector(v_puntos);
+        }
+
         this.repaint();
     }
 
@@ -856,7 +952,7 @@ public class Panel_de_dibujo extends JPanel {
     }
 
     //// para calcular una estrella de n puntas
-    public void calcularEneagono(int nroPuntas, int lado, int salto)
+    public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
         //int lado = 100;
 
@@ -889,11 +985,18 @@ public class Panel_de_dibujo extends JPanel {
         }
         v_puntos.add(puntos[0]);
 
+        if (sentidoDeAgregado == 0) {
+            // como esta
+        } else {
+            // invertir los valores del vector
+            v_puntos = invertiVector(v_puntos);
+        }
+
         this.repaint();
     }
 
     ////para calcular una estrella de n puntas
-    public void calcularEneagono1(int nroPuntas, int lado, int salto)
+    public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
         int centroX = this.getWidth()/2;
         int centroY = this.getHeight()/2;
@@ -939,6 +1042,13 @@ public class Panel_de_dibujo extends JPanel {
         v_puntos.add(puntos[0].clone());
         //v_puntos.add(puntos3[0].clone());
 
+        if (sentidoDeAgregado == 0) {
+            // como esta
+        } else {
+            // invertir los valores del vector
+            v_puntos = invertiVector(v_puntos);
+        }
+
         this.repaint();
 
 
@@ -955,5 +1065,82 @@ public class Panel_de_dibujo extends JPanel {
 
 		this.repaint();
 		*/
+    }
+
+    public Point2D.Double getPuntoAleatorioDentro()
+    {
+        Shape poligono = crear_POLIGONO_CERRADO();
+
+        Double wRnd = ( Math.random()*this.getWidth() );
+        Double hRnd = ( Math.random()*this.getHeight() );
+
+        while ( !poligono.contains(wRnd, hRnd) )
+        {
+            wRnd = ( Math.random()*this.getWidth() );
+            hRnd = ( Math.random()*this.getHeight() );
+        }
+
+        return new Point2D.Double(wRnd, hRnd);
+    }
+
+    public Point2D.Double getPuntoAleatorioFuera()
+    {
+        Shape poligono = crear_POLIGONO_CERRADO();
+
+        Double wRnd = ( Math.random()*this.getWidth() );
+        Double hRnd = ( Math.random()*this.getHeight() );
+
+        while ( poligono.contains(wRnd, hRnd) )
+        {
+            wRnd = ( Math.random()*this.getWidth() );
+            hRnd = ( Math.random()*this.getHeight() );
+        }
+
+        return new Point2D.Double(wRnd, hRnd);
+    }
+
+
+    protected Shape crear_POLIGONO_CERRADO()
+    {
+        int n=v_puntos.size();
+        float[][] mPoints=new float[2][n];
+
+        Iterator<Point2D> it = v_puntos.iterator();
+        Point2D aux;
+        int cont=0;
+        while(it.hasNext())
+        {
+            aux = it.next();
+            if(aux instanceof Point2D)
+            {
+                mPoints[0][cont]=(float)aux.getX();
+                mPoints[1][cont]=(float)aux.getY();
+            }
+            cont++;
+        }
+
+        GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO,
+                mPoints.length);
+
+        path.moveTo(mPoints[0][0], mPoints[1][0]);
+
+        for (int i = 0; i < n ; i += 1)
+        {
+            path.lineTo(mPoints[0][i], mPoints[1][i]);
+        }
+        path.closePath();
+
+        return path;
+    }
+
+    public Vector invertiVector(Vector v_a_invertir)
+    {
+        Vector v_result = new Vector();
+        for(int i = v_a_invertir.size()-1 ; i >= 0  ; i--)
+        {
+            v_result.add(v_a_invertir.get(i));
+        }
+
+        return v_result;
     }
 }

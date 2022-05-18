@@ -1,20 +1,12 @@
 package com.cc.fractal2d_editor.Rutinas;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
-import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 
 public class VentaDeCrearEstrella extends JFrame{
 
@@ -28,6 +20,8 @@ public class VentaDeCrearEstrella extends JFrame{
 		JComboBox jcb_NroDePuntas;
 		JComboBox jcb_lado;
 		JComboBox jcb_salto;
+
+		JComboBox jcb_sentido_de_agregado;
 		
 		private VentaDeCrearEstrella()
 		{
@@ -60,8 +54,10 @@ public class VentaDeCrearEstrella extends JFrame{
 			
 			JPanel panelSalto = crearSalto();
 			add(panelSalto);
-			
-			
+
+			JPanel panelSentidoDeAgregado = crearPanelSentidoDeAgregado();
+			add(panelSentidoDeAgregado);
+
 			JPanel panelCalcular = crearPanelCalcular();
 			add(panelCalcular);
 			
@@ -194,6 +190,30 @@ public class VentaDeCrearEstrella extends JFrame{
 			
 			return result;
 		}
+
+		public JPanel crearPanelSentidoDeAgregado() {
+
+			JPanel result = new JPanel();
+			result.setLayout(new BorderLayout());
+			TitledBorder titleSentidoDeAgregado;
+			titleSentidoDeAgregado = BorderFactory.createTitledBorder("Sentido De Agregado");
+			result.setBorder(titleSentidoDeAgregado);
+
+			String elementos[]={"Horario","Antihorario"};
+
+			jcb_sentido_de_agregado = new JComboBox(elementos);
+			jcb_sentido_de_agregado.setSelectedIndex(0);
+			jcb_sentido_de_agregado.addActionListener(new ActionListener()
+										{
+											public void actionPerformed(ActionEvent arg0) {
+												String sItem = (String) jcb_salto.getSelectedItem();
+											}
+										}
+			);
+			result.add(jcb_sentido_de_agregado);
+
+			return result;
+		}
 		
 		private JPanel crearPanelCalcular()
 		{
@@ -201,29 +221,35 @@ public class VentaDeCrearEstrella extends JFrame{
 			
 			result.setLayout(new BorderLayout());
 			TitledBorder titleNombreModelo;
-			titleNombreModelo = BorderFactory.createTitledBorder("Calcular");
+			titleNombreModelo = BorderFactory.createTitledBorder(Elementos_UI.CALCULAR);
 			result.setBorder(titleNombreModelo);
 			result.setLayout(new BorderLayout());
 			
-			JButton jb_botonCalcular =new JButton("Calcular");
+			JButton jb_botonCalcular =new JButton(Elementos_UI.CALCULAR);
 			jb_botonCalcular.addActionListener(new ActionListener()
 					{
 						public void actionPerformed(ActionEvent arg0) {
 							instance.setVisible(false);
-							
+
+							// if current tab is not Patron Inicial, change to show it
+							elementosUI.checkCurrentTabSelectedAndOpen(0);
+
 							String tipoEstrella = (String) jcb_TipoDeEstrella.getSelectedItem();
 							if(tipoEstrella.equalsIgnoreCase(TIPO1))
 							{
 								elementosUI.panel_patron_inicial.calcularEstrella(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()),
 																				  Integer.parseInt((String)jcb_lado.getSelectedItem()),
-																				  Integer.parseInt((String)jcb_salto.getSelectedItem()));
+																				  Integer.parseInt((String)jcb_salto.getSelectedItem()),
+																				  jcb_sentido_de_agregado.getSelectedIndex()
+										);
 							  
 							}
 							if(tipoEstrella.equalsIgnoreCase(TIPO2))
 							{
 								elementosUI.panel_patron_inicial.calcularEstrella1(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()),
 																				   Integer.parseInt((String)jcb_lado.getSelectedItem()),
-																				   Integer.parseInt((String)jcb_salto.getSelectedItem()));
+																				   Integer.parseInt((String)jcb_salto.getSelectedItem()),
+																					jcb_sentido_de_agregado.getSelectedIndex());
 							  
 							}
 							

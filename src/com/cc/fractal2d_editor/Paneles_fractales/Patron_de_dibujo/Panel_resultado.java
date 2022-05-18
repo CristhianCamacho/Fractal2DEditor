@@ -19,6 +19,7 @@ public class Panel_resultado extends JPanel {
 	public JComboBox jcb_nivel;
 	
 	public JButton color_lineas;
+	public JButton color_fondo;
 	
 	public JProgressBar progresoFractal;
 	public JLabel tiempoRestanteFractal;
@@ -36,11 +37,12 @@ public class Panel_resultado extends JPanel {
 	
 	public Vector v_puntos=new Vector();
 	
-	public static String DETENER = "detener";
-	public static String CALCULAR = "calcular";
+	public static String DETENER = "Stop/Detener";
+	public static String CALCULAR = "Calcular";
 	public static String CONTINUAR = "continuar";
 	public static String CLEAR = "Clear Screen";
-	public static String COLOR_LINEAS = "Color";
+	public static String COLOR_LINEAS = "Lineas Color";
+	public static String COLOR_FONDO = "Fondo Color";
 
 	public static String LIVE_DRAWING = "Live Drawing";
 
@@ -49,7 +51,7 @@ public class Panel_resultado extends JPanel {
 		elementos_UI=elementos_ui;		
 		
 		panel_grafico();
-		setBackground(Color.white);	
+		//setBackground(Color.red);
 	}
 	
 	public void panel_grafico()
@@ -117,7 +119,7 @@ public class Panel_resultado extends JPanel {
 	//JLabel L_2=new JLabel("nivel de recursividad");
 	//L_2.setBounds(20,120,200,30);	
 	jcb_nivel = new JComboBox(elementos);
-	jcb_nivel.setSelectedIndex(0);
+	jcb_nivel.setSelectedIndex(1);
 	jcb_nivel.addActionListener(new Eventos(null, elementos_UI));
 	//jcb_nivel.setBounds(20,160,100,20);
 	
@@ -129,7 +131,7 @@ public class Panel_resultado extends JPanel {
 	
 	JPanel panelBotones = new JPanel();
 	TitledBorder titleBotones;
-	titleBotones = BorderFactory.createTitledBorder("Botones");
+	titleBotones = BorderFactory.createTitledBorder("Acciones");
 	panelBotones.setBorder(titleBotones);
 	//panelBotones.setBackground(Color.RED);
 	//panelBotones.setLayout(new BorderLayout());
@@ -147,20 +149,29 @@ public class Panel_resultado extends JPanel {
 	detener.addMouseListener(new Eventos(null, elementos_UI));	
 	panelBotones.add(detener);
 	
-	JButton continuar=new JButton(CONTINUAR);
+	//JButton continuar=new JButton(CONTINUAR);
 	//detener.setBounds(10,270,150,40);
-	continuar.addMouseListener(new Eventos(null, elementos_UI));	
+	//continuar.addMouseListener(new Eventos(null, elementos_UI));
 	//panelBotones.add(continuar, BorderLayout.SOUTH);
 	
 	JButton clear=new JButton(CLEAR);
 	//detener.setBounds(10,270,150,40);
 	clear.addMouseListener(new Eventos(null, elementos_UI));	
 	panelBotones.add(clear);
-	
+
+	JPanel p_colores = new JPanel();
+	p_colores.setLayout(new BoxLayout(p_colores, BoxLayout.Y_AXIS));
+
 	color_lineas=new JButton(COLOR_LINEAS);
-	color_lineas.addMouseListener(new Eventos(null, elementos_UI));	
-	panelBotones.add(color_lineas);
-	
+	color_lineas.addMouseListener(new Eventos(null, elementos_UI));
+	p_colores.add(color_lineas);
+
+	color_fondo=new JButton(COLOR_FONDO);
+	color_fondo.addMouseListener(new Eventos(null, elementos_UI));
+	p_colores.add(color_fondo);
+
+	panelBotones.add(p_colores);
+
 	panel_de_controles.add(panelBotones);
 	
 	JPanel panelProgreso = new JPanel();
@@ -212,7 +223,7 @@ public class Panel_resultado extends JPanel {
 	//panel_de_dibujo.setBounds(5+(int)(ancho/4),5,(int)(ancho*3/4-40),(int)(alto-100) );
 	//panel_de_dibujo.addMouseListener(new Eventos_I(elementos_UI));
 	//panel_de_dibujo.addMouseMotionListener(new Eventos_I(elementos_UI));
-	panel_de_dibujo.setBackground(Color.white);
+	//panel_de_dibujo.setBackground(Color.red);
 	panel_de_dibujo.setVisible(true);
 	
 	////

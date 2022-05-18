@@ -1,7 +1,7 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_de_dibujo;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_de_dibujo;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -61,6 +61,11 @@ public class Crear_Algoritmo implements Runnable{
 	
 	public double calcular_distancia_inicio_fin(Point2D[] puntos)
 	{
+		if ( puntos.length == 0 )
+		{
+			return 0.0;
+		}
+
 	double distancia_i_f=Math.pow( 
     		( Math.pow(	(puntos[0].getX()-puntos[puntos.length-1].getX()),2)+
     		  Math.pow(	(puntos[0].getY()-puntos[puntos.length-1].getY()),2)
@@ -71,6 +76,11 @@ public class Crear_Algoritmo implements Runnable{
     
     public double[] calcular_distancias(Point2D[] puntos)
     {
+		if ( puntos.length == 0 )
+		{
+			return new double[]{0};
+		}
+
     	double[] distancias=new double[puntos.length-1];
     	
     	for(int i=0;i<distancias.length;i++)
@@ -86,7 +96,12 @@ public class Crear_Algoritmo implements Runnable{
     }
     
     public double[] calcular_angulos(Point2D[] puntos,String tipo)
-    {    	
+    {
+		if ( puntos.length == 0 )
+		{
+			return new double[]{0};
+		}
+
     	double[] angulos=new double[puntos.length-1];
     	    	
     	Point2D a,b;    	
@@ -203,6 +218,10 @@ public class Crear_Algoritmo implements Runnable{
     
     public double createCorreccion()
     {
+		if ( puntos_recursivo.length == 0 )
+		{
+			return 0.0;
+		}
 //    	if(tipo.equalsIgnoreCase("recursivo"))
     	{
     		Point2D a,b;    	

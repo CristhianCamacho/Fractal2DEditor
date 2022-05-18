@@ -1,7 +1,7 @@
 package com.cc.fractal2d_editor.Eventos_fractales;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_patron_inicial;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 import com.cc.fractal2d_editor.command.ListaDeAcciones;
 import com.cc.fractal2d_editor.command.MouseClickedCommand;
 import com.cc.fractal2d_editor.command.MouseDraggedCommand;
@@ -12,16 +12,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
-//import javax.swing.border.*;
-
-//import javax.vecmath.*;
 
 public class Eventos_Panel_de_dibujo implements InternalFrameListener,MouseListener,MouseMotionListener,KeyListener,ListSelectionListener
 {	
 	//Elementos_UI elementos_ui;
-	Panel_patron_inicial panel_patron;
+	Panel_patron_disenio panel_patron;
 	
-	public Eventos_Panel_de_dibujo(Panel_patron_inicial panel_patron_inicial, Elementos_UI elem)
+	public Eventos_Panel_de_dibujo(Panel_patron_disenio panel_patron_inicial, Elementos_UI elem)
 	{
 		//elementos_ui=elem;
 		this.panel_patron = panel_patron_inicial;

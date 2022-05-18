@@ -3,30 +3,32 @@ package com.cc.fractal2d_editor.Eventos_fractales;
 import com.cc.fractal2d_editor.IO_fractales.Abrir_fractales;
 import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales;
 import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
+import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 import com.cc.fractal2d_editor.Rutinas.VentaDeCrearEneagono;
 import com.cc.fractal2d_editor.Rutinas.VentaDeCrearEstrella;
+import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
+import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina2;
 import com.cc.fractal2d_editor.command.ListaDeAcciones;
 import com.cc.fractal2d_editor.command.StatePointsButtonCommand;
-import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_patron_inicial;
-import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Vector;
 
 public class Eventos implements ActionListener, MouseListener, MouseMotionListener, ChangeListener//KeyListener
 {
     Elementos_UI elementos_ui;
-    Panel_patron_inicial panel_patron;
+    Panel_patron_disenio panel_patron;
 
     //boolean estamos_en_Panel_patron_inicial=false;
 
 
-    public Eventos(Panel_patron_inicial panel_patron_inicial,Elementos_UI elementos)
+    public Eventos(Panel_patron_disenio panel_patron_inicial, Elementos_UI elementos)
     {
         elementos_ui=elementos;
         this.panel_patron = panel_patron_inicial;
@@ -67,12 +69,25 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 }
             }
 
+            else if(jmi.getText().equals("Mover pts Patron Inicial --> Patron Recursivo"))
+            {
+                Vector v_clone = (Vector)Elementos_UI.instance.panel_patron_inicial.panel_de_dibujo.v_puntos.clone();
+                Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo.v_puntos=v_clone;
+                Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo.repaint();
+            }
 
             else if(jmi.getText().equals("rutina 1"))
             {
                 //elementos_ui.ejecutarRutina1();
                 VentanaDeCrearRutina.getInstance().setElementosUI(elementos_ui);
                 VentanaDeCrearRutina.getInstance().mostrar();
+            }
+
+            if(jmi.getText().equals("rutina 2"))
+            {
+                //elementos_ui.ejecutarRutina1();
+                VentanaDeCrearRutina2.getInstance().setElementosUI(elementos_ui);
+                VentanaDeCrearRutina2.getInstance().mostrar();
             }
 
             else if(jmi.getText().equals("estrellas"))
@@ -178,7 +193,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             //pintar_puntos();
 
 
-            if(aux.equals("colocar_puntos"))
+            if(aux.equals(Elementos_UI.COLOCAR_PUNTOS))
             {
                 StatePointsButtonCommand insertpoint = new StatePointsButtonCommand(panel_patron,
                         false,
@@ -213,7 +228,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 				*/
             }
 
-            if(aux.equals("mover_puntos"))
+            if(aux.equals(Elementos_UI.MOVER_PUNTOS))
             {
                 StatePointsButtonCommand movepoint = new StatePointsButtonCommand(panel_patron,
                         false,
@@ -244,7 +259,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 				*/
             }
 
-            if(aux.equals("borrar_puntos"))
+            if(aux.equals(Elementos_UI.BORRAR_PUNTOS))
             {
                 StatePointsButtonCommand deletepoint = new StatePointsButtonCommand(panel_patron,
                         true,
@@ -275,7 +290,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 				*/
             }
 
-            if(aux.equals("borrar_todo"))
+            if(aux.equals(Elementos_UI.BORRAR_TODO))
             {
                 StatePointsButtonCommand deleteallpoints = new StatePointsButtonCommand(panel_patron,
                         false,
@@ -341,6 +356,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 elementos_ui.detenerHilo();
                 //set_calcular_fractales(true);
                 elementos_ui.detenerRutina1();
+                elementos_ui.detenerRutina2();
             }
             if(aux.equals(Panel_resultado.CONTINUAR))
             {
@@ -358,9 +374,17 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             {
                 //System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
                 Color color1 = elementos_ui.panel_de_dibujo.color_lineas.getBackground() ;
-                color1 = JColorChooser.showDialog( null, "Seleccione un color", color1 );
+                color1 = JColorChooser.showDialog( null, "Seleccione un color para la Lineas", color1 );
                 System.out.println(this.getClass().getName()+":color1="+color1);
                 elementos_ui.setColorLineas_Panel_resultado(color1);
+                //set_calcular_fractales(true);
+            }
+            if(aux.equals(Panel_resultado.COLOR_FONDO))
+            {
+                Color color1 = elementos_ui.panel_de_dibujo.panel_de_dibujo.getBackground() ;
+                color1 = JColorChooser.showDialog( null, "Seleccione un color para el Fondo", color1 );
+                System.out.println(this.getClass().getName()+":color1="+color1);
+                elementos_ui.setColorFondo_Panel_resultado(color1);
                 //set_calcular_fractales(true);
             }
 
@@ -371,7 +395,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             JCheckBox temp=(JCheckBox)e.getSource();
             boolean isSelected = temp.isSelected();
 
-            if(temp.getText().equalsIgnoreCase(Panel_patron_inicial.PUNTOS))
+            if(temp.getText().equalsIgnoreCase(Panel_patron_disenio.PUNTOS))
             {
                 if(panel_patron == elementos_ui.panel_patron_inicial)
                 {
@@ -384,7 +408,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 }
             }
 
-            if(temp.getText().equalsIgnoreCase(Panel_patron_inicial.DISTANCIAS))
+            if(temp.getText().equalsIgnoreCase(Panel_patron_disenio.DISTANCIAS))
             {
                 if(panel_patron == elementos_ui.panel_patron_inicial)
                 {
@@ -397,7 +421,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 }
             }
 
-            if(temp.getText().equalsIgnoreCase(Panel_patron_inicial.ANGULOS_EJE_X))
+            if(temp.getText().equalsIgnoreCase(Panel_patron_disenio.ANGULOS_EJE_X))
             {
                 if(panel_patron == elementos_ui.panel_patron_inicial)
                 {
@@ -410,7 +434,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 }
             }
 
-            if(temp.getText().equalsIgnoreCase(Panel_patron_inicial.ANGULOS_ENTRE_LINEAS))
+            if(temp.getText().equalsIgnoreCase(Panel_patron_disenio.ANGULOS_ENTRE_LINEAS))
             {
                 if(panel_patron == elementos_ui.panel_patron_inicial)
                 {
@@ -467,25 +491,55 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
     {
         if( e.getSource() instanceof JSlider )
         {
+            Panel_patron_disenio ppi = Elementos_UI.instance.panel_patron_inicial;
+            Panel_patron_disenio ppr = Elementos_UI.instance.panel_patron_recursivo;
             // esto es para el zoom
-            JSlider temp=(JSlider) e.getSource();
-            String value = ""+temp.getValue();
-            if(temp.getValue()==0)
+            if ( ((JSlider)e.getSource()) == ppi.js_rotar ||
+                 ((JSlider)e.getSource()) == ppr.js_rotar
+            )
             {
-                value=""+1;
-            }
+                JSlider temp=(JSlider) e.getSource();
+                String value = ""+temp.getValue();
 
-            if(panel_patron == elementos_ui.panel_patron_inicial)
-            {
-                //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
-                elementos_ui.panel_patron_inicial.aplicarZoom(""+value);
+                System.out.println("valueJSlider="+value);
+
+                if(panel_patron == elementos_ui.panel_patron_inicial)
+                {
+                    //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
+                    elementos_ui.panel_patron_inicial.aplicarRotacion(""+value);
+                }
+                else
+                if(panel_patron == elementos_ui.panel_patron_recursivo)
+                {
+                    //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
+                    elementos_ui.panel_patron_recursivo.aplicarRotacion(""+value);
+                }
             }
             else
-            if(panel_patron == elementos_ui.panel_patron_recursivo)
+            if ( ((JSlider)e.getSource()) == ppi.js_zoom ||
+                 ((JSlider)e.getSource()) == ppr.js_zoom
+            )
             {
-                //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
-                elementos_ui.panel_patron_recursivo.aplicarZoom(""+value);
+                JSlider temp=(JSlider) e.getSource();
+                String value = ""+temp.getValue();
+                if(temp.getValue()==0)
+                {
+                    value=""+1;
+                }
+
+                if(panel_patron == elementos_ui.panel_patron_inicial)
+                {
+                    //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
+                    elementos_ui.panel_patron_inicial.aplicarZoom(""+value);
+                }
+                else
+                if(panel_patron == elementos_ui.panel_patron_recursivo)
+                {
+                    //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
+                    elementos_ui.panel_patron_recursivo.aplicarZoom(""+value);
+                }
             }
+
         }
     }
 

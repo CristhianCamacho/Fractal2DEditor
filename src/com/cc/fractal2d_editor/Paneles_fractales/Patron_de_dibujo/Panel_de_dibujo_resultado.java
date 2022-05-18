@@ -1,16 +1,8 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Stroke;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-
-import javax.swing.JPanel;
 
 public class Panel_de_dibujo_resultado extends JPanel{
 
@@ -19,18 +11,46 @@ public class Panel_de_dibujo_resultado extends JPanel{
 	
 	//color de las lineas
 	Color color_lineas=Color.BLACK;
+	Color color_fondo=Color.WHITE;
 
 	public void paint(Graphics g)
 	{
 		Graphics2D g2d = (Graphics2D)g;
 		//g2d.setBackground(java.awt.Color.WHITE);
 		g2d.clearRect(0,0,getWidth(), getHeight());
-		
+
+g.setColor(color_fondo);
+g.fillRect(0, 0, getWidth(), getHeight());
+
 		if(backgroundImage!=null)
 		{
 			System.out.println("backgroundImage"+backgroundImage);
 			g2d.drawImage(backgroundImage, 0, 0, null);
 		}
+
+		pintarPanelSizeEnLaEsquinaInferiorDerecha(g);
+	}
+
+	public void pintarPanelSizeEnLaEsquinaInferiorDerecha(Graphics g)
+	{
+		FontMetrics fm=g.getFontMetrics();
+		String panelSize = "("+(int)getSize().getWidth()
+				+","
+				+(int)getSize().getHeight()+")";
+
+		int textWidth = fm.stringWidth(panelSize);
+		///// to fill a rectagle background
+		Graphics2D g2=(Graphics2D)g;
+		g2.setPaint(Color.GRAY);
+		g2.fillRect((int)(getSize().getWidth()-textWidth),
+				(int)(getSize().getHeight()-5-fm.getHeight()),
+				textWidth,
+				fm.getHeight());
+		/////
+		g2.setPaint(Color.WHITE);
+		g2.drawString(panelSize,
+				(float)getSize().getWidth()-textWidth,
+				(float)getSize().getHeight()-10);
 	}
 	
 	public Image getBackgroundImage() {
@@ -54,10 +74,25 @@ public class Panel_de_dibujo_resultado extends JPanel{
 		color_lineas = color1;
 		//getGraphics().setColor(color1);
 	}
-	public Color getColorLineas()
+	public Color getColor_lineas()
 	{
 		return color_lineas;
 		//getGraphics().setColor(color1);
+	}
+	public void setColor_fondo(Color color1)
+	{
+		color_fondo = color1;
+
+		//Color previousColor = getGraphics().getColor();
+		//getGraphics().setColor(color_fondo);
+		//getGraphics().fillRect(0, 0, getWidth(), getHeight());
+		//getGraphics().setColor(previousColor);
+		//getGraphics().setColor(color1);
+		this.repaint();
+	}
+	public Color getColor_fondo()
+	{
+		return color_fondo;
 	}
 	/*
 	public void updateColorLineas()

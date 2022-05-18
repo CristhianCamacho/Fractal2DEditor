@@ -1,14 +1,14 @@
 package com.cc.fractal2d_editor.command;
 
-import java.awt.Cursor;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
+
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_patron_inicial;
-
 public class MouseClickedCommand implements Command{
 
-	Panel_patron_inicial panel_patron;
+	Panel_patron_disenio panel_patron;
 	
 	double puntoX_valorOriginal; 
 	double puntoY_valorOriginal;
@@ -24,8 +24,8 @@ public class MouseClickedCommand implements Command{
 	Point2D pointAnterior; 
 	int i_pointAnterior;
 		
-	public MouseClickedCommand(Panel_patron_inicial panel_patron,
-							   double puntoX, 
+	public MouseClickedCommand(Panel_patron_disenio panel_patron,
+							   double puntoX,
 							   double puntoY
 							   )
 	{

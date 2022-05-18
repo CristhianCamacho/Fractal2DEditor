@@ -57,7 +57,10 @@ public class VentanaDeCrearRutina extends JFrame{
 	JComboBox jcb_nivelDeRecursividad;
 	JComboBox jcb_porcentajeIniZoom;
 	JComboBox jcb_porcentajeFinZoom;
-	
+
+	JComboBox jcb_porcentajeIniRotacion;
+	JComboBox jcb_porcentajeFinRotacion;
+
 	private VentanaDeCrearRutina()
 	{
 		super("Ventana para Crear Rutina");
@@ -88,12 +91,12 @@ public class VentanaDeCrearRutina extends JFrame{
 		JPanel panelNivelDeRecursividad = crearPanelNivelDeRecursividad();
 		add(panelNivelDeRecursividad);
 		
-		JPanel panelPorcentajeIniZoom = crearPanelPorcentajeIniZoom();
-		add(panelPorcentajeIniZoom);
+		JPanel panelPorcentajeZoom = crearPanelPorcentajeZoom();
+		add(panelPorcentajeZoom);
 		
-		JPanel panelPorcentajeFinZoom = crearPanelPorcentajeFinZoom();
-		add(panelPorcentajeFinZoom);
-		
+		JPanel panelPorcentajeRotacion = crearPanelPorcentajeRotacion();
+		add(panelPorcentajeRotacion);
+
 		JPanel panelCalcular = crearPanelCalcular();
 		add(panelCalcular);
 		
@@ -123,8 +126,7 @@ public class VentanaDeCrearRutina extends JFrame{
 		TitledBorder titleNombreModelo;
 		titleNombreModelo = BorderFactory.createTitledBorder("Seleccione los colores");
 		result.setBorder(titleNombreModelo);
-		result.setLayout(new BorderLayout());
-		
+
 		JPanel contenedor = new JPanel();
 		contenedor.setLayout( new BoxLayout( contenedor, BoxLayout.Y_AXIS));
 		
@@ -317,8 +319,7 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 		TitledBorder titleNombreModelo;
 		titleNombreModelo = BorderFactory.createTitledBorder("Nivel de Recursividad ");
 		result.setBorder(titleNombreModelo);
-		result.setLayout(new BorderLayout());
-		
+
 		int nivelDeR = elementosUI.panel_de_dibujo.jcb_nivel.getMaximumRowCount();
 		String elementos[]=new String[nivelDeR];
 		for(int i=0; i<elementos.length ; i++ )
@@ -338,16 +339,15 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 		return result;
 	}
 	
-	private JPanel crearPanelPorcentajeIniZoom()
+	private JPanel crearPanelPorcentajeZoom()
 	{
 		JPanel result = new JPanel();
-		result.setLayout(new BorderLayout());
+		result.setLayout(new BoxLayout( result, BoxLayout.X_AXIS));
 		TitledBorder titleNombreModelo;
-		titleNombreModelo = BorderFactory.createTitledBorder("porcentaje inicial de zoom");
+		titleNombreModelo = BorderFactory.createTitledBorder("porcentaje inicial-final de zoom");
 		result.setBorder(titleNombreModelo);
-		result.setLayout(new BorderLayout());
-		
-		int nivelDeZ = elementosUI.panel_patron_inicial.js_VAL_MAX;//elementosUI.panel_de_dibujo.jcb_nivel.getMaximumRowCount();
+
+		int nivelDeZ = elementosUI.panel_patron_inicial.js_VAL_MAX;
 		String elementos[]=new String[nivelDeZ];//js_POS_INI js_VAL_MAX
 		for(int i=0; i<elementos.length ; i++ )
 			elementos[i]=""+(i+1);
@@ -368,53 +368,94 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 			}	
 		);
 		result.add(jcb_porcentajeIniZoom);
-		
-		return result;
-	}
-	
-	private JPanel crearPanelPorcentajeFinZoom()
-	{
-		JPanel result = new JPanel();
-		result.setLayout(new BorderLayout());
-		TitledBorder titleNombreModelo;
-		titleNombreModelo = BorderFactory.createTitledBorder("porcentaje final de zoom");
-		result.setBorder(titleNombreModelo);
-		result.setLayout(new BorderLayout());
-		
-		int nivelDeZ = elementosUI.panel_patron_inicial.js_VAL_MAX;//elementosUI.panel_de_dibujo.jcb_nivel.getMaximumRowCount();
-		String elementos[]=new String[nivelDeZ];//js_POS_INI js_VAL_MAX
-		for(int i=0; i<elementos.length ; i++ )
-			elementos[i]=""+(i+1);
-		
-		jcb_porcentajeFinZoom = new JComboBox(elementos);
-		jcb_porcentajeFinZoom.setSelectedItem(elementos[2*elementosUI.panel_patron_inicial.js_zoom.getValue()-1]);//elementosUI.panel_patron_inicial.js_zoom.getValue();
+
+		int nivelDeZ1 = elementosUI.panel_patron_inicial.js_VAL_MAX;
+		String elementos1[]=new String[nivelDeZ1];//js_POS_INI js_VAL_MAX
+		for(int i=0; i<elementos1.length ; i++ )
+			elementos1[i]=""+(i+1);
+
+		jcb_porcentajeFinZoom = new JComboBox(elementos1);
+		jcb_porcentajeFinZoom.setSelectedItem(elementos1[elementosUI.panel_patron_inicial.js_zoom.getValue()-1]);
 		jcb_porcentajeFinZoom.addActionListener(new ActionListener()
-			{
-				public void actionPerformed(ActionEvent arg0) {
-					String sItem = (String) jcb_porcentajeFinZoom.getSelectedItem();
-				}
-			}	
+												{
+													public void actionPerformed(ActionEvent arg0) {
+														String sItem = (String) jcb_porcentajeFinZoom.getSelectedItem();
+													}
+												}
 		);
 		result.add(jcb_porcentajeFinZoom);
 		
 		return result;
 	}
-	
+
+	private JPanel crearPanelPorcentajeRotacion()
+	{
+		JPanel result = new JPanel();
+		result.setLayout(new BoxLayout( result, BoxLayout.X_AXIS));
+		TitledBorder titleIniRotacion;
+		titleIniRotacion = BorderFactory.createTitledBorder("porcentaje inicial-final de rotacion");
+		result.setBorder(titleIniRotacion);
+
+		int nivelDeZ1 = elementosUI.panel_patron_inicial.js_VAL_MAX_ROTACION;
+		String elementos1[]=new String[nivelDeZ1];
+		for(int i=0; i<elementos1.length ; i++ )
+			elementos1[i]=""+(i);
+
+		jcb_porcentajeIniRotacion = new JComboBox(elementos1);
+		try{
+			int posIni = elementosUI.panel_patron_inicial.js_rotar.getValue()-1;
+			jcb_porcentajeIniRotacion.setSelectedItem(elementos1[posIni>0? posIni: 0]);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		jcb_porcentajeIniRotacion.addActionListener(new ActionListener()
+												{
+													public void actionPerformed(ActionEvent arg0) {
+														String sItem = (String) jcb_porcentajeIniRotacion.getSelectedItem();
+													}
+												}
+		);
+		result.add(jcb_porcentajeIniRotacion);
+
+		int nivelDeZ = elementosUI.panel_patron_inicial.js_VAL_MAX;//elementosUI.panel_de_dibujo.jcb_nivel.getMaximumRowCount();
+		String elementos[]=new String[nivelDeZ];//js_POS_INI js_VAL_MAX
+		for(int i=0; i<elementos.length ; i++ )
+			elementos[i]=""+(i);
+
+		jcb_porcentajeFinRotacion = new JComboBox(elementos);
+		//jcb_porcentajeFinZoom.setSelectedItem(elementos[2*elementosUI.panel_patron_inicial.js_zoom.getValue()-1]);//elementosUI.panel_patron_inicial.js_zoom.getValue();
+		jcb_porcentajeFinRotacion.setSelectedItem(elementos[elementosUI.panel_patron_inicial.js_rotar.getValue()]);
+		jcb_porcentajeFinRotacion.addActionListener(new ActionListener()
+													{
+														public void actionPerformed(ActionEvent arg0) {
+															String sItem = (String) jcb_porcentajeFinRotacion.getSelectedItem();
+														}
+													}
+		);
+		result.add(jcb_porcentajeFinRotacion);
+
+		return result;
+	}
+
 	private JPanel crearPanelCalcular()
 	{
 		JPanel result = new JPanel();
 		
 		result.setLayout(new BorderLayout());
 		TitledBorder titleNombreModelo;
-		titleNombreModelo = BorderFactory.createTitledBorder("Calcular");
+		titleNombreModelo = BorderFactory.createTitledBorder(Elementos_UI.CALCULAR);
 		result.setBorder(titleNombreModelo);
 		result.setLayout(new BorderLayout());
 		
-		JButton jb_botonCalcular =new JButton("Calcular");
+		JButton jb_botonCalcular =new JButton(Elementos_UI.CALCULAR);
 		jb_botonCalcular.addActionListener(new ActionListener()
 				{
 					public void actionPerformed(ActionEvent arg0) {
 						instance.setVisible(false);
+
+						// if current tab is not panel de dibujo, change to show it
+						elementosUI.checkCurrentTabSelectedAndOpen(2);
 
 						elementosUI.setCalculandoFractales(false);
 						
@@ -425,7 +466,9 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 								coloresGradientes.length,//Integer.parseInt((String)jcb_numeroDeGradientes.getSelectedItem()+1),//int nroDeGradientes,
 								Integer.parseInt((String)jcb_nivelDeRecursividad.getSelectedItem()),//int nivelDeRecursividad,
 								Integer.parseInt((String)jcb_porcentajeIniZoom.getSelectedItem()),//int porcentajeZoomMin);
-								Integer.parseInt((String)jcb_porcentajeFinZoom.getSelectedItem())
+								Integer.parseInt((String)jcb_porcentajeFinZoom.getSelectedItem()),
+								Double.parseDouble((String)jcb_porcentajeIniRotacion.getSelectedItem()),
+								Double.parseDouble((String)jcb_porcentajeFinRotacion.getSelectedItem())
 								);
 					}
 				}

@@ -1,4 +1,4 @@
-package com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial;
+package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio;
 
 import com.cc.fractal2d_editor.Eventos_fractales.Eventos;
 import com.cc.fractal2d_editor.Eventos_fractales.Eventos_Panel_de_dibujo;
@@ -8,9 +8,11 @@ import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 
-public class Panel_patron_inicial extends JPanel {
+public class Panel_patron_disenio extends JPanel {
 
     JScrollPane scroll_panel_de_controles;
     JInternalFrame panel_de_controles;
@@ -33,7 +35,15 @@ public class Panel_patron_inicial extends JPanel {
     public int js_POS_INI =totalZoom+js_VAL_MIN;
     public int js_VAL_MAX =totalZoom*(p_ini-1)+js_VAL_MIN;
 
-    public JLabel jl_zoom;
+    //public JLabel jl_zoom;
+    public JTextField jl_zoom;
+
+    // seccion de rotacion
+    public JSlider js_rotar;
+    public JTextField jl_rotar;
+    public int js_POS_INI_ROTACION =0;
+    public int js_VAL_MAX_ROTACION =360;
+    int p_ini_rotacion = 0;
 
     Elementos_UI elementos_UI;
 
@@ -43,9 +53,7 @@ public class Panel_patron_inicial extends JPanel {
     public static String ANGULOS_ENTRE_LINEAS = "angulos entre lineas";
 
 
-    //public Vector v_puntos=new Vector();
-
-    public Panel_patron_inicial(Elementos_UI elementos_ui)
+    public Panel_patron_disenio(Elementos_UI elementos_ui)
     {
         elementos_UI=elementos_ui;
 
@@ -63,17 +71,33 @@ public class Panel_patron_inicial extends JPanel {
         this.setLayout(new BorderLayout());
 
         //Dimension Size = elementos_UI.jf_principal.getSize();;
-
         //int ancho=Size.width;
         //int alto=Size.height;
-
         //setSize(ancho,alto);
+
+
 
         panel_de_controles=new JInternalFrame("panel_de_controles");
         panel_de_controles.setLayout( new BoxLayout( panel_de_controles.getContentPane(), BoxLayout.Y_AXIS));
         //panel_de_controles.setBounds(5,5,(int)(ancho/4-10),(int)(alto-100));
         panel_de_controles.setVisible(true);
 
+        scroll_panel_de_controles = new JScrollPane();
+        panel_de_controles.add(scroll_panel_de_controles);
+
+        JPanel _panel_de_controles=new JPanel();
+        SwingUtilities.invokeLater(
+                new Runnable() {
+                    public void run() {
+                        _panel_de_controles.setPreferredSize(
+                                new Dimension(Elementos_UI.dimensionPrefPanel_de_controles_width,
+                                        _panel_de_controles.getHeight()));
+                    }
+                }
+            );
+
+        _panel_de_controles.setLayout( new BoxLayout( _panel_de_controles, BoxLayout.Y_AXIS));
+        scroll_panel_de_controles.setViewportView(_panel_de_controles);
 
         JPanel panelNombreModelo = new JPanel();
         TitledBorder titleNombreModelo;
@@ -87,7 +111,7 @@ public class Panel_patron_inicial extends JPanel {
 
         //panel_de_controles.add(L_0);
         panelNombreModelo.add(jta_nombre_del_modelo, BorderLayout.CENTER);
-        panel_de_controles.add(panelNombreModelo);
+        _panel_de_controles.add(panelNombreModelo);
 
         JPanel panelEstado = new JPanel();
         TitledBorder titleEstado;
@@ -102,7 +126,7 @@ public class Panel_patron_inicial extends JPanel {
         //panel_de_controles.add(L_1);
         //panel_de_controles.add(jta_estado);
         panelEstado.add(jta_estado, BorderLayout.CENTER);
-        panel_de_controles.add(panelEstado);
+        _panel_de_controles.add(panelEstado);
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,37 +134,69 @@ public class Panel_patron_inicial extends JPanel {
 
         JPanel panelBotones = new JPanel();
         TitledBorder titleBotones;
-        titleBotones = BorderFactory.createTitledBorder("Botones");
+        titleBotones = BorderFactory.createTitledBorder("Estado de los Puntos");
         panelBotones.setBorder(titleBotones);
-        panelBotones.setLayout(new GridLayout(4,1) );
-        //panelBotones.setLayout(new BoxLayout( panelBotones, BoxLayout.Y_AXIS));
+        panelBotones.setLayout(new GridLayout(3,1) );
 
-        JButton colocar_puntos=new JButton("colocar_puntos");
-        //colocar_puntos.setBounds(10,150,150,40);
+        // 1
+        JPanel panelColocarPuntos = new JPanel();
+        TitledBorder titleColocarPuntos;
+        titleColocarPuntos = BorderFactory.createTitledBorder("Colocar Puntos");
+        panelColocarPuntos.setBorder(titleColocarPuntos);
+        panelColocarPuntos.setLayout(new GridLayout(2,1) );
+
+        JButton colocar_puntos=new JButton(Elementos_UI.instance.COLOCAR_PUNTOS);
         colocar_puntos.addMouseListener(new Eventos(this, elementos_UI));
-        panelBotones.add(colocar_puntos);
-        //panel_de_controles.add(colocar_puntos);
+        panelColocarPuntos.add(colocar_puntos);
 
+        String elementosSentido[] =
+                {
+                        Elementos_UI.instance.AL_INICIO,
+                        Elementos_UI.instance.AL_FINAL
+                };
+        JComboBox jcb_sentido = new JComboBox(elementosSentido);
+        jcb_sentido.setSelectedIndex(1);
+        jcb_sentido.addActionListener(new ActionListener() {
+                                          @Override
+                                          public void actionPerformed(ActionEvent e) {
+                                              Elementos_UI.instance.sentidoColocadoDePuntos = ((String)jcb_sentido.getItemAt(jcb_sentido.getSelectedIndex()));
+                                          }
+                                      });
+        panelColocarPuntos.add(jcb_sentido);
+
+        panelBotones.add(panelColocarPuntos);
+
+        // 2
+        JPanel panelMoverBorrarPuntos = new JPanel();
+        TitledBorder titleMoverBorrarPuntos;
+        titleMoverBorrarPuntos = BorderFactory.createTitledBorder("Puntos Borrar o Mover");
+        panelMoverBorrarPuntos.setBorder(titleMoverBorrarPuntos);
+        panelMoverBorrarPuntos.setLayout(new GridLayout(2,1) );
 
         JButton mover_puntos=new JButton("mover_puntos");
-        //mover_puntos.setBounds(10,210,150,30);
         mover_puntos.addMouseListener(new Eventos(this, elementos_UI));
-        panelBotones.add(mover_puntos);
-        //panel_de_controles.add(mover_puntos);
+        panelMoverBorrarPuntos.add(mover_puntos);
 
         JButton borrar_puntos=new JButton("borrar_puntos");
-        //borrar_puntos.setBounds(10,250,150,30);
         borrar_puntos.addMouseListener(new Eventos(this, elementos_UI));
-        panelBotones.add(borrar_puntos);
-        //panel_de_controles.add(borrar_puntos);
+        panelMoverBorrarPuntos.add(borrar_puntos);
+
+        panelBotones.add(panelMoverBorrarPuntos);
+
+        // 3
+        JPanel panelBotonBorrarTodo = new JPanel();
+        TitledBorder titleBotonBorrarTodo;
+        titleBotonBorrarTodo = BorderFactory.createTitledBorder("Borrar Todo");
+        panelBotonBorrarTodo.setBorder(titleBotonBorrarTodo);
+        panelBotonBorrarTodo.setLayout(new GridLayout(1,1) );
 
         JButton borrar_todo=new JButton("borrar_todo");
-        //borrar_todo.setBounds(10,290,150,30);
         borrar_todo.addMouseListener(new Eventos(this, elementos_UI));
-        panelBotones.add(borrar_todo);
-        //panel_de_controles.add(borrar_todo);
+        panelBotonBorrarTodo.add(borrar_todo);
 
-        panel_de_controles.add(panelBotones);
+        panelBotones.add(panelBotonBorrarTodo);
+
+        _panel_de_controles.add(panelBotones);
 
         //// panel para el zoom
         JPanel panelZoom = new JPanel();
@@ -171,10 +227,49 @@ public class Panel_patron_inicial extends JPanel {
         // registrar componente de escucha de eventos de JSlider
         js_zoom.addChangeListener(new Eventos(this, elementos_UI));
 
-        jl_zoom = new JLabel(js_zoom.getValue()+"%");
+        jl_zoom = new JTextField(""+/*js_POS_INI*/js_zoom.getValue()/*+"%"*/);
+        //jl_zoom.setText(""+js_POS_INI);
+        jl_zoom.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                js_zoom.setValue(Integer.parseInt(jl_zoom.getText()));
+            }
+        });
         panelZoom.add(jl_zoom, BorderLayout.SOUTH);
 
-        panel_de_controles.add(panelZoom);
+        _panel_de_controles.add(panelZoom);
+
+
+        JPanel panelRotar = new JPanel();
+        TitledBorder titleRotar;
+        titleRotar = BorderFactory.createTitledBorder("Rotar Grados");
+        panelRotar.setBorder(titleRotar);
+        panelRotar.setLayout(new BorderLayout());
+
+        js_rotar = new JSlider( SwingConstants.HORIZONTAL,
+                js_POS_INI_ROTACION,//0,
+                js_VAL_MAX_ROTACION,//360,
+                p_ini_rotacion/*0*/ );
+        js_rotar.setPaintTicks( true );
+        js_rotar.setMajorTickSpacing( 90 );
+        js_rotar.setMinorTickSpacing( 10 );
+        js_rotar.setPaintLabels(true);
+
+        panelRotar.add(js_rotar, BorderLayout.CENTER);
+
+        js_rotar.addChangeListener(new Eventos(this, elementos_UI));
+
+        jl_rotar = new JTextField(""+js_rotar.getValue());
+        jl_rotar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                js_rotar.setValue(Integer.parseInt(jl_rotar.getText()));
+            }
+        });
+        panelRotar.add(jl_rotar, BorderLayout.SOUTH);
+
+        _panel_de_controles.add(panelRotar);
+
         /////
 
         ///// panel para ocultar o mostrar los puntos
@@ -209,7 +304,7 @@ public class Panel_patron_inicial extends JPanel {
         panelPuntosDeControl.add(jcb_mostrar_angulos_entre_lineas);
 
 
-        panel_de_controles.add(panelPuntosDeControl);
+        _panel_de_controles.add(panelPuntosDeControl);
         /////
 
         ////// truco para que encaje ... que porqueria!!!!
@@ -293,7 +388,13 @@ public class Panel_patron_inicial extends JPanel {
     public void aplicarZoom(String zoom)
     {
         panel_de_dibujo.aplicarZoom(zoom);
-        jl_zoom.setText(zoom+"%");
+        jl_zoom.setText(zoom/*+"%"*/);
+    }
+
+    public void aplicarRotacion(String rotacion)
+    {
+        panel_de_dibujo.aplicarRotacion(rotacion);
+        jl_rotar.setText(rotacion);
     }
 
     public void mostrarPuntosDeControl(boolean isSelected)
@@ -325,23 +426,23 @@ public class Panel_patron_inicial extends JPanel {
         js_zoom.setValueIsAdjusting(false);
     }
 
-    public void calcularEstrella(int nroPuntas, int lado, int salto)
+    public void calcularEstrella(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
-        panel_de_dibujo.calcularEstrella(nroPuntas, lado, salto);
+        panel_de_dibujo.calcularEstrella(nroPuntas, lado, salto, sentidoDeAgregado);
     }
-    public void calcularEstrella1(int nroPuntas, int lado, int salto)
+    public void calcularEstrella1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
-        panel_de_dibujo.calcularEstrella1(nroPuntas, lado, salto);
-    }
-
-    public void calcularEneagono(int nroPuntas, int lado, int salto)
-    {
-        panel_de_dibujo.calcularEneagono(nroPuntas, lado, salto);
+        panel_de_dibujo.calcularEstrella1(nroPuntas, lado, salto, sentidoDeAgregado);
     }
 
-    public void calcularEneagono1(int nroPuntas, int lado, int salto)
+    public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
-        panel_de_dibujo.calcularEneagono1(nroPuntas, lado, salto);
+        panel_de_dibujo.calcularEneagono(nroPuntas, lado, salto, sentidoDeAgregado);
+    }
+
+    public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
+    {
+        panel_de_dibujo.calcularEneagono1(nroPuntas, lado, salto, sentidoDeAgregado);
     }
 
 

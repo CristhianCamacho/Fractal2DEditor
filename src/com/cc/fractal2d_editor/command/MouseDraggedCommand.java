@@ -1,12 +1,12 @@
 package com.cc.fractal2d_editor.command;
 
-import java.awt.Cursor;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_patron_inicial;
+import java.awt.*;
 
 public class MouseDraggedCommand implements Command{
 
-	Panel_patron_inicial panel_patron;
+	Panel_patron_disenio panel_patron;
 	
 	double puntoX_valorOriginal; 
 	double puntoY_valorOriginal;
@@ -21,9 +21,9 @@ public class MouseDraggedCommand implements Command{
 	
 	boolean esta_este_punto_en_la_lista = true;
 	
-	public MouseDraggedCommand(Panel_patron_inicial panel_patron,
-							   double puntoX,
-							   double puntoY)
+	public MouseDraggedCommand(Panel_patron_disenio panel_patron,
+                               double puntoX,
+                               double puntoY)
 	{
 		puntoX_valorNuevo = puntoX;
 		puntoY_valorNuevo = puntoY;

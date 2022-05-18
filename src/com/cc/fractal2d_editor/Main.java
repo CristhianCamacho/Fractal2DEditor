@@ -21,12 +21,19 @@ public class Main {
 
     public void Principal_Fractales(String s)
     {
-        jf_principal=new JFrame("");
+        jf_principal=new JFrame(s);
         Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
-        jf_principal.setSize(new Dimension(dim.width-100,dim.height-100));
+        //jf_principal.setSize(new Dimension(dim.width-100,dim.height-100));
+        jf_principal.setSize(new Dimension(1280+20,720+10));
 
-        jf_principal.setTitle(s);
-        createUI();
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                createUI();
+            }
+        });
+        //jf_principal.setTitle(s);
     }
 
     public void createUI()

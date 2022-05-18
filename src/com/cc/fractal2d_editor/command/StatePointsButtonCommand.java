@@ -1,12 +1,13 @@
 package com.cc.fractal2d_editor.command;
 
-import java.util.Vector;
+import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_inicial.Panel_patron_inicial;
+import java.util.Vector;
 
 public class StatePointsButtonCommand implements Command {
 
-	Panel_patron_inicial panel_patron_inicial;
+	Panel_patron_disenio panel_patron_inicial;
 	
 	boolean borrar_puntos_valorOriginal;
 	boolean mas_puntos_valorOriginal;
@@ -21,11 +22,11 @@ public class StatePointsButtonCommand implements Command {
 	Vector v_puntos_anterior;
 	//Point2D pointAnterior; 
 	
-	public StatePointsButtonCommand(Panel_patron_inicial ppi,
-									 boolean borrar_puntos_valorNuevo,
-									 boolean mas_puntos_valorNuevo,
-									 boolean mover_puntos_valorNuevo,
-									 boolean borrar_todo_valorNuevo)
+	public StatePointsButtonCommand(Panel_patron_disenio ppi,
+									boolean borrar_puntos_valorNuevo,
+									boolean mas_puntos_valorNuevo,
+									boolean mover_puntos_valorNuevo,
+									boolean borrar_todo_valorNuevo)
 	{
 		panel_patron_inicial = ppi;
 
@@ -38,6 +39,7 @@ public class StatePointsButtonCommand implements Command {
 		mas_puntos_valorOriginal = panel_patron_inicial.panel_de_dibujo.mas_puntos;
 		mover_puntos_valorOriginal = panel_patron_inicial.panel_de_dibujo.mover_puntos;
 		borrar_todo_valorOriginal = panel_patron_inicial.panel_de_dibujo.borrar_todo;
+
 	} 
 	
 	public void execute() {
@@ -53,10 +55,25 @@ public class StatePointsButtonCommand implements Command {
 			panel_patron_inicial.dibujar_punto(0, 0);
 		}
 		
+		if(mas_puntos_valorNuevo)
+		{
+			panel_patron_inicial.jta_estado.setText(Elementos_UI.COLOCAR_PUNTOS);
+		}
+		else
+		if(mover_puntos_valorNuevo)
+		{
+			panel_patron_inicial.jta_estado.setText(Elementos_UI.MOVER_PUNTOS);
+		}
+		else
 		if(borrar_puntos_valorNuevo)
 		{
-			//pointAnterior = 
-		}	
+			panel_patron_inicial.jta_estado.setText(Elementos_UI.BORRAR_PUNTOS);
+		}
+		else
+		if(borrar_todo_valorNuevo)
+		{
+			panel_patron_inicial.jta_estado.setText(Elementos_UI.BORRAR_TODO);
+		}
 	}
 
 	public void undo() {

@@ -1,7 +1,9 @@
 package com.cc.fractal2d_editor.Rutinas;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 
+import javax.media.j3d.Switch;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -22,6 +24,8 @@ public class VentaDeCrearEstrella extends JFrame{
 		JComboBox jcb_salto;
 
 		JComboBox jcb_sentido_de_agregado;
+
+		JComboBox jcb_panel_patron_inicial_o_panel_patron_recursivo;
 		
 		private VentaDeCrearEstrella()
 		{
@@ -57,6 +61,9 @@ public class VentaDeCrearEstrella extends JFrame{
 
 			JPanel panelSentidoDeAgregado = crearPanelSentidoDeAgregado();
 			add(panelSentidoDeAgregado);
+
+			JPanel panelPanelPatronIncial_O_PanelPatronRecursivo = crearPanelPatronIncial_O_PanelPatronRecursivo();
+			add(panelPanelPatronIncial_O_PanelPatronRecursivo);
 
 			JPanel panelCalcular = crearPanelCalcular();
 			add(panelCalcular);
@@ -214,6 +221,32 @@ public class VentaDeCrearEstrella extends JFrame{
 
 			return result;
 		}
+
+		public JPanel crearPanelPatronIncial_O_PanelPatronRecursivo() {
+
+			JPanel result = new JPanel();
+			result.setLayout(new BorderLayout());
+			TitledBorder titlePatronIncial_O_PatronRecursivo;
+			titlePatronIncial_O_PatronRecursivo = BorderFactory.createTitledBorder("agregar al PatronIncial O PatronRecursivo");
+			result.setBorder(titlePatronIncial_O_PatronRecursivo);
+
+			String elementos[]={"PatronIncial","PatronRecursivo"};
+
+			jcb_panel_patron_inicial_o_panel_patron_recursivo = new JComboBox(elementos);
+			jcb_panel_patron_inicial_o_panel_patron_recursivo.setSelectedIndex(0);
+			jcb_panel_patron_inicial_o_panel_patron_recursivo.addActionListener(new ActionListener()
+													  {
+														  public void actionPerformed(ActionEvent arg0) {
+															  String sItem = (String) jcb_panel_patron_inicial_o_panel_patron_recursivo
+																	  .getSelectedItem();
+														  }
+													  }
+			);
+			result.add(jcb_panel_patron_inicial_o_panel_patron_recursivo);
+
+			return result;
+
+		}
 		
 		private JPanel crearPanelCalcular()
 		{
@@ -234,10 +267,23 @@ public class VentaDeCrearEstrella extends JFrame{
 							// if current tab is not Patron Inicial, change to show it
 							elementosUI.checkCurrentTabSelectedAndOpen(0);
 
+							Panel_patron_disenio agregarAlPanel;
+							switch (jcb_panel_patron_inicial_o_panel_patron_recursivo.getSelectedIndex()) {
+								case 0:
+									agregarAlPanel = elementosUI.panel_patron_inicial;
+									break;
+								case 1:
+									agregarAlPanel = elementosUI.panel_patron_recursivo;
+									break;
+								default:
+									agregarAlPanel = elementosUI.panel_patron_inicial;
+									break;
+							}
+
 							String tipoEstrella = (String) jcb_TipoDeEstrella.getSelectedItem();
 							if(tipoEstrella.equalsIgnoreCase(TIPO1))
 							{
-								elementosUI.panel_patron_inicial.calcularEstrella(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()),
+								agregarAlPanel.calcularEstrella(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()),
 																				  Integer.parseInt((String)jcb_lado.getSelectedItem()),
 																				  Integer.parseInt((String)jcb_salto.getSelectedItem()),
 																				  jcb_sentido_de_agregado.getSelectedIndex()
@@ -246,10 +292,11 @@ public class VentaDeCrearEstrella extends JFrame{
 							}
 							if(tipoEstrella.equalsIgnoreCase(TIPO2))
 							{
-								elementosUI.panel_patron_inicial.calcularEstrella1(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()),
+								agregarAlPanel.calcularEstrella1(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()),
 																				   Integer.parseInt((String)jcb_lado.getSelectedItem()),
 																				   Integer.parseInt((String)jcb_salto.getSelectedItem()),
-																					jcb_sentido_de_agregado.getSelectedIndex());
+																					jcb_sentido_de_agregado.getSelectedIndex()
+										);
 							  
 							}
 							

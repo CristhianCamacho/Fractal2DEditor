@@ -31,6 +31,7 @@ public class Panel_de_dibujo extends JPanel {
     boolean mostrarDistancias = true;
     boolean mostrarAngulosEjeX = true;
     boolean mostrarAngulosEntreLineas = true;
+    //boolean mostrarPuntosNumerados = true;
 
     Double oldZoom;
     Double oldRotacion;
@@ -75,6 +76,12 @@ public class Panel_de_dibujo extends JPanel {
                 {
                     mSelectedPoint = (Point2D)v_puntos.get(i);
                     i_mSelectedPoint=i;
+
+                    // ultima distancia seleccionada por el punto
+                    panel_patron_inicial.actualizarUltimaDistancia(
+                            (Point2D) v_puntos.get(i),
+                            ((Point2D) v_puntos.get((i+1)%v_puntos.size())) );
+
                     break;
                 }
             }
@@ -92,6 +99,11 @@ public class Panel_de_dibujo extends JPanel {
                 {
                     mSelectedPoint = (Point2D)v_puntos.get(i);
                     i_mSelectedPoint=i;
+
+                    // ultima distancia seleccionada por el punto
+                    panel_patron_inicial.actualizarUltimaDistancia(
+                            (Point2D) v_puntos.get(i),
+                            ((Point2D) v_puntos.get((i+1)%v_puntos.size())) );
 
                     borrar_punto();
 
@@ -124,6 +136,11 @@ public class Panel_de_dibujo extends JPanel {
 
             v_puntos.setElementAt(mSelectedPoint,i_mSelectedPoint);
             this.repaint();
+
+            // ultima distancia seleccionada por el punto
+            panel_patron_inicial.actualizarUltimaDistancia(
+                    (Point2D) v_puntos.get(i_mSelectedPoint),
+                    ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size())) );
         }
 
         //
@@ -205,6 +222,20 @@ public class Panel_de_dibujo extends JPanel {
             //pintar_puntos();
             this.repaint();
         }
+    }
+
+    public void calcularNewUltimaDistancia(double newDistance) {
+        Point2D p1 = (Point2D) v_puntos.get(i_mSelectedPoint);
+        Point2D p2 = ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size()));
+
+        double distance = p1.distance(p2);
+
+        double cost = (p2.getX() - p1.getX())/distance;
+        double sent = (p2.getY() - p1.getY())/distance;
+
+        Point2D pnew = new Point2D.Double(p1.getX() + newDistance*cost, p1.getY() + newDistance*sent);
+
+        v_puntos.set((i_mSelectedPoint+1)%v_puntos.size(), pnew);
     }
 
     public boolean esta_este_punto_en_la_lista(double x ,double y)
@@ -475,15 +506,52 @@ public class Panel_de_dibujo extends JPanel {
                         RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setFont(new Font("Calibri", Font.BOLD, 10));
 
-                Point2D punto_0 =(Point2D)v_puntos.get(0);
 
+
+
+                Point2D punto_0 =(Point2D)v_puntos.get(0);
+/*
+                if (mostrarPuntosDeControl)
+                {
+                    Paint p_tmp = g2.getPaint();
+
+                    if (i_mSelectedPoint == 0){
+                        g2.setPaint(new Color(153,0,0));
+                    } else {
+                        g2.setPaint(new Color(0,0,153));
+                    }
+
+                    g2.drawString("P("+(int)0+")",
+                            (float)( punto_0.getX() - 5 ),
+                            (float)( punto_0.getY() + 25 ) );
+
+                    g2.setPaint(p_tmp);
+                }
+*/
                 // para calcular el angulo con el eje X
                 int largoLineaEjeX = 10;
 
                 for(int i=1;i<v_puntos.size();i++)
                 {
                     Point2D punto_1 =(Point2D)v_puntos.get(i);
+/*
+                    if (mostrarPuntosDeControl)
+                    {
+                        Paint p_tmp = g2.getPaint();
 
+                        if (i_mSelectedPoint == i){
+                            g2.setPaint(new Color(153,0,0));
+                        } else {
+                            g2.setPaint(new Color(0,0,153));
+                        }
+
+                        g2.drawString("P("+i+")",
+                                (float)( punto_1.getX() - 5 ),
+                                (float)( punto_1.getY() + 25 ) );
+
+                        g2.setPaint(p_tmp);
+                    }
+*/
                     if(mostrarAngulosEjeX)
                     {
                         double angulo_i_rad = calcular_angulos(punto_0, punto_1) ;

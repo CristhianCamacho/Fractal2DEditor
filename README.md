@@ -20,7 +20,6 @@ Rutina 1, Snowflake
 https://www.youtube.com/watch?v=TACUMZTfWYU
 
 Rutina 2
-
 https://www.youtube.com/watch?v=wCj5vslDLO8
 https://www.youtube.com/watch?v=uKFVHcxLhCo
 https://www.youtube.com/watch?v=R5jztXkuj4c

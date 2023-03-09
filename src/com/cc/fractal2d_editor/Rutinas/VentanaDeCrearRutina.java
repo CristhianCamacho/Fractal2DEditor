@@ -192,7 +192,7 @@ public class VentanaDeCrearRutina extends JFrame{
 		}
 	}
 	);
-p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
+	p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 		
 		
 	contenedor.add(p_botonesColoresGradiente);
@@ -354,7 +354,7 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 		
 		jcb_porcentajeIniZoom = new JComboBox(elementos);
 		try{
-			int posIni = elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
+			int posIni = elementosUI.panel_patron_inicial.js_zoom.getMinimum();//elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
 			jcb_porcentajeIniZoom.setSelectedItem(elementos[posIni>0? posIni: 0]);//elementosUI.panel_patron_inicial.js_zoom.getValue();
 		}catch(Exception e)
 		{
@@ -396,7 +396,7 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 		titleIniRotacion = BorderFactory.createTitledBorder("porcentaje inicial-final de rotacion");
 		result.setBorder(titleIniRotacion);
 
-		int nivelDeZ1 = elementosUI.panel_patron_inicial.js_VAL_MAX_ROTACION;
+		int nivelDeZ1 = elementosUI.panel_patron_inicial.js_VAL_MAX_ROTACION+1;
 		String elementos1[]=new String[nivelDeZ1];
 		for(int i=0; i<elementos1.length ; i++ )
 			elementos1[i]=""+(i);
@@ -418,7 +418,7 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 		);
 		result.add(jcb_porcentajeIniRotacion);
 
-		int nivelDeZ = elementosUI.panel_patron_inicial.js_VAL_MAX;//elementosUI.panel_de_dibujo.jcb_nivel.getMaximumRowCount();
+		int nivelDeZ = elementosUI.panel_patron_inicial.js_VAL_MAX_ROTACION+1;//elementosUI.panel_de_dibujo.jcb_nivel.getMaximumRowCount();
 		String elementos[]=new String[nivelDeZ];//js_POS_INI js_VAL_MAX
 		for(int i=0; i<elementos.length ; i++ )
 			elementos[i]=""+(i);
@@ -600,7 +600,7 @@ p_botonesColoresGradiente.add(jb_botonesColoresGradientes[1]);
 	{
 		int nivel = elementosUI.panel_de_dibujo.jcb_nivel.getSelectedIndex();
 		jcb_nivelDeRecursividad.setSelectedIndex(nivel);
-		int iniZoom = elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
+		int iniZoom = elementosUI.panel_patron_inicial.js_zoom.getMinimum();//elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
 		jcb_porcentajeIniZoom.setSelectedIndex(iniZoom);
 	}
 	

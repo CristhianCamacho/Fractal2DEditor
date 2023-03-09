@@ -10,6 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
 
 public class Panel_patron_disenio extends JPanel {
@@ -20,6 +22,8 @@ public class Panel_patron_disenio extends JPanel {
 
     public JTextArea jta_nombre_del_modelo;
     public JTextArea jta_estado;
+
+    public JTextField jf_ultima_distancia;
 
     //public JTextArea jta_zoom;
     //public JComboBox jcb_zoom;
@@ -188,11 +192,38 @@ public class Panel_patron_disenio extends JPanel {
         TitledBorder titleBotonBorrarTodo;
         titleBotonBorrarTodo = BorderFactory.createTitledBorder("Borrar Todo");
         panelBotonBorrarTodo.setBorder(titleBotonBorrarTodo);
-        panelBotonBorrarTodo.setLayout(new GridLayout(1,1) );
+        panelBotonBorrarTodo.setLayout(new GridLayout(2,1) );
 
         JButton borrar_todo=new JButton("borrar_todo");
         borrar_todo.addMouseListener(new Eventos(this, elementos_UI));
         panelBotonBorrarTodo.add(borrar_todo);
+
+        JPanel panelUltimaDistancia = new JPanel();
+        panelUltimaDistancia.setLayout(new GridLayout(1,2) );
+        panelUltimaDistancia.add(new JLabel(Elementos_UI.instance.ULTIMA_DISTANCIA));
+        jf_ultima_distancia = new JTextField();
+        panelUltimaDistancia.add(jf_ultima_distancia);
+        jf_ultima_distancia.addKeyListener(new KeyListener(){
+            @Override
+            public void keyPressed(KeyEvent e){
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    double newDistance = Double.parseDouble(jf_ultima_distancia.getText());
+                    panel_de_dibujo.calcularNewUltimaDistancia(newDistance);
+                    panel_de_dibujo.requestFocus();
+                    panel_de_dibujo.repaint();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+
+        panelBotonBorrarTodo.add(panelUltimaDistancia);
 
         panelBotones.add(panelBotonBorrarTodo);
 
@@ -368,6 +399,11 @@ public class Panel_patron_disenio extends JPanel {
     public void mover_punto(double x, double y)
     {
         panel_de_dibujo.mover_punto(x,y);
+    }
+
+    public void actualizarUltimaDistancia(Point2D point2D1, Point2D point2D2) {
+        jf_ultima_distancia.setText(""+
+                (int)(point2D1).distance(point2D2));
     }
 
     public void mover_todos_los_puntos(double x, double y)

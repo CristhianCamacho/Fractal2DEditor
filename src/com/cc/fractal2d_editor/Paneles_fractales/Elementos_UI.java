@@ -76,6 +76,8 @@ public class Elementos_UI implements Runnable {
         public static String BORRAR_PUNTOS = "borrar_puntos";
         public static String BORRAR_TODO = "borrar_todo";
 
+        public static String ULTIMA_DISTANCIA = "Ultima_distancia";
+
         public static String RutinaActual = "";
         public static String RUTINA_1 = "RUTINA_1";
         public static String RUTINA_2 = "RUTINA_2";
@@ -836,6 +838,12 @@ public class Elementos_UI implements Runnable {
         {
             panel_de_dibujo.color_lineas.setBackground(color1);
             panel_de_dibujo.panel_de_dibujo.setColorLineas(color1);
+
+            Color colorOpuesto = new Color((int)(255-color1.getRed()),
+                    (int)(255-color1.getGreen()),
+                    (int)(255-color1.getBlue()));
+
+            panel_de_dibujo.color_lineas.setForeground(colorOpuesto);
             //panel_de_dibujo.panel_de_dibujo.repaint();
         }
 

@@ -8,6 +8,7 @@ import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Crear_Algoritmo;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
+//import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
 import org.w3c.dom.Document;
 
 import javax.swing.*;
@@ -76,7 +77,7 @@ public class Elementos_UI implements Runnable {
         public static String BORRAR_PUNTOS = "borrar_puntos";
         public static String BORRAR_TODO = "borrar_todo";
 
-        public static String ULTIMA_DISTANCIA = "Ultima_distancia";
+        public static String ULTIMA_DISTANCIA = "Ult_dist";
 
         public static String RutinaActual = "";
         public static String RUTINA_1 = "RUTINA_1";
@@ -194,6 +195,22 @@ public class Elementos_UI implements Runnable {
             m.addActionListener(new Eventos(null,this));
             archivo.add(m);
 
+            archivo.addSeparator();
+
+            m=new JMenuItem("Imagen de Fondo Panel Patron Recursivo",KeyEvent.VK_R);
+            m.setAccelerator (KeyStroke.getKeyStroke (KeyEvent.VK_R,ActionEvent.ALT_MASK));
+            m.setToolTipText("para selecciona una imagen y ponerla al Patron Recursivo");
+            m.addActionListener(new Eventos(null,this));
+            archivo.add(m);
+
+            jm_barra_de_menu.add(archivo);
+
+            m=new JMenuItem("Imagen de Fondo Panel Patron Inicial",KeyEvent.VK_I);
+            m.setAccelerator (KeyStroke.getKeyStroke (KeyEvent.VK_I,ActionEvent.ALT_MASK));
+            m.setToolTipText("para selecciona una imagen y ponerla al Patron Recursivo");
+            m.addActionListener(new Eventos(null,this));
+            archivo.add(m);
+
             jm_barra_de_menu.add(archivo);
 
             //jf_principal.addKeyListener(new RedoUndoKeyListener());
@@ -300,7 +317,9 @@ public class Elementos_UI implements Runnable {
                 {
                     //Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
                     //jf_principal.setSize(new Dimension(dim.width-100,dim.height-100));
-                    jf_principal.setSize(new Dimension(1280+20,720+10));
+                    //jf_principal.setSize(new Dimension(1280+20,720+10));
+                    Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
+                    jf_principal.setSize(new Dimension(dim.width-20,720+10));
                     //jf_principal.pack();
 
                     if(panelUnoSolo!=null)
@@ -342,7 +361,9 @@ public class Elementos_UI implements Runnable {
                 {
                     //Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
                     //jf_principal.setSize(new Dimension(dim.width-10,(int)(dim.height/1.5)));
-                    jf_principal.setSize(new Dimension(1280+20,720+10));
+                    //jf_principal.setSize(new Dimension(1280+20,720+10));
+                    Dimension dim=Toolkit.getDefaultToolkit().getScreenSize();
+                    jf_principal.setSize(new Dimension(dim.width-20,720+10));
                     //jf_principal.pack();
 
                     if(tabbedpane!=null)
@@ -815,7 +836,7 @@ public class Elementos_UI implements Runnable {
             hilo.start();
         }
 
-        public void clear()
+        public synchronized void clear()
         {
             panel_de_dibujo.panel_de_dibujo.setBackgroundImage(null);
             panel_patron_inicial.panel_de_dibujo.setBackgroundImage(null);
@@ -855,20 +876,24 @@ public class Elementos_UI implements Runnable {
         }
 
         ////
-        boolean isGradiente = true;
+        //boolean isGradiente = true;
+        String tipo;
         Color[] coloresGradientes = {Color.WHITE, Color.BLACK};
         //Color colorIni = Color.WHITE;
         //Color colorFin = Color.BLACK;
         //int nroIteraciones = 50;
         int nroDeGradientes = 3;//(int)(panel_patron_inicial.js_VAL_MAX/nroIteraciones);
+        int nroLineas = -1;
         int nivelDeRecursividad = 2;
         int porcentajeZoomMin = 1;
         int porcentajeZoomMax = 100;
         Double porcentajeRotacionMin = 0.0;
         Double porcentajeRotacionMax = 0.0;
         //// rutina 1
-        public void ejecutarRutina1(boolean isGradiente,
+        // tipo = GRADIENTE, GRADIENTE_ALEATORIO, FIJO,
+        public void ejecutarRutina1(String tipo,
                                     Color[] coloresGradiente,
+                                    int nroLineas,
                 /*int nroIteraciones,*/
                                     int nroDeGradientes,
                                     int nivelDeRecursividad,
@@ -880,11 +905,13 @@ public class Elementos_UI implements Runnable {
         {
             RutinaActual = RUTINA_1;
 
-            this.isGradiente = isGradiente;
+            this.tipo = tipo;
+            //this.isGradiente = isGradiente;
             coloresGradientes = coloresGradiente;
             //this.colorIni = colorIni;
             //this.colorFin = colorFin;
             //this.nroIteraciones = nroIteraciones;
+            this.nroLineas = nroLineas;
             this.nroDeGradientes = nroDeGradientes;
             this.nivelDeRecursividad = nivelDeRecursividad;
             this.porcentajeZoomMin = porcentajeZoomMin;
@@ -987,27 +1014,43 @@ public class Elementos_UI implements Runnable {
 
             for(int j=0;j<nroDeGradientes;j++)
             {
+                double saltoR = -1;
+                double saltoG = -1;
+                double saltoB = -1;
 
-                double saltoR = (double) ((-coloresGradientes[j].getRed()+coloresGradientes[(j+1)%nroDeGradientes].getRed())/nroIteraciones) ;
-                double saltoG = (double) ((-coloresGradientes[j].getGreen()+coloresGradientes[(j+1)%nroDeGradientes].getGreen())/nroIteraciones) ;
-                double saltoB = (double) ((-coloresGradientes[j].getBlue()+coloresGradientes[(j+1)%nroDeGradientes].getBlue())/nroIteraciones) ;
+                // transparente viene null del dialogo de colores
+                if (coloresGradientes[j] != null && coloresGradientes[(j+1)%nroDeGradientes] != null) {
+                    saltoR = (double) ((-coloresGradientes[j].getRed()+coloresGradientes[(j+1)%nroDeGradientes].getRed())/nroIteraciones) ;
+                    saltoG = (double) ((-coloresGradientes[j].getGreen()+coloresGradientes[(j+1)%nroDeGradientes].getGreen())/nroIteraciones) ;
+                    saltoB = (double) ((-coloresGradientes[j].getBlue()+coloresGradientes[(j+1)%nroDeGradientes].getBlue())/nroIteraciones) ;
+                }
 
-                for(int i=0;i<nroIteraciones;i++)
-                {
-                    if(detenerRutina1)
-                    {
+
+                int i_cont_lineas = 0;
+                int i_cont_colores_lineas = 0;
+                for(int i=0;i<nroIteraciones;i++) {
+                    if (detenerRutina1) {
                         return;
                     }
 
-                    Color colorTemp;
+                    Color colorTemp = null;
 
-                    if(isGradiente)
-                    {
+                    //if(VentanaDeCrearRutina.instance.GRADIENTE.equalsIgnoreCase(tipo))
+                    if ("Gradiente".equalsIgnoreCase(tipo)) {
 //              gradiente
 
-                        int colorR = (int)Math.nextUp(coloresGradientes[j].getRed()+(double)saltoR*i);
-                        int colorG = (int)Math.nextUp(coloresGradientes[j].getGreen()+(double)saltoG*i);
-                        int colorB = (int)Math.nextUp(coloresGradientes[j].getBlue()+(double)saltoB*i);
+                        int colorR;
+                        int colorG;
+                        int colorB;
+
+                        // transparente viene null del dialogo de colores
+                        if (coloresGradientes[j] != null) {
+                            colorR = (int) Math.nextUp(coloresGradientes[j].getRed() + (double) saltoR * i);
+                            colorG = (int) Math.nextUp(coloresGradientes[j].getGreen() + (double) saltoG * i);
+                            colorB = (int) Math.nextUp(coloresGradientes[j].getBlue() + (double) saltoB * i);
+
+                            colorTemp = new Color(colorR, colorG, colorB);
+                        }
 
                         //System.out.println("colorR="+colorR);
                         //System.out.println("colorG="+colorG);
@@ -1023,44 +1066,66 @@ public class Elementos_UI implements Runnable {
 				colorG = (colorR>255)? 255 : colorG ;
 				colorB = (colorR>255)? 255 : colorB ;
 				*/
-                        colorTemp = new Color(colorR,
-                                colorG,
-                                colorB);
 
-                    }
-                    else
-                    {
-                        // random
-                        colorTemp = new Color((int)(Math.random()*255),
-                                (int)(Math.random()*255),
-                                (int)(Math.random()*255));
 
-                    }
+                    } else
+                        //if(VentanaDeCrearRutina.instance.GRADIENTE_ALEATORIO.equalsIgnoreCase(tipo) ||
+                        //        VentanaDeCrearRutina.instance.ALEATORIO.equalsIgnoreCase(tipo))
+                        if ("Gradiente Aleatorio".equalsIgnoreCase(tipo) || "Aleatorio".equalsIgnoreCase(tipo)) {
+                            // random
+                            colorTemp = new Color((int) (Math.random() * 255),
+                                    (int) (Math.random() * 255),
+                                    (int) (Math.random() * 255));
 
+                        } else
+                            //if(VentanaDeCrearRutina.instance.FIJO.equalsIgnoreCase(tipo))
+                            if ("Fijo".equalsIgnoreCase(tipo)) {
+
+
+                                // colores fijos deacuerdo al numerso de lineas
+                                if (i_cont_lineas < nroLineas) {
+
+                                    i_cont_lineas++;
+                                } else {
+                                    i_cont_lineas = 0;
+                                    i_cont_colores_lineas++;
+                                }
+
+                                // transparente viene null del dialogo de colores
+                                if (coloresGradientes[(i_cont_colores_lineas) % nroDeGradientes] != null) {
+                                    colorTemp = coloresGradientes[(i_cont_colores_lineas) % nroDeGradientes];
+                                }
+
+                            } else {
+                                colorTemp = null;//new Color(0, 0, 0);
+                            }
 
 
                     // evento del zoom
-                    panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_zoom.getValue()+ZoomSalto);
+                    panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_zoom.getValue() + ZoomSalto);
                     //panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_POS_INI+ZoomSalto*i);
 
                     // evento de rotacion
-                    panel_patron_inicial.js_rotar.setValue((int)(rotacionInicial+i*RotarSalto));
+                    panel_patron_inicial.js_rotar.setValue((int) (rotacionInicial + i * RotarSalto));
 
-                    // evento de seleccion de color de lineas
-                    setColorLineas_Panel_resultado(colorTemp);
+                    if (/*coloresGradientes[j] == null ||*/ colorTemp != null)
+                    {
+                        // evento de seleccion de color de lineas
+                        setColorLineas_Panel_resultado(colorTemp);
 
-                    // to draw one fractal until the end before to begin to draw another one, when doing Rutina1
-                    while (getCalculandoFractales()) {
-                        try {
-                            Thread.sleep(1);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
+                        // to draw one fractal until the end before to begin to draw another one, when doing Rutina1
+                        while (getCalculandoFractales()) {
+                            try {
+                                Thread.sleep(1);
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                            }
                         }
+
+
+                        // evento del boton de calcular
+                        calcular_fractales();
                     }
-
-
-                    // evento del boton de calcular
-                    calcular_fractales();
 
                     // incrementamos la barra de progreso de rutina en uno
                     incrementarBarraDeProgresoEnUno();

@@ -28,6 +28,7 @@ public class VentanaDeCrearRutina extends JFrame{
 	
 	public String ALEATORIO = "Aleatorio";
 	public String GRADIENTE = "Gradiente";
+	public String FIJO = "Fijo";
 	public String GRADIENTE_ALEATORIO = "Gradiente Aleatorio";
 	
 	JComboBox jcb_tipoDeDibujoDeColores;
@@ -52,6 +53,7 @@ public class VentanaDeCrearRutina extends JFrame{
 								 Color.BLACK};
 	
 	JComboBox jcb_numeroDeGradientes;
+	JComboBox jcb_numeroDeLineas;
 	
 	//JComboBox jcb_nroDeIteraciones;
 	JComboBox jcb_nivelDeRecursividad;
@@ -130,7 +132,7 @@ public class VentanaDeCrearRutina extends JFrame{
 		JPanel contenedor = new JPanel();
 		contenedor.setLayout( new BoxLayout( contenedor, BoxLayout.Y_AXIS));
 		
-		String elementos[]={ALEATORIO, GRADIENTE, GRADIENTE_ALEATORIO};
+		String elementos[]={ALEATORIO, GRADIENTE, GRADIENTE_ALEATORIO, FIJO};
 		jcb_tipoDeDibujoDeColores = new JComboBox(elementos);
 		jcb_tipoDeDibujoDeColores.setSelectedIndex(1);
 		jcb_tipoDeDibujoDeColores.addActionListener(new ActionListener()
@@ -142,20 +144,32 @@ public class VentanaDeCrearRutina extends JFrame{
 					{
 						p_botonesColoresGradiente.setVisible(false);
 						jcb_numeroDeGradientes.setVisible(false);
+						jcb_numeroDeLineas.setVisible(false);
 					}
 					else
 					if(sItem.equalsIgnoreCase(GRADIENTE))
 					{
 						p_botonesColoresGradiente.setVisible(true);
 						jcb_numeroDeGradientes.setVisible(true);
+						jcb_numeroDeLineas.setVisible(false);
 					}
 					else
 					if(sItem.equalsIgnoreCase(GRADIENTE_ALEATORIO))
 					{
 						p_botonesColoresGradiente.setVisible(true);
 						jcb_numeroDeGradientes.setVisible(true);
+						jcb_numeroDeLineas.setVisible(false);
 						
 						updatePanelBotonesColorGradienteAleatorio();
+					}
+					else
+					if(sItem.equalsIgnoreCase(FIJO))
+					{
+						p_botonesColoresGradiente.setVisible(true);
+						jcb_numeroDeGradientes.setVisible(true);
+						jcb_numeroDeLineas.setVisible(true);
+
+						instance.pack();
 					}
 				}
 			}	
@@ -247,7 +261,7 @@ public class VentanaDeCrearRutina extends JFrame{
 						updatePanelBotonesColorGradiente();
 					}
 					else
-					if(sItem.equalsIgnoreCase(GRADIENTE_ALEATORIO))
+					if( sItem.equalsIgnoreCase(GRADIENTE_ALEATORIO) )
 					{
 						String s_value = (String)jcb_numeroDeGradientes.getSelectedItem();
 						int nroBotones = Integer.parseInt(s_value) + 1;
@@ -265,11 +279,79 @@ public class VentanaDeCrearRutina extends JFrame{
 						
 						updatePanelBotonesColorGradienteAleatorio();
 					}
+					else
+					if( sItem.equalsIgnoreCase(FIJO) )
+					{
+						String s_value = (String)jcb_numeroDeGradientes.getSelectedItem();
+						int nroBotones = Integer.parseInt(s_value) + 1;
+
+						//p_botonesColoresGradiente.removeAll();
+						//p_botonesColoresGradiente.setLayout(new GridLayout(1,nroBotones));
+
+						//JButton[] tmpBotones = jb_botonesColoresGradientes;
+
+						jb_botonesColoresGradientes = new JButton[nroBotones];
+						coloresGradientes = new Color[nroBotones];
+
+						for(int i=0;i<nroBotones;i++)
+						{
+							jb_botonesColoresGradientes[i] = new JButton(""+i);
+						}
+
+						updatePanelBotonesColorGradienteAleatorio();
+					}
 				}
 			}	
 		);
 		panelNroGradientes.add(jcb_numeroDeGradientes);
 		contenedor.add(panelNroGradientes);
+
+		n = 500;//(int)(a/b);
+		elementos=new String[n];////String sItem = ;
+		for(int i=0; i<elementos.length ; i++ )
+			elementos[i]=""+(i+1);
+
+		JPanel panelNroLineas = new JPanel();
+		panelNroLineas.setLayout( new BoxLayout( panelNroLineas, BoxLayout.X_AXIS));
+		JLabel labelLineas = new JLabel("Numero de Lineas");
+		panelNroLineas.add(labelLineas);
+		jcb_numeroDeLineas = new JComboBox(elementos);
+		jcb_numeroDeLineas.setVisible(false);
+		jcb_numeroDeLineas.setSelectedItem(elementos[0]);
+		jcb_numeroDeLineas.addActionListener(new ActionListener()
+												 {
+													 public void actionPerformed(ActionEvent arg0) {
+													 	/*
+														 String sItem = (String) jcb_tipoDeDibujoDeColores.getSelectedItem();
+														 if(sItem.equalsIgnoreCase(GRADIENTE))
+														 {
+															 updatePanelBotonesColorGradiente();
+														 }
+														 else
+														 if(sItem.equalsIgnoreCase(GRADIENTE_ALEATORIO))
+														 {
+															 String s_value = (String)jcb_numeroDeGradientes.getSelectedItem();
+															 int nroBotones = Integer.parseInt(s_value) + 1;
+
+															 //p_botonesColoresGradiente.removeAll();
+															 //p_botonesColoresGradiente.setLayout(new GridLayout(1,nroBotones));
+
+															 jb_botonesColoresGradientes = new JButton[nroBotones];
+															 coloresGradientes = new Color[nroBotones];
+
+															 for(int i=0;i<nroBotones;i++)
+															 {
+																 jb_botonesColoresGradientes[i] = new JButton(""+i);
+															 }
+
+															 updatePanelBotonesColorGradienteAleatorio();
+
+														 }*/
+													 }
+												 }
+		);
+		panelNroLineas.add(jcb_numeroDeLineas);
+		contenedor.add(panelNroLineas);
 		
 		result.add(contenedor);
 		
@@ -375,7 +457,11 @@ public class VentanaDeCrearRutina extends JFrame{
 			elementos1[i]=""+(i+1);
 
 		jcb_porcentajeFinZoom = new JComboBox(elementos1);
-		jcb_porcentajeFinZoom.setSelectedItem(elementos1[elementosUI.panel_patron_inicial.js_zoom.getValue()-1]);
+		try {
+			jcb_porcentajeFinZoom.setSelectedItem(elementos1[elementosUI.panel_patron_inicial.js_zoom.getValue()-1]);
+		} catch (Exception e) {
+			System.out.println(e.getStackTrace());
+		}
 		jcb_porcentajeFinZoom.addActionListener(new ActionListener()
 												{
 													public void actionPerformed(ActionEvent arg0) {
@@ -459,9 +545,10 @@ public class VentanaDeCrearRutina extends JFrame{
 
 						elementosUI.setCalculandoFractales(false);
 						
-						elementosUI.ejecutarRutina1( ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()).equalsIgnoreCase(GRADIENTE) || 
-								                     ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()).equalsIgnoreCase(GRADIENTE_ALEATORIO),
+						elementosUI.ejecutarRutina1( ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()) // GRADIENTE, FIJO, GRADIENTE_ALEATORIO
+								                     ,
 								coloresGradientes,
+								Integer.parseInt((String)jcb_numeroDeLineas.getSelectedItem()),
 								//Integer.parseInt((String)jcb_nroDeIteraciones.getSelectedItem()),
 								coloresGradientes.length,//Integer.parseInt((String)jcb_numeroDeGradientes.getSelectedItem()+1),//int nroDeGradientes,
 								Integer.parseInt((String)jcb_nivelDeRecursividad.getSelectedItem()),//int nivelDeRecursividad,
@@ -600,8 +687,8 @@ public class VentanaDeCrearRutina extends JFrame{
 	{
 		int nivel = elementosUI.panel_de_dibujo.jcb_nivel.getSelectedIndex();
 		jcb_nivelDeRecursividad.setSelectedIndex(nivel);
-		int iniZoom = elementosUI.panel_patron_inicial.js_zoom.getMinimum();//elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
-		jcb_porcentajeIniZoom.setSelectedIndex(iniZoom);
+		//int iniZoom = elementosUI.panel_patron_inicial.js_zoom.getMinimum();//elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
+		//jcb_porcentajeIniZoom.setSelectedIndex(iniZoom);
 	}
 	
 	public void setElementosUI( Elementos_UI elementosUI )

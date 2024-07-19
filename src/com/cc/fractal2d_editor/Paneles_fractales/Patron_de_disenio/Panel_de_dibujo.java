@@ -4,6 +4,7 @@ import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -36,7 +37,7 @@ public class Panel_de_dibujo extends JPanel {
     Double oldZoom;
     Double oldRotacion;
 
-    Image backgroundImage;
+    public Image backgroundImage;
 
     public Panel_de_dibujo(String string, Panel_patron_disenio panel_patron_inicial)
     {
@@ -80,7 +81,11 @@ public class Panel_de_dibujo extends JPanel {
                     // ultima distancia seleccionada por el punto
                     panel_patron_inicial.actualizarUltimaDistancia(
                             (Point2D) v_puntos.get(i),
-                            ((Point2D) v_puntos.get((i+1)%v_puntos.size())) );
+                            ((Point2D) v_puntos.get((i+1)%v_puntos.size())),
+                            i>0?
+                            ((Point2D) v_puntos.get((i-1)%v_puntos.size())) :
+                            ((Point2D) v_puntos.get((i+1)%v_puntos.size()))
+                            );
 
                     break;
                 }
@@ -103,7 +108,11 @@ public class Panel_de_dibujo extends JPanel {
                     // ultima distancia seleccionada por el punto
                     panel_patron_inicial.actualizarUltimaDistancia(
                             (Point2D) v_puntos.get(i),
-                            ((Point2D) v_puntos.get((i+1)%v_puntos.size())) );
+                            ((Point2D) v_puntos.get((i+1)%v_puntos.size())),
+                            i>0?
+                            ((Point2D) v_puntos.get((i-1)%v_puntos.size())) :
+                            ((Point2D) v_puntos.get((i+1)%v_puntos.size()))
+                    );
 
                     borrar_punto();
 
@@ -140,13 +149,21 @@ public class Panel_de_dibujo extends JPanel {
             // ultima distancia seleccionada por el punto
             panel_patron_inicial.actualizarUltimaDistancia(
                     (Point2D) v_puntos.get(i_mSelectedPoint),
-                    ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size())) );
+                    ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size())),
+                    i_mSelectedPoint>0?
+                    ((Point2D) v_puntos.get((i_mSelectedPoint-1)%v_puntos.size())) :
+                    ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size()))
+            );
         }
 
         //
         if( Elementos_UI.instance.panel_de_dibujo.check_liveDrawing.isSelected() && !Elementos_UI.instance.getCalculandoFractales() ) {
 
-            Elementos_UI.instance.clear();
+            //if (Math.random()>0.75)
+            {
+                Elementos_UI.instance.clear();
+            }
+
             Elementos_UI.instance.calcular_fractales();
 
         }
@@ -196,6 +213,61 @@ public class Panel_de_dibujo extends JPanel {
         this.repaint();
     }
 
+    public void moverTodosLosPuntos(int keyCode) {
+
+        double deltaX = 0;
+        double deltaY = 0;
+
+        switch( keyCode ) {
+            case KeyEvent.VK_UP:
+                // handle up
+                deltaX = 0;
+                deltaY = -1;
+                break;
+            case KeyEvent.VK_DOWN:
+                // handle down
+                deltaX = 0;
+                deltaY = 1;
+                break;
+            case KeyEvent.VK_LEFT:
+                // handle left
+                deltaX = -1;
+                deltaY = 0;
+                break;
+            case KeyEvent.VK_RIGHT :
+                // handle right
+                deltaX = +1;
+                deltaY = 0;
+                break;
+        }
+
+        if (mSelectedPoint != null)
+        {
+            Point2D punto_fin = new Point2D.Double( deltaX + mSelectedPoint.getX(),
+                    deltaY + mSelectedPoint.getY());
+            mSelectedPoint = punto_fin;
+
+            v_puntos.setElementAt(mSelectedPoint, i_mSelectedPoint);
+            this.repaint();
+
+            return;
+        }
+
+        for(int i=0; i<v_puntos.size(); i++)
+        {
+            Point2D punto_i = (Point2D) v_puntos.get(i);
+
+
+            Point2D punto_fin = new Point2D.Double( deltaX + punto_i.getX(),
+                    deltaY + punto_i.getY());
+
+            //v_puntos.remove(i);
+            v_puntos.setElementAt(punto_fin, i);
+        }
+
+        this.repaint();
+    }
+
     public void set_punto_inicial_puntos(Point2D point2D)
     {
         oldPuntoInicial = point2D;//new Point2D.Double( x , y );
@@ -224,18 +296,45 @@ public class Panel_de_dibujo extends JPanel {
         }
     }
 
-    public void calcularNewUltimaDistancia(double newDistance) {
+    public void calcularNewUltimaDistancia(double newDistance, boolean next) {
         Point2D p1 = (Point2D) v_puntos.get(i_mSelectedPoint);
-        Point2D p2 = ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size()));
+
+        Point2D p2 = next?
+                ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size())) :
+                    i_mSelectedPoint>0?
+                    ((Point2D) v_puntos.get((i_mSelectedPoint-1)%v_puntos.size())) :
+                    ((Point2D) v_puntos.get((i_mSelectedPoint)%v_puntos.size()))
+                ;
 
         double distance = p1.distance(p2);
 
-        double cost = (p2.getX() - p1.getX())/distance;
-        double sent = (p2.getY() - p1.getY())/distance;
+        double cost = distance > 0? (p2.getX() - p1.getX())/distance: 1;
+        double sent = distance > 0? (p2.getY() - p1.getY())/distance: 0;
 
         Point2D pnew = new Point2D.Double(p1.getX() + newDistance*cost, p1.getY() + newDistance*sent);
 
-        v_puntos.set((i_mSelectedPoint+1)%v_puntos.size(), pnew);
+        if (next) {
+            v_puntos.set((i_mSelectedPoint+1)%v_puntos.size(), pnew);
+        }
+        else
+        {
+            v_puntos.set((i_mSelectedPoint)%v_puntos.size(), pnew);
+        }
+
+    }
+
+    public int getNewUltimaDistancia(boolean next) {
+
+        Point2D p1 = (Point2D) v_puntos.get(i_mSelectedPoint);
+
+        Point2D p2 = next?
+                ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size())) :
+                i_mSelectedPoint>0?
+                        ((Point2D) v_puntos.get((i_mSelectedPoint-1)%v_puntos.size())) :
+                        ((Point2D) v_puntos.get((i_mSelectedPoint+1)%v_puntos.size()))
+                ;
+
+        return (int)p1.distance(p2);
     }
 
     public boolean esta_este_punto_en_la_lista(double x ,double y)
@@ -510,7 +609,7 @@ public class Panel_de_dibujo extends JPanel {
 
 
                 Point2D punto_0 =(Point2D)v_puntos.get(0);
-/*
+
                 if (mostrarPuntosDeControl)
                 {
                     Paint p_tmp = g2.getPaint();
@@ -521,20 +620,20 @@ public class Panel_de_dibujo extends JPanel {
                         g2.setPaint(new Color(0,0,153));
                     }
 
-                    g2.drawString("P("+(int)0+")",
-                            (float)( punto_0.getX() - 5 ),
-                            (float)( punto_0.getY() + 25 ) );
+                    g2.drawString("P("+(int)0+")=("+Math.round(punto_0.getX())+", "+Math.round(punto_0.getY())+")",
+                            (float)( punto_0.getX() + ((Math.random()>0.5)? 5 : (-1)*(5) )),
+                            (float)( punto_0.getY() + ((Math.random()>0.5)? 35 : (-1)*(35) )) );
 
                     g2.setPaint(p_tmp);
                 }
-*/
+
                 // para calcular el angulo con el eje X
                 int largoLineaEjeX = 10;
 
                 for(int i=1;i<v_puntos.size();i++)
                 {
                     Point2D punto_1 =(Point2D)v_puntos.get(i);
-/*
+
                     if (mostrarPuntosDeControl)
                     {
                         Paint p_tmp = g2.getPaint();
@@ -545,13 +644,12 @@ public class Panel_de_dibujo extends JPanel {
                             g2.setPaint(new Color(0,0,153));
                         }
 
-                        g2.drawString("P("+i+")",
-                                (float)( punto_1.getX() - 5 ),
-                                (float)( punto_1.getY() + 25 ) );
-
+                        g2.drawString("P("+i+")=("+Math.round(punto_0.getX())+", "+Math.round(punto_0.getY())+")",
+                                (float)( punto_1.getX() + ((Math.random()>0.5)? 5 : -5 )),
+                                (float)( punto_1.getY() + ((Math.random()>0.5)? 25 : -25 ) ) );
                         g2.setPaint(p_tmp);
                     }
-*/
+
                     if(mostrarAngulosEjeX)
                     {
                         double angulo_i_rad = calcular_angulos(punto_0, punto_1) ;
@@ -765,6 +863,9 @@ public class Panel_de_dibujo extends JPanel {
     {
         Graphics2D g2d = (Graphics2D)g;
         g2d.clearRect(0,0,getWidth(), getHeight());
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
         if(backgroundImage!=null)
         {
@@ -772,7 +873,7 @@ public class Panel_de_dibujo extends JPanel {
             g2d.drawImage(backgroundImage, 0, 0, null);
         }
 
-        //pintar_ejes(g);
+        pintar_ejes(g);
 
         pintar_puntos(g);
     }
@@ -947,22 +1048,29 @@ public class Panel_de_dibujo extends JPanel {
 		*/
         // para hallar las intersecciones entre lineas que parten de puntos adyacentes
         Point2D[] puntos3 = new Point2D[nroPuntas+1];
-        for(int i=0; i<nroPuntas+1; i++)
-        {
-            puntos3[i] =  inseccionEntre(puntos[(i)%nroPuntas],
-                    puntos[(i+salto)%nroPuntas],
-                    puntos[(i+1)%nroPuntas],
-                    puntos[(i+nroPuntas-salto+1)%nroPuntas]
-            );
+        if (salto>1) {
+            for(int i=0; i<nroPuntas+1; i++)
+            {
+                puntos3[i] =  inseccionEntre(puntos[(i)%nroPuntas],
+                        puntos[(i+salto)%nroPuntas],
+                        puntos[(i+1)%nroPuntas],
+                        puntos[(i+nroPuntas-salto+1)%nroPuntas]
+                );
+            }
         }
+
 
         // agregamos los puntos
         for(int i=0; i<nroPuntas; i++)
         {
-            v_puntos.add(puntos3[i].clone());
+            if (salto>1) {
+                v_puntos.add(puntos3[i].clone());
+            }
             v_puntos.add(puntos[(i+1)%nroPuntas].clone());
         }
-        v_puntos.add(puntos3[0].clone());
+        if (salto>1) {
+            v_puntos.add(puntos3[0].clone());
+        }
 
 
         if (sentidoDeAgregado == 0) {
@@ -1013,6 +1121,35 @@ public class Panel_de_dibujo extends JPanel {
                 ( m1 - m2 );
 
         double y = m1 * (x - punto2.getX()) + punto2.getY();
+
+
+if ( m1 > 4.97582161916076E10 ) { // inifinite?
+//x=punto3.getX();
+y = m2 * (punto2.getX() - punto3.getX()) + punto3.getY();
+}
+
+if ( m1==0 && m2>0.0) {
+x = punto2.getX();
+y = m2 * (x - punto3.getX()) + punto3.getY();
+}
+
+if ( m1<-0.0 && m2==0) {
+    x = punto3.getX();
+    y = m1 * (x - punto2.getX()) + punto2.getY();
+}
+
+        if ( m1==-0.0 && Double.isInfinite(m2)) {
+            x = punto3.getX();
+            y = punto2.getY();
+        }
+
+        if ( m1==0.0 && m2==0) {
+            x = punto2.getX();
+            y = punto3.getY();
+        }
+
+System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
+
 
         result = new Point2D.Double(x, y);
 
@@ -1069,7 +1206,7 @@ public class Panel_de_dibujo extends JPanel {
         int centroX = this.getWidth()/2;
         int centroY = this.getHeight()/2;
 
-        double saltoAngulo = 2 * Math.PI / nroPuntas;
+        double saltoAngulo =2 * Math.PI / nroPuntas;
 
         // para que se vea vertical y no chueca
         double correccionAngulo = Math.PI/2 - saltoAngulo;
@@ -1079,10 +1216,15 @@ public class Panel_de_dibujo extends JPanel {
 
         for(int i=0; i<nroPuntas; i++)
         {
-            double x = centroX + lado*Math.cos(correccionAngulo + saltoAngulo*i);
-            double y = centroY + lado*Math.sin(correccionAngulo + saltoAngulo*i);
+            double _cos = Math.cos(correccionAngulo + saltoAngulo*i);
+            double _sin = Math.sin(correccionAngulo + saltoAngulo*i);
+
+            double x = centroX + lado*_cos;
+            double y = centroY + lado*_sin;
 
             puntos[i]=new Point2D.Double( x , y );
+
+            //System.out.println("("+x+", "+y+")");
 
 //v_puntos.add(puntos[i].clone());
         }
@@ -1090,24 +1232,39 @@ public class Panel_de_dibujo extends JPanel {
 
 //		para hallar las intersecciones entre lineas que parten de puntos adyacentes
         Point2D[] puntos3 = new Point2D[nroPuntas+1];
-        for(int i=0; i<nroPuntas+1; i++)
-        {
-            puntos3[i] =  inseccionEntre(puntos[(i)%nroPuntas],
-                    puntos[(i+salto)%nroPuntas],
-                    puntos[(i+1)%nroPuntas],
-                    puntos[(nroPuntas+i+1-salto)%nroPuntas]
-            );
+        if (salto>1) {
+            for (int i = 0; i < nroPuntas + 1; i++) {
+
+                if (i+salto==7) {
+                    int a = 0;
+                }
+
+                puntos3[i] = inseccionEntre(puntos[(i) % nroPuntas],
+                        puntos[(i + salto) % nroPuntas],
+                        puntos[(i + 1) % nroPuntas],
+                        puntos[(nroPuntas + i + 1 - salto) % nroPuntas]
+                );
+            }
         }
 
+        int i_real = 0;
         // agregamos los puntos
         for(int i=0; i<nroPuntas; i++)
         {
             v_puntos.add(puntos[(i)%nroPuntas].clone());
-            v_puntos.add(puntos3[(i)%nroPuntas].clone());
+            System.out.println("P("+(i_real++)+")= ("+puntos[(i)%nroPuntas].getX()+", "
+                    +puntos[(i)%nroPuntas].getY()+")");
+            if (salto>1) {
+                v_puntos.add(puntos3[(i) % nroPuntas].clone());
+                System.out.println("P("+(i_real++)+")= ("+puntos3[(i)%nroPuntas].getX()+", "
+                        +puntos3[(i)%nroPuntas].getY()+")");
+            }
             //v_puntos.add(puntos3[(i)%nroPuntas].clone());
             //v_puntos.add(puntos[(i+1)%nroPuntas].clone());
         }
         v_puntos.add(puntos[0].clone());
+        System.out.println("P("+0+")= P("+(2*nroPuntas)+") = ("+puntos[(0)%nroPuntas].getX()+", "
+                +puntos[(0)%nroPuntas].getY()+")");
         //v_puntos.add(puntos3[0].clone());
 
         if (sentidoDeAgregado == 0) {

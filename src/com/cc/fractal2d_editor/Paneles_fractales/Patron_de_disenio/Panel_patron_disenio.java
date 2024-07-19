@@ -1,6 +1,7 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio;
 
 import com.cc.fractal2d_editor.Eventos_fractales.Eventos;
+import com.cc.fractal2d_editor.Eventos_fractales.EventosKeyListenerMoverTodosLosPuntos;
 import com.cc.fractal2d_editor.Eventos_fractales.Eventos_Panel_de_dibujo;
 import com.cc.fractal2d_editor.Eventos_fractales.RedoUndoKeyListener;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
@@ -23,7 +24,9 @@ public class Panel_patron_disenio extends JPanel {
     public JTextArea jta_nombre_del_modelo;
     public JTextArea jta_estado;
 
+    public JCheckBox check_previo;
     public JTextField jf_ultima_distancia;
+    public JCheckBox check_siguiente;
 
     //public JTextArea jta_zoom;
     //public JComboBox jcb_zoom;
@@ -35,7 +38,7 @@ public class Panel_patron_disenio extends JPanel {
     // 4 --> 300%
     // 5 --> 400% = 100*(5-1) : punto_inicial_el_100%
     // porque la posicion inicial es el 100%
-    int p_ini = 6;
+    int p_ini = 20;//6-->500
     public int js_POS_INI =totalZoom+js_VAL_MIN;
     public int js_VAL_MAX =totalZoom*(p_ini-1)+js_VAL_MIN;
 
@@ -55,7 +58,6 @@ public class Panel_patron_disenio extends JPanel {
     public static String DISTANCIAS = "distancias";
     public static String ANGULOS_EJE_X = "angulos eje X";
     public static String ANGULOS_ENTRE_LINEAS = "angulos entre lineas";
-
 
     public Panel_patron_disenio(Elementos_UI elementos_ui)
     {
@@ -177,8 +179,26 @@ public class Panel_patron_disenio extends JPanel {
         panelMoverBorrarPuntos.setBorder(titleMoverBorrarPuntos);
         panelMoverBorrarPuntos.setLayout(new GridLayout(2,1) );
 
+        /*
         JButton mover_puntos=new JButton("mover_puntos");
         mover_puntos.addMouseListener(new Eventos(this, elementos_UI));
+        panelMoverBorrarPuntos.add(mover_puntos);
+        */
+        JCheckBox mover_puntos = new JCheckBox("mover_puntos");
+        mover_puntos.setSelected(false);
+        mover_puntos.addMouseListener(new Eventos(this, elementos_UI));
+        mover_puntos.addActionListener(new ActionListener()
+                                       {
+                                           public void actionPerformed(ActionEvent arg0) {
+                                               if(mover_puntos.isSelected() == false)
+                                               {
+                                                   panel_de_dibujo.mSelectedPoint = null;
+                                                   panel_de_dibujo.i_mSelectedPoint = -1;
+                                               }
+                                           }
+                                       }
+        );
+
         panelMoverBorrarPuntos.add(mover_puntos);
 
         JButton borrar_puntos=new JButton("borrar_puntos");
@@ -208,7 +228,7 @@ public class Panel_patron_disenio extends JPanel {
             public void keyPressed(KeyEvent e){
                 if(e.getKeyCode() == KeyEvent.VK_ENTER){
                     double newDistance = Double.parseDouble(jf_ultima_distancia.getText());
-                    panel_de_dibujo.calcularNewUltimaDistancia(newDistance);
+                    panel_de_dibujo.calcularNewUltimaDistancia(newDistance, check_siguiente.isSelected());
                     panel_de_dibujo.requestFocus();
                     panel_de_dibujo.repaint();
                 }
@@ -222,6 +242,37 @@ public class Panel_patron_disenio extends JPanel {
             public void keyReleased(KeyEvent e) {
             }
         });
+
+        JPanel panelChecksUltimaDistancia = new JPanel();
+        panelChecksUltimaDistancia.setLayout(new GridLayout(1,2) );
+
+        check_previo = new JCheckBox("");
+        check_previo.setSelected(false);
+        check_previo.addActionListener(new ActionListener()
+                                               {
+                                                   public void actionPerformed(ActionEvent arg0) {
+                                                       check_siguiente.setSelected(!check_previo.isSelected());
+                                                       jf_ultima_distancia.setText( ""+panel_de_dibujo.getNewUltimaDistancia(check_siguiente.isSelected()) );
+                                                   }
+                                               }
+        );
+        panelChecksUltimaDistancia.add(check_previo);
+
+        check_siguiente = new JCheckBox("");
+        check_siguiente.setSelected(true);
+        check_siguiente.addActionListener(new ActionListener()
+                                       {
+                                           public void actionPerformed(ActionEvent arg0) {
+                                               check_previo.setSelected(!check_siguiente.isSelected());
+                                               jf_ultima_distancia.setText( ""+panel_de_dibujo.getNewUltimaDistancia(check_siguiente.isSelected()) );
+                                           }
+                                       }
+        );
+        panelChecksUltimaDistancia.add(check_siguiente);
+
+
+
+        panelUltimaDistancia.add(panelChecksUltimaDistancia);
 
         panelBotonBorrarTodo.add(panelUltimaDistancia);
 
@@ -353,6 +404,7 @@ public class Panel_patron_disenio extends JPanel {
         panel_de_dibujo.addMouseMotionListener(new Eventos_Panel_de_dibujo(this, elementos_UI));
         panel_de_dibujo.setFocusable(true);
         panel_de_dibujo.addKeyListener(new RedoUndoKeyListener());
+        panel_de_dibujo.addKeyListener(new EventosKeyListenerMoverTodosLosPuntos());
         panel_de_dibujo.setVisible(true);
         //jif_panel_de_dibujo.setVisible(true);
         //jif_panel_de_dibujo.setContentPane(panel_de_dibujo);
@@ -401,14 +453,27 @@ public class Panel_patron_disenio extends JPanel {
         panel_de_dibujo.mover_punto(x,y);
     }
 
-    public void actualizarUltimaDistancia(Point2D point2D1, Point2D point2D2) {
-        jf_ultima_distancia.setText(""+
-                (int)(point2D1).distance(point2D2));
+    public void actualizarUltimaDistancia(Point2D point2D1, Point2D point2D2, Point2D point2D0) {
+        if (check_siguiente.isSelected()) {
+            jf_ultima_distancia.setText(""+
+                    (int)(point2D1).distance(point2D2));
+        }
+        else
+        {
+            jf_ultima_distancia.setText(""+
+                    (int)(point2D0).distance(point2D1));
+        }
+
     }
 
     public void mover_todos_los_puntos(double x, double y)
     {
         panel_de_dibujo.mover_todos_los_puntos(x,y);
+    }
+
+    public void mover_todos_los_puntos(int keyCode)
+    {
+        panel_de_dibujo.moverTodosLosPuntos(keyCode );
     }
 
     public void set_punto_inicial_puntos(Point2D point2D)
@@ -480,6 +545,5 @@ public class Panel_patron_disenio extends JPanel {
     {
         panel_de_dibujo.calcularEneagono1(nroPuntas, lado, salto, sentidoDeAgregado);
     }
-
 
 }

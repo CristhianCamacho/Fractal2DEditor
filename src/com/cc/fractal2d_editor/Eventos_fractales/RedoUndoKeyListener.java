@@ -14,15 +14,15 @@ public class RedoUndoKeyListener implements KeyListener{
 	 
 	public void keyPressed(KeyEvent e)
 	{
-		System.out.println("e.getKeyChar()="+e.getKeyChar());
+//		System.out.println("e.getKeyChar()="+e.getKeyChar());
 	 
-		if(e.getKeyCode() == e.VK_Z && vk_anterior == e.VK_CONTROL)
+		if(e.getKeyCode() == KeyEvent.VK_Z && vk_anterior == KeyEvent.VK_CONTROL)
 			ListaDeAcciones.getInstance().undo();
 		 
-		if(e.getKeyCode() == e.VK_Y && vk_anterior == e.VK_CONTROL)
+		if(e.getKeyCode() == KeyEvent.VK_Y && vk_anterior == KeyEvent.VK_CONTROL)
 			ListaDeAcciones.getInstance().redo();
 		 
-		if(vk_anterior != e.VK_CONTROL)
+		if(vk_anterior != KeyEvent.VK_CONTROL)
 		 
 		vk_anterior = e.getKeyCode();	
 		 

@@ -138,14 +138,14 @@ public class Eventos_Panel_de_dibujo implements InternalFrameListener,MouseListe
 	
 	public void keyPressed(KeyEvent e)
 	{
-		//System.out.println ( e.getSource() );
+		System.out.println ( e.getSource() );
 	}
 	
 	public void keyReleased(KeyEvent e){
 	//	System.out.println ( e );
 	}
 	public void keyTyped(KeyEvent e){
-	//	System.out.println ( e );
+		System.out.println ( e );
 	}
 	
 	public void valueChanged(ListSelectionEvent e)

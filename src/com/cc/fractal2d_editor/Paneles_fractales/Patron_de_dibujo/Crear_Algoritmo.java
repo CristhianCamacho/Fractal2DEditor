@@ -422,20 +422,28 @@ public class Crear_Algoritmo implements Runnable{
 	  Panel_de_dibujo_resultado panel_de_dibujo_resultado = elementos_UI.panel_de_dibujo.panel_de_dibujo;
 	  Panel_de_dibujo panel_de_dibujo_patron_inicial = elementos_UI.panel_patron_inicial.panel_de_dibujo;
 	  //Panel_de_dibujo panel_de_dibujo_patron_recursivo = elementos_UI.panel_patron_recursivo.panel_de_dibujo;
-	  
-	  Rectangle rectangle = new Rectangle(panel_de_dibujo_resultado.getLocationOnScreen().x,
-			  							  panel_de_dibujo_resultado.getLocationOnScreen().y, 
-			  							  panel_de_dibujo_resultado.getSize().width,
-			  							  panel_de_dibujo_resultado.getSize().height);
-		Robot robot;
-		try {
-		robot = new Robot();
-		BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
-		
-		Image image = Toolkit.getDefaultToolkit().createImage(bufferedImage.getSource());
-		panel_de_dibujo_resultado.setBackgroundBufferedImage(bufferedImage);
-		panel_de_dibujo_resultado.setBackgroundImage(image);
-		panel_de_dibujo_patron_inicial.setBackgroundImage(image);
+
+	  try {
+
+		  Rectangle rectangle = new Rectangle(panel_de_dibujo_resultado.getLocationOnScreen().x,
+				  panel_de_dibujo_resultado.getLocationOnScreen().y,
+				  panel_de_dibujo_resultado.getSize().width,
+				  panel_de_dibujo_resultado.getSize().height);
+		  Robot robot;
+		  try {
+			  robot = new Robot();
+			  BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
+
+			  Image image = Toolkit.getDefaultToolkit().createImage(bufferedImage.getSource());
+			  panel_de_dibujo_resultado.setBackgroundBufferedImage(bufferedImage);
+			  panel_de_dibujo_resultado.setBackgroundImage(image);
+			  panel_de_dibujo_patron_inicial.setBackgroundImage(image);
+
+	  } catch (Exception e) {
+
+	  	System.out.println(e);
+	  }
+
 		//panel_de_dibujo_patron_recursivo.setBackgroundImage(image);
 		
 		//File file;

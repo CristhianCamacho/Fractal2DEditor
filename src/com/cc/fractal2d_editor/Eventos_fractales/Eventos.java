@@ -1,8 +1,6 @@
 package com.cc.fractal2d_editor.Eventos_fractales;
 
-import com.cc.fractal2d_editor.IO_fractales.Abrir_fractales;
-import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales;
-import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
+import com.cc.fractal2d_editor.IO_fractales.*;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
@@ -13,11 +11,13 @@ import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina2;
 import com.cc.fractal2d_editor.command.ListaDeAcciones;
 import com.cc.fractal2d_editor.command.StatePointsButtonCommand;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.Vector;
 
 public class Eventos implements ActionListener, MouseListener, MouseMotionListener, ChangeListener//KeyListener
@@ -75,6 +75,51 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo.v_puntos=v_clone;
                 Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo.repaint();
             }
+
+            else if( jmi.getText().equals("Imagen de Fondo Panel Patron Recursivo") ||
+                     jmi.getText().equals("Imagen de Fondo Panel Patron Inicial") )
+            {
+                Filtro_PNG_JPG filtro = new Filtro_PNG_JPG();
+
+                JFileChooser filechooser;
+                String userDir = System.getProperty("user.home");
+                filechooser = new JFileChooser(userDir +"/Desktop");
+                filechooser.setFileFilter(filtro);
+                File aux=new File(".");
+
+                String aus=aux.getAbsolutePath();
+                System.out.println("aus "+aus);
+
+                int valor=filechooser.showOpenDialog(Elementos_UI.instance.jf_principal);
+                if(valor==JFileChooser.APPROVE_OPTION)//aceptar
+
+                {
+                    File aux_img=new File(filechooser.getCurrentDirectory().getAbsolutePath()+File.separatorChar+filechooser.getSelectedFile().getName());
+
+                    try
+                    {
+                        Image picture = ImageIO.read(aux_img);
+
+                        if (jmi.getText().equals("Imagen de Fondo Panel Patron Recursivo")) {
+                            Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo.backgroundImage = picture;
+                            Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo.repaint();
+                        } else
+                        if (jmi.getText().equals("Imagen de Fondo Panel Patron Inicial")) {
+                            Elementos_UI.instance.panel_patron_inicial.panel_de_dibujo.backgroundImage = picture;
+                            Elementos_UI.instance.panel_patron_inicial.panel_de_dibujo.repaint();
+                        }
+
+                    }
+                    catch (Exception ee)
+                    {
+                        String workingDir = System.getProperty("user.dir");
+                        System.out.println("Current working directory : " + workingDir);
+                        ee.printStackTrace();
+                    }
+                }
+            }
+
+
 
             else if(jmi.getText().equals("rutina 1"))
             {
@@ -185,10 +230,18 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
         //System.out.println ( "mouseClicked en Eventos \n   "+e.getSource() );
 
 
-        if( e.getSource() instanceof JButton )
+        if( e.getSource() instanceof JButton || e.getSource() instanceof JCheckBox )
         {
-            JButton temp=(JButton)e.getSource();
-            String aux=temp.getText();
+            String aux = "";
+
+            if (e.getSource() instanceof JButton) {
+                JButton temp=(JButton)e.getSource();
+                aux=temp.getText();
+            }
+            if (e.getSource() instanceof JCheckBox) {
+                JCheckBox temp=(JCheckBox)e.getSource();
+                aux=temp.getText();
+            }
 
             //pintar_puntos();
 
@@ -233,7 +286,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 StatePointsButtonCommand movepoint = new StatePointsButtonCommand(panel_patron,
                         false,
                         false,
-                        true,
+                        ((JCheckBox)e.getSource()).isSelected(),
                         false);
                 movepoint.execute();
                 ListaDeAcciones.getInstance().undoStackPush(movepoint);

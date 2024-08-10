@@ -48,7 +48,7 @@ public class MouseDraggedCommand implements Command{
 			panel_patron.mover_punto(puntoX_valorNuevo, puntoY_valorNuevo);
 		}
 		else
-		// esto es para hacer un drag de todos los puntos 
+		// esto es para hacer un drag de todos los puntos
 		{
 			panel_patron.mover_todos_los_puntos(puntoX_valorNuevo, puntoY_valorNuevo);
 		}
@@ -74,7 +74,7 @@ public class MouseDraggedCommand implements Command{
 			panel_patron.panel_de_dibujo.borrar_todo = borrar_todo_valorOriginal;
 		}
 		else
-		// esto es para hacer un drag de todos los puntos 
+		// esto es para hacer un drag de todos los puntos
 		{
 			panel_patron.mover_todos_los_puntos(puntoX_valorNuevo, puntoY_valorNuevo);
 		}
@@ -88,7 +88,7 @@ public class MouseDraggedCommand implements Command{
 			panel_patron.mover_punto(puntoX_valorNuevo, puntoY_valorNuevo);
 		}
 		else
-		// esto es para hacer un drag de todos los puntos 
+		// esto es para hacer un drag de todos los puntos
 		{
 			panel_patron.mover_todos_los_puntos(puntoX_valorNuevo, puntoY_valorNuevo);
 		}

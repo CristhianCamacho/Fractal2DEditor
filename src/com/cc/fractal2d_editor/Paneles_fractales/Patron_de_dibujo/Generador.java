@@ -52,11 +52,14 @@ public class Generador {
         salta(xx, yy);
     }
 
-    public void traza(double distancia){
+    public void traza(double distancia, boolean esPimeraOUltimaLineaRecursiva){
         double xx=x+distancia*Math.cos(angulo);
         double yy=y-distancia*Math.sin(angulo);
         //g.setColor(color);
-        g.drawLine((int)xx, (int)yy, (int)x, (int)y);
+        if (!esPimeraOUltimaLineaRecursiva)
+        {
+            g.drawLine((int)xx, (int)yy, (int)x, (int)y);
+        }
         salta(xx, yy);
     }
 }

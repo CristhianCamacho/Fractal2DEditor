@@ -2,6 +2,7 @@ package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo;
 
 import com.cc.fractal2d_editor.Eventos_fractales.Eventos;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -9,8 +10,9 @@ import java.awt.*;
 import java.util.Vector;
 
 public class Panel_resultado extends JPanel {
-	
-	JInternalFrame panel_de_controles;		
+
+	JScrollPane scroll_panel_de_controles;
+	JInternalFrame panel_de_controles;
 	public Panel_de_dibujo_resultado panel_de_dibujo;
 			
 	public JTextArea jta_nombre_del_modelo;
@@ -19,6 +21,7 @@ public class Panel_resultado extends JPanel {
 	public JComboBox jcb_nivel;
 	
 	public JButton color_lineas;
+	public JButton stroke_lineas;
 	public JButton color_fondo;
 	
 	public JProgressBar progresoFractal;
@@ -28,10 +31,12 @@ public class Panel_resultado extends JPanel {
 	public JLabel tiempoRestanteRutina;
 
 	public JCheckBox check_liveDrawing;
+	public JCheckBox check_dibujarPrimeraLineaComoShape;
+	public JCheckBox check_no_dibujarPrimeraLineaPatronRecursivo;
 		
 	Elementos_UI elementos_UI;
 	
-	Tabla tabla;
+	//Tabla tabla;
 	boolean datos_por_defecto=true;
 	//String signos[];
 	
@@ -42,13 +47,16 @@ public class Panel_resultado extends JPanel {
 	public static String CONTINUAR = "continuar";
 	public static String CLEAR = "Clear Screen";
 	public static String COLOR_LINEAS = "Lineas Color";
+	public static String STROKE_LINEAS = "Stroke";
 	public static String COLOR_FONDO = "Fondo Color";
 
 	public static String LIVE_DRAWING = "Live Drawing";
+	public static String DIBUJAR_PRIMERA_LINEA_RECURSIVA_COMO_SHAPE = "Prim rec.linea Shape";
+	public static String NO_DIBUJAR_PRIMERAS_LINEAS_PATRON_RECURSIVO = "No 1ra-ulti linea PR";
 
 	public Panel_resultado(Elementos_UI elementos_ui)
 	{
-		elementos_UI=elementos_ui;		
+		elementos_UI=elementos_ui;
 		
 		panel_grafico();
 		//setBackground(Color.red);
@@ -73,12 +81,32 @@ public class Panel_resultado extends JPanel {
 	
 	panel_de_controles=new JInternalFrame("panel_de_controles");
 	//panel_de_controles.setLayout(new BorderLayout());
-	panel_de_controles.setLayout( new BoxLayout( panel_de_controles.getContentPane(), BoxLayout.PAGE_AXIS));
+	panel_de_controles.setLayout( new BoxLayout( panel_de_controles.getContentPane(), BoxLayout.Y_AXIS));
 	//panel_de_controles.setLayout(new FlowLayout(FlowLayout.LEFT));
 	//panel_de_controles.setBounds(5,5,(int)(ancho/4-10),(int)(alto-100));
 	panel_de_controles.setVisible(true);
-			
-	
+
+	scroll_panel_de_controles = new JScrollPane();
+	panel_de_controles.add(scroll_panel_de_controles);
+
+	JPanel _panel_de_controles=new JPanel();
+	SwingUtilities.invokeLater(
+			new Runnable() {
+				public void run() {
+					_panel_de_controles.setPreferredSize(
+							new Dimension(Elementos_UI.dimensionPrefPanel_de_controles_width,
+									_panel_de_controles.getHeight()));
+				}
+			}
+	);
+
+	_panel_de_controles.setLayout( new BoxLayout( _panel_de_controles, BoxLayout.Y_AXIS));
+	scroll_panel_de_controles.setViewportView(_panel_de_controles);
+
+	JPanel panelTopNombreEstadoNivel = new JPanel();
+	//panelTopNombreEstadoNivel.setLayout( new BoxLayout( panelTopNombreEstadoNivel, BoxLayout.Y_AXIS));
+		panelTopNombreEstadoNivel.setLayout( new GridLayout(3,1));
+
 	JPanel panelNombreModelo = new JPanel();
 	TitledBorder titleNombreModelo;
 	titleNombreModelo = BorderFactory.createTitledBorder("Nombre del modelo");
@@ -89,7 +117,8 @@ public class Panel_resultado extends JPanel {
 	
 	//panelNombreModelo.add(L_0, BorderLayout.WEST);
 	panelNombreModelo.add(jta_nombre_del_modelo, BorderLayout.CENTER);
-	panel_de_controles.add(panelNombreModelo);
+	//panel_de_controles.add(panelNombreModelo);
+		panelTopNombreEstadoNivel.add(panelNombreModelo);
 	
 	JPanel panelEstado = new JPanel();
 	TitledBorder titleEstado;
@@ -103,7 +132,8 @@ public class Panel_resultado extends JPanel {
 	
 	//panelEstado.add(L_1, BorderLayout.WEST);
 	panelEstado.add(jta_estado, BorderLayout.CENTER);
-	panel_de_controles.add(panelEstado);
+	//panel_de_controles.add(panelEstado);
+		panelTopNombreEstadoNivel.add(panelEstado);
 		
 ////////////////////////////////////////////////////////////////////////////////
 	
@@ -125,8 +155,11 @@ public class Panel_resultado extends JPanel {
 	
 	//panelNivel.add(L_2, BorderLayout.WEST);
 	panelNivel.add(jcb_nivel, BorderLayout.CENTER);
-	panel_de_controles.add(panelNivel);
-	
+	//panel_de_controles.add(panelNivel);
+		panelTopNombreEstadoNivel.add(panelNivel);
+
+
+	_panel_de_controles.add(panelTopNombreEstadoNivel);
 ////////////////////////////////////////////////////////////////////////////////	
 	
 	JPanel panelBotones = new JPanel();
@@ -136,8 +169,8 @@ public class Panel_resultado extends JPanel {
 	//panelBotones.setBackground(Color.RED);
 	//panelBotones.setLayout(new BorderLayout());
 	//panelBotones.setLayout( new BoxLayout( panelBotones, BoxLayout.Y_AXIS));
-	panelBotones.setLayout( new GridLayout(4,1));
-	
+	panelBotones.setLayout( new GridLayout(7,1));
+	//panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.Y_AXIS));
 	
 	JButton calcular=new JButton(CALCULAR);
 	//calcular.setBounds(10,220,150,40);
@@ -159,21 +192,27 @@ public class Panel_resultado extends JPanel {
 	clear.addMouseListener(new Eventos(null, elementos_UI));	
 	panelBotones.add(clear);
 
-	JPanel p_colores = new JPanel();
-	p_colores.setLayout(new BoxLayout(p_colores, BoxLayout.Y_AXIS));
+	//JPanel p_colores_lineas = new JPanel();
+	//p_colores_lineas.setLayout( new GridLayout(3,1));
+	//p_colores.setLayout(new BoxLayout(p_colores, BoxLayout.Y_AXIS));
 
 	color_lineas=new JButton(COLOR_LINEAS);
 	color_lineas.addMouseListener(new Eventos(null, elementos_UI));
-	p_colores.add(color_lineas);
+		panelBotones.add(color_lineas);
+	stroke_lineas=new JButton(STROKE_LINEAS);
+	stroke_lineas.addMouseListener(new Eventos(null, elementos_UI));
+		panelBotones.add(stroke_lineas);
 
 	color_fondo=new JButton(COLOR_FONDO);
 	color_fondo.addMouseListener(new Eventos(null, elementos_UI));
-	p_colores.add(color_fondo);
+		panelBotones.add(color_fondo);
 
-	panelBotones.add(p_colores);
+	//panelBotones.add(p_colores_lineas);
 
-	panel_de_controles.add(panelBotones);
-	
+	//panel_de_controles.add(panelBotones);
+	_panel_de_controles.add(panelBotones);
+		_panel_de_controles.setBackground(Color.yellow);
+
 	JPanel panelProgreso = new JPanel();
 	TitledBorder titleProgreso;
 	titleProgreso = BorderFactory.createTitledBorder("progreso fractal");
@@ -189,8 +228,9 @@ public class Panel_resultado extends JPanel {
 	tiempoRestanteFractal = new JLabel("");
 	panelProgreso.add(tiempoRestanteFractal);
 	
-	panel_de_controles.add(panelProgreso);
-	
+	//panel_de_controles.add(panelProgreso);
+	_panel_de_controles.add(panelProgreso);
+
 	JPanel panelProgresoRutina = new JPanel();
 	TitledBorder titleProgresoRutina;
 	titleProgresoRutina = BorderFactory.createTitledBorder("progreso rutina");
@@ -206,16 +246,26 @@ public class Panel_resultado extends JPanel {
 	tiempoRestanteRutina = new JLabel("");
 	panelProgresoRutina.add(tiempoRestanteRutina);
 	
-	panel_de_controles.add(panelProgresoRutina);
+	//panel_de_controles.add(panelProgresoRutina);
+	_panel_de_controles.add(panelProgresoRutina);
 
-	JPanel panelLiveDrawing = new JPanel();
+	JPanel panelLiveDrawingYOtros = new JPanel();
+	panelLiveDrawingYOtros.setLayout( new GridLayout(3,1));
 	TitledBorder titleLiveDrawing;
 	titleLiveDrawing = BorderFactory.createTitledBorder(LIVE_DRAWING);
-	panelLiveDrawing.setBorder(titleLiveDrawing);
+	panelLiveDrawingYOtros.setBorder(titleLiveDrawing);
 	check_liveDrawing = new JCheckBox(LIVE_DRAWING);
 	check_liveDrawing.setSelected(false);
-	panelLiveDrawing.add(check_liveDrawing);
-	panel_de_controles.add(panelLiveDrawing);
+	panelLiveDrawingYOtros.add(check_liveDrawing);
+
+	check_dibujarPrimeraLineaComoShape = new JCheckBox(DIBUJAR_PRIMERA_LINEA_RECURSIVA_COMO_SHAPE);
+	check_dibujarPrimeraLineaComoShape.setSelected(false);
+	_panel_de_controles.add(check_dibujarPrimeraLineaComoShape);
+	check_no_dibujarPrimeraLineaPatronRecursivo = new JCheckBox(NO_DIBUJAR_PRIMERAS_LINEAS_PATRON_RECURSIVO);
+		check_no_dibujarPrimeraLineaPatronRecursivo.setSelected(false);
+	_panel_de_controles.add(check_no_dibujarPrimeraLineaPatronRecursivo);
+
+	_panel_de_controles.add(panelLiveDrawingYOtros);
 
 	//panel_de_dibujo=new JInternalFrame("panel_de_dibujo");
 	panel_de_dibujo=new Panel_de_dibujo_resultado();
@@ -224,10 +274,13 @@ public class Panel_resultado extends JPanel {
 	//panel_de_dibujo.addMouseListener(new Eventos_I(elementos_UI));
 	//panel_de_dibujo.addMouseMotionListener(new Eventos_I(elementos_UI));
 	//panel_de_dibujo.setBackground(Color.red);
+
+	panel_de_dibujo.setStroke(Constants.getInitialBasicStroke());
+
 	panel_de_dibujo.setVisible(true);
 	
 	////
-	tabla=new Tabla(  this , 0 );//numero_de_filas
+	//tabla=new Tabla(  this , 0 );//numero_de_filas
 	////	
 	
 	JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);

@@ -15,10 +15,14 @@ public class Filtro_fractales extends FileFilter{
 		boolean res = false;
 		
 		String nombre = archivo.getName();
-		
-		if( nombre.endsWith("."+extension) ||archivo.isDirectory()|| archivo.isFile())
+
+		if( nombre.endsWith("."+extension) || archivo.isDirectory() /*|| archivo.isFile()*/ )
+		{
 			res = true;
-		
+
+			System.out.println(nombre);
+		}
+
 		return res;
 	}
 	

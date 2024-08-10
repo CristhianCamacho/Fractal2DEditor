@@ -1,11 +1,10 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_de_dibujo;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 public class Crear_Algoritmo implements Runnable{
 	
@@ -28,8 +27,11 @@ public class Crear_Algoritmo implements Runnable{
 	Graphics grafico;
 	
 	Elementos_UI elementos_UI;
+
+	boolean no_dibujarPrimeraLineaPatronRecursivo;
 	
-	public Crear_Algoritmo(Point2D[] pb,Point2D[] pr, Graphics g, int ni, Elementos_UI elementos_UI)
+	public Crear_Algoritmo(Point2D[] pb,Point2D[] pr, Graphics g, int ni, Elementos_UI elementos_UI,
+						   boolean no_dibujarPrimeraLineaPatronR)
 	{	
 		puntos_basico=pb;
 		distancias_basico=calcular_distancias(puntos_basico);
@@ -48,10 +50,15 @@ public class Crear_Algoritmo implements Runnable{
 		
 		grafico=g;
 		this.elementos_UI=elementos_UI;
+
+		no_dibujarPrimeraLineaPatronRecursivo = no_dibujarPrimeraLineaPatronR;
+
 		Graphics2D g2=(Graphics2D)grafico;
+		Constants.setRenderingHConstants(g2);
+		/*
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 						RenderingHints.VALUE_ANTIALIAS_ON);
-	
+		*/
 				
 		generador.inicia(g);
 		
@@ -255,7 +262,7 @@ public class Crear_Algoritmo implements Runnable{
     	
     }
 
-    void generaKoch(int nivel, double distancia, double correccion)
+    void generaKoch(int nivel, double distancia, double correccion, boolean esPimeraOUltimaLineaRecursiva)
     {
     	
     	
@@ -264,7 +271,7 @@ public class Crear_Algoritmo implements Runnable{
     	//System.out.println("detener = "+detener);
     	
     if(nivel==0){
-        generador.traza(distancia);
+        generador.traza(distancia, esPimeraOUltimaLineaRecursiva && no_dibujarPrimeraLineaPatronRecursivo);
     }else{     
         
     	// NO FUNCIONA
@@ -289,7 +296,12 @@ public class Crear_Algoritmo implements Runnable{
         	generador.giraRad(correccion);
         	
         	generador.giraRad(angulos_recursivo[i]);
-        	generaKoch(nivel-1, distancias_recursivo[i]*(distancia/dist_inicio_fin), correccion);
+
+			boolean esPimeraOUltimaLineaR = false;
+			if (i==0 || i==angulos_recursivo.length-1) {
+				esPimeraOUltimaLineaR = true;
+			}
+        	generaKoch(nivel-1, distancias_recursivo[i]*(distancia/dist_inicio_fin), correccion, esPimeraOUltimaLineaR);
         	
         	generador.giraRad(-correccion);
         	
@@ -349,7 +361,7 @@ public class Crear_Algoritmo implements Runnable{
         {
         	//generador.gira(angulos_en_grados_basico[i]);
         	generador.giraRad(angulos_basico[i]);
-        	generaKoch(nivel-1, distancias_basico[i], correccion);
+        	generaKoch(nivel-1, distancias_basico[i], correccion, false);
         	
         	incrementarBarraDeProgresoEnUno();
         }        
@@ -414,49 +426,9 @@ public class Crear_Algoritmo implements Runnable{
   {
   	curvaKoch();
   	
-  	updatePanel_de_dibujoBackground();
+  	Constants.updatePanel_de_dibujoBackground();
   }
   
-  public void updatePanel_de_dibujoBackground()
-  {
-	  Panel_de_dibujo_resultado panel_de_dibujo_resultado = elementos_UI.panel_de_dibujo.panel_de_dibujo;
-	  Panel_de_dibujo panel_de_dibujo_patron_inicial = elementos_UI.panel_patron_inicial.panel_de_dibujo;
-	  //Panel_de_dibujo panel_de_dibujo_patron_recursivo = elementos_UI.panel_patron_recursivo.panel_de_dibujo;
 
-	  try {
-
-		  Rectangle rectangle = new Rectangle(panel_de_dibujo_resultado.getLocationOnScreen().x,
-				  panel_de_dibujo_resultado.getLocationOnScreen().y,
-				  panel_de_dibujo_resultado.getSize().width,
-				  panel_de_dibujo_resultado.getSize().height);
-		  Robot robot;
-		  try {
-			  robot = new Robot();
-			  BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
-
-			  Image image = Toolkit.getDefaultToolkit().createImage(bufferedImage.getSource());
-			  panel_de_dibujo_resultado.setBackgroundBufferedImage(bufferedImage);
-			  panel_de_dibujo_resultado.setBackgroundImage(image);
-			  panel_de_dibujo_patron_inicial.setBackgroundImage(image);
-
-	  } catch (Exception e) {
-
-	  	System.out.println(e);
-	  }
-
-		//panel_de_dibujo_patron_recursivo.setBackgroundImage(image);
-		
-		//File file;
-		// Save the screenshot as a png
-		//file = new File("C:/Documents and Settings/Administrador/Escritorio/screen.png");
-		//ImageIO.write(bufferedImage, "png", file);
-
-            Elementos_UI.instance.setCalculandoFractales(false);
-
-		} catch (Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		}
-	}
 		  
 }

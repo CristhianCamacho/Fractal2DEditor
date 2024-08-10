@@ -53,11 +53,15 @@ public class StatePointsButtonCommand implements Command {
 		{
 			v_puntos_anterior = (Vector)panel_patron_inicial.panel_de_dibujo.v_puntos.clone();
 			panel_patron_inicial.dibujar_punto(0, 0);
+
+			panel_patron_inicial.mover_puntos.setSelected(false);
 		}
 		
 		if(mas_puntos_valorNuevo)
 		{
 			panel_patron_inicial.jta_estado.setText(Elementos_UI.COLOCAR_PUNTOS);
+
+			panel_patron_inicial.mover_puntos.setSelected(false);
 		}
 		else
 		if(mover_puntos_valorNuevo)
@@ -68,11 +72,15 @@ public class StatePointsButtonCommand implements Command {
 		if(borrar_puntos_valorNuevo)
 		{
 			panel_patron_inicial.jta_estado.setText(Elementos_UI.BORRAR_PUNTOS);
+
+			panel_patron_inicial.mover_puntos.setSelected(false);
 		}
 		else
 		if(borrar_todo_valorNuevo)
 		{
 			panel_patron_inicial.jta_estado.setText(Elementos_UI.BORRAR_TODO);
+
+			panel_patron_inicial.mover_puntos.setSelected(false);
 		}
 	}
 

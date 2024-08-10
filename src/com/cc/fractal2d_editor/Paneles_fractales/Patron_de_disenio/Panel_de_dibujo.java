@@ -1,14 +1,13 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
 import java.util.Vector;
 
 public class Panel_de_dibujo extends JPanel {
@@ -19,6 +18,8 @@ public class Panel_de_dibujo extends JPanel {
     public boolean mover_puntos=false;
     public boolean borrar_puntos=false;
     public boolean borrar_todo=false;
+
+    public boolean pintar_ejes=false;
 
     Point2D mSelectedPoint;
     int i_mSelectedPoint;
@@ -585,10 +586,10 @@ public class Panel_de_dibujo extends JPanel {
             }
             ////
 
+            g2.setPaint(Color.RED);
             if ( i < (v_puntos.size()-1) )
             {
                 Point2D punto_temp_2=(Point2D)v_puntos.get(i+1);
-                g2.setPaint(Color.RED);
                 g2.drawLine((int)punto_temp_1.getX(),(int)punto_temp_1.getY(),
                         (int)punto_temp_2.getX(),(int)punto_temp_2.getY());
             }
@@ -601,8 +602,11 @@ public class Panel_de_dibujo extends JPanel {
             if(v_puntos.size()>0)
             {
                 //g2.setPaint(Color.BLACK);
+                Constants.setRenderingHConstants(g2);
+                /*
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
+                */
                 g2.setFont(new Font("Calibri", Font.BOLD, 10));
 
 
@@ -729,8 +733,7 @@ public class Panel_de_dibujo extends JPanel {
                     punto_0=punto_1;
                 }
 
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_OFF);
+                Constants.setRenderingHConstantsANTIALIAS_OFF(g2);
             }
         }
 
@@ -863,9 +866,6 @@ public class Panel_de_dibujo extends JPanel {
     {
         Graphics2D g2d = (Graphics2D)g;
         g2d.clearRect(0,0,getWidth(), getHeight());
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
         if(backgroundImage!=null)
         {
@@ -873,7 +873,11 @@ public class Panel_de_dibujo extends JPanel {
             g2d.drawImage(backgroundImage, 0, 0, null);
         }
 
-        pintar_ejes(g);
+        if (pintar_ejes) {
+            Constants.setRenderingHConstants(g2d);
+
+            pintar_ejes(g);
+        }
 
         pintar_puntos(g);
     }
@@ -1051,7 +1055,7 @@ public class Panel_de_dibujo extends JPanel {
         if (salto>1) {
             for(int i=0; i<nroPuntas+1; i++)
             {
-                puntos3[i] =  inseccionEntre(puntos[(i)%nroPuntas],
+                puntos3[i] =  Constants.inseccionEntre(puntos[(i)%nroPuntas],
                         puntos[(i+salto)%nroPuntas],
                         puntos[(i+1)%nroPuntas],
                         puntos[(i+nroPuntas-salto+1)%nroPuntas]
@@ -1083,78 +1087,7 @@ public class Panel_de_dibujo extends JPanel {
         this.repaint();
     }
 
-    public Point2D inseccionEntre(Point2D punto1,
-                                  Point2D punto2,
-                                  Point2D punto3,
-                                  Point2D punto4)
-    {
-        Point2D result = null;
 
-        double m1;
-        if( (punto1.getX() - punto2.getX())==0 )
-        {
-            m1 = 0;
-        }
-        else
-        {
-            m1 = ( punto1.getY() - punto2.getY() ) /
-                    ( punto1.getX() - punto2.getX() );
-
-        }
-
-        double m2;
-        if( (punto3.getX() - punto4.getX())==0 )
-        {
-            m2 = 0;
-        }
-        else
-        {
-            m2 = ( punto3.getY() - punto4.getY() ) /
-                    ( punto3.getX() - punto4.getX() );
-
-        }
-
-
-
-        double x = ( m1 * punto2.getX() - punto2.getY() -
-                m2 * punto4.getX() + punto4.getY()   ) /
-                ( m1 - m2 );
-
-        double y = m1 * (x - punto2.getX()) + punto2.getY();
-
-
-if ( m1 > 4.97582161916076E10 ) { // inifinite?
-//x=punto3.getX();
-y = m2 * (punto2.getX() - punto3.getX()) + punto3.getY();
-}
-
-if ( m1==0 && m2>0.0) {
-x = punto2.getX();
-y = m2 * (x - punto3.getX()) + punto3.getY();
-}
-
-if ( m1<-0.0 && m2==0) {
-    x = punto3.getX();
-    y = m1 * (x - punto2.getX()) + punto2.getY();
-}
-
-        if ( m1==-0.0 && Double.isInfinite(m2)) {
-            x = punto3.getX();
-            y = punto2.getY();
-        }
-
-        if ( m1==0.0 && m2==0) {
-            x = punto2.getX();
-            y = punto3.getY();
-        }
-
-System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
-
-
-        result = new Point2D.Double(x, y);
-
-        return result;
-    }
 
     //// para calcular una estrella de n puntas
     public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
@@ -1203,69 +1136,7 @@ System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
     ////para calcular una estrella de n puntas
     public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
     {
-        int centroX = this.getWidth()/2;
-        int centroY = this.getHeight()/2;
-
-        double saltoAngulo =2 * Math.PI / nroPuntas;
-
-        // para que se vea vertical y no chueca
-        double correccionAngulo = Math.PI/2 - saltoAngulo;
-
-        v_puntos = new Vector();
-        Point2D[] puntos = new Point2D[nroPuntas];
-
-        for(int i=0; i<nroPuntas; i++)
-        {
-            double _cos = Math.cos(correccionAngulo + saltoAngulo*i);
-            double _sin = Math.sin(correccionAngulo + saltoAngulo*i);
-
-            double x = centroX + lado*_cos;
-            double y = centroY + lado*_sin;
-
-            puntos[i]=new Point2D.Double( x , y );
-
-            //System.out.println("("+x+", "+y+")");
-
-//v_puntos.add(puntos[i].clone());
-        }
-
-
-//		para hallar las intersecciones entre lineas que parten de puntos adyacentes
-        Point2D[] puntos3 = new Point2D[nroPuntas+1];
-        if (salto>1) {
-            for (int i = 0; i < nroPuntas + 1; i++) {
-
-                if (i+salto==7) {
-                    int a = 0;
-                }
-
-                puntos3[i] = inseccionEntre(puntos[(i) % nroPuntas],
-                        puntos[(i + salto) % nroPuntas],
-                        puntos[(i + 1) % nroPuntas],
-                        puntos[(nroPuntas + i + 1 - salto) % nroPuntas]
-                );
-            }
-        }
-
-        int i_real = 0;
-        // agregamos los puntos
-        for(int i=0; i<nroPuntas; i++)
-        {
-            v_puntos.add(puntos[(i)%nroPuntas].clone());
-            System.out.println("P("+(i_real++)+")= ("+puntos[(i)%nroPuntas].getX()+", "
-                    +puntos[(i)%nroPuntas].getY()+")");
-            if (salto>1) {
-                v_puntos.add(puntos3[(i) % nroPuntas].clone());
-                System.out.println("P("+(i_real++)+")= ("+puntos3[(i)%nroPuntas].getX()+", "
-                        +puntos3[(i)%nroPuntas].getY()+")");
-            }
-            //v_puntos.add(puntos3[(i)%nroPuntas].clone());
-            //v_puntos.add(puntos[(i+1)%nroPuntas].clone());
-        }
-        v_puntos.add(puntos[0].clone());
-        System.out.println("P("+0+")= P("+(2*nroPuntas)+") = ("+puntos[(0)%nroPuntas].getX()+", "
-                +puntos[(0)%nroPuntas].getY()+")");
-        //v_puntos.add(puntos3[0].clone());
+        v_puntos = Constants.calcularEneagono1(this.getWidth()/2, this.getHeight()/2, nroPuntas, lado, salto);
 
         if (sentidoDeAgregado == 0) {
             // como esta
@@ -1275,26 +1146,11 @@ System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
         }
 
         this.repaint();
-
-
-		/*
-		//// addding n+1 points to the vector
-		//v_puntos.add(new Point2D.Double( puntos[0].getX()+1 , puntos[0].getY()+1 ));
-		int cont = 0;
-		while(cont < nroPuntas)
-		{
-			v_puntos.add(puntos[(cont*salto)%nroPuntas]);
-			cont++;
-		}
-		v_puntos.add(puntos[0]);
-
-		this.repaint();
-		*/
     }
 
     public Point2D.Double getPuntoAleatorioDentro()
     {
-        Shape poligono = crear_POLIGONO_CERRADO();
+        Shape poligono = Constants.crear_POLIGONO_CERRADO(v_puntos, true);
 
         Double wRnd = ( Math.random()*this.getWidth() );
         Double hRnd = ( Math.random()*this.getHeight() );
@@ -1310,7 +1166,7 @@ System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
 
     public Point2D.Double getPuntoAleatorioFuera()
     {
-        Shape poligono = crear_POLIGONO_CERRADO();
+        Shape poligono = Constants.crear_POLIGONO_CERRADO(v_puntos, true);
 
         Double wRnd = ( Math.random()*this.getWidth() );
         Double hRnd = ( Math.random()*this.getHeight() );
@@ -1324,40 +1180,6 @@ System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
         return new Point2D.Double(wRnd, hRnd);
     }
 
-
-    protected Shape crear_POLIGONO_CERRADO()
-    {
-        int n=v_puntos.size();
-        float[][] mPoints=new float[2][n];
-
-        Iterator<Point2D> it = v_puntos.iterator();
-        Point2D aux;
-        int cont=0;
-        while(it.hasNext())
-        {
-            aux = it.next();
-            if(aux instanceof Point2D)
-            {
-                mPoints[0][cont]=(float)aux.getX();
-                mPoints[1][cont]=(float)aux.getY();
-            }
-            cont++;
-        }
-
-        GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO,
-                mPoints.length);
-
-        path.moveTo(mPoints[0][0], mPoints[1][0]);
-
-        for (int i = 0; i < n ; i += 1)
-        {
-            path.lineTo(mPoints[0][i], mPoints[1][i]);
-        }
-        path.closePath();
-
-        return path;
-    }
-
     public Vector invertiVector(Vector v_a_invertir)
     {
         Vector v_result = new Vector();
@@ -1368,4 +1190,10 @@ System.out.println("m1="+m1+", m2="+m2 + " --> ("+x+", "+y+")");
 
         return v_result;
     }
+/*
+    public Point2D getSelectedPoint()
+    {
+        return mSelectedPoint;
+    }
+*/
 }

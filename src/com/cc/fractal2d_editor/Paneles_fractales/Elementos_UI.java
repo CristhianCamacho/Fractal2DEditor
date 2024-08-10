@@ -8,7 +8,7 @@ import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Crear_Algoritmo;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
-//import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
+import com.cc.fractal2d_editor.utils.Constants;
 import org.w3c.dom.Document;
 
 import javax.swing.*;
@@ -779,25 +779,61 @@ public class Elementos_UI implements Runnable {
             //((Graphics2D)(g)).setBackground(panel_de_dibujo.panel_de_dibujo.getColor_fondo());
 //g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_fondo());
 //g.fillRect(0, 0, panel_de_dibujo.panel_de_dibujo.getWidth(), panel_de_dibujo.panel_de_dibujo.getHeight());
-            g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
+g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
+((Graphics2D)g).setStroke(panel_de_dibujo.panel_de_dibujo.getStroke());
+
+            boolean dibujarPrimeraLineaComoShape = panel_de_dibujo.check_dibujarPrimeraLineaComoShape.isSelected();
+            boolean no_dibujarPrimeraLineaPatronRecursivo = panel_de_dibujo.check_no_dibujarPrimeraLineaPatronRecursivo.isSelected();
+
             System.out.println(this.getClass().getName()+".calcular_fractales() Color"+g.getColor());
             //((Graphics2D)(g)).setBackground(Color.WHITE);
             int orden=panel_de_dibujo.jcb_nivel.getSelectedIndex();
-            if (orden == 0) return;
+            if (orden == 0)
+                return;
 
-            ca=null;
-            ca=new Crear_Algoritmo(pb,pr,g,orden,this);
-            ca.set_detener(false);
-            ca.set_continuar(false);
-            //ca.run();
-            Thread hilo = new Thread(ca);
+            if (orden == 1 && dibujarPrimeraLineaComoShape)
+            {
+                dibujarNivel_1(g);
+                return;
+            }
+            else
+            {
+                ca=null;
+                ca=new Crear_Algoritmo(pb,pr,g,orden,this, no_dibujarPrimeraLineaPatronRecursivo);
+                ca.set_detener(false);
+                ca.set_continuar(false);
+                //ca.run();
+                Thread hilo = new Thread(ca);
+                hilo.start();
+                //ca.curvaKoch();
+                //}
+                //panel_de_dibujo.panel_de_dibujo.getContentPane();
+                //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            }
+
+        }
+
+        public void dibujarNivel_1(Graphics g)
+        {  /*
+            Thread hilo = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    */
+                    ((Graphics2D)g)
+                            .draw(Constants
+                                    .crear_POLIGONO_CERRADO(
+                                            panel_patron_inicial
+                                                    .panel_de_dibujo.v_puntos,
+                                            false));
+                    setCalculandoFractales(false);
+
+                    Constants.updatePanel_de_dibujoBackground();
+
+                    /*
+                }
+            });
             hilo.start();
-            //ca.curvaKoch();
-            //}
-            //panel_de_dibujo.panel_de_dibujo.getContentPane();
-            //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-
+            */
         }
 
         /*
@@ -838,24 +874,36 @@ public class Elementos_UI implements Runnable {
 
         public synchronized void clear()
         {
-            panel_de_dibujo.panel_de_dibujo.setBackgroundImage(null);
-            panel_patron_inicial.panel_de_dibujo.setBackgroundImage(null);
-            //panel_patron_recursivo.panel_de_dibujo.setBackgroundImage(null);
+            //detenerHilo();
 
-            panel_de_dibujo.panel_de_dibujo.repaint();
-            panel_patron_inicial.panel_de_dibujo.repaint();
-            //panel_patron_recursivo.panel_de_dibujo.repaint();
+            //Thread hilo = new Thread(new Runnable() {
+            //    @Override
+            //    public void run() {
+                    panel_de_dibujo.panel_de_dibujo.setBackgroundImage(null);
+                    panel_patron_inicial.panel_de_dibujo.setBackgroundImage(null);
+                    //panel_patron_recursivo.panel_de_dibujo.setBackgroundImage(null);
 
-            // la barra de progreso al 0%
-            panel_de_dibujo.progresoFractal.setValue(0);
-            panel_de_dibujo.progresoRutina.setValue(0);
+                    panel_de_dibujo.panel_de_dibujo.repaint();
+                    panel_patron_inicial.panel_de_dibujo.repaint();
+                    //panel_patron_recursivo.panel_de_dibujo.repaint();
 
-            // para el tiempo que falta
-            panel_de_dibujo.tiempoRestanteFractal.setText("");
-            panel_de_dibujo.tiempoRestanteRutina.setText("");
+                    // la barra de progreso al 0%
+                    panel_de_dibujo.progresoFractal.setValue(0);
+                    panel_de_dibujo.progresoRutina.setValue(0);
+
+                    // para el tiempo que falta
+                    panel_de_dibujo.tiempoRestanteFractal.setText("");
+                    panel_de_dibujo.tiempoRestanteRutina.setText("");
+            //    }
+            //});
+            //hilo.start();
         }
-
-        public void setColorLineas_Panel_resultado(Color color1)
+/*
+        public void setStroke(Stroke stroke)
+        {
+            panel_de_dibujo.panel_de_dibujo.setStroke(stroke);
+        }
+*/      public void setColorLineas_Panel_resultado(Color color1)
         {
             panel_de_dibujo.color_lineas.setBackground(color1);
             panel_de_dibujo.panel_de_dibujo.setColorLineas(color1);
@@ -885,7 +933,7 @@ public class Elementos_UI implements Runnable {
         int nroDeGradientes = 3;//(int)(panel_patron_inicial.js_VAL_MAX/nroIteraciones);
         int nroLineas = -1;
         int nivelDeRecursividad = 2;
-        int porcentajeZoomMin = 1;
+        int porcentajeZoomMin = 0;
         int porcentajeZoomMax = 100;
         Double porcentajeRotacionMin = 0.0;
         Double porcentajeRotacionMax = 0.0;
@@ -998,19 +1046,22 @@ public class Elementos_UI implements Runnable {
             /////// para pintar desde el min zoom
             //panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_POS_INI);
             //panel_patron_inicial.js_zoom.setValue(1);
-            panel_patron_inicial.setSliderPOS_INI(porcentajeZoomMin);
+panel_patron_inicial.setSliderPOS_INI(porcentajeZoomMin);
+
+panel_patron_inicial.setSliderROTACION_INI(porcentajeRotacionMin.intValue());
             //panel_patron_inicial.panel_de_dibujo.setOldZoom(1.0);
             //System.out.println("+panel_patron_inicial.js_zoom.getValue()"+panel_patron_inicial.js_zoom.getValue());
             //panel_patron_inicial.aplicarZoom(""+panel_patron_inicial.js_zoom.getValue());
             //calcular_fractales();
             ///////
             ////
-            int nroIteraciones = (porcentajeZoomMax-porcentajeZoomMin)/nroDeGradientes;
+            double nroIteraciones = (porcentajeZoomMax-porcentajeZoomMin)/nroDeGradientes;
             ////
-            settearBarraDeProgresoValoresIniciales(nroDeGradientes*nroIteraciones);
+            settearBarraDeProgresoValoresIniciales( (int)(nroIteraciones*nroDeGradientes) );
             RotarSalto = (this.porcentajeRotacionMax-this.porcentajeRotacionMin)/ nroIteraciones;
+            Double RotarAcumulado = 0.0;
 
-            int rotacionInicial = (int)(panel_patron_inicial.js_rotar.getValue());
+            int rotacionInicial = (panel_patron_inicial.js_rotar.getValue());
 
             for(int j=0;j<nroDeGradientes;j++)
             {
@@ -1028,7 +1079,12 @@ public class Elementos_UI implements Runnable {
 
                 int i_cont_lineas = 0;
                 int i_cont_colores_lineas = 0;
-                for(int i=0;i<nroIteraciones;i++) {
+
+                double _AcumuladoColorR = 0;
+                double _AcumuladoColorG = 0;
+                double _AcumuladoColorB = 0;
+
+                for(int i=0;i<=nroIteraciones;i++) {
                     if (detenerRutina1) {
                         return;
                     }
@@ -1036,7 +1092,7 @@ public class Elementos_UI implements Runnable {
                     Color colorTemp = null;
 
                     //if(VentanaDeCrearRutina.instance.GRADIENTE.equalsIgnoreCase(tipo))
-                    if ("Gradiente".equalsIgnoreCase(tipo)) {
+                    if ("Gradiente Aleatorio".equalsIgnoreCase(tipo) || "Gradiente".equalsIgnoreCase(tipo)) {
 //              gradiente
 
                         int colorR;
@@ -1045,9 +1101,32 @@ public class Elementos_UI implements Runnable {
 
                         // transparente viene null del dialogo de colores
                         if (coloresGradientes[j] != null) {
-                            colorR = (int) Math.nextUp(coloresGradientes[j].getRed() + (double) saltoR * i);
-                            colorG = (int) Math.nextUp(coloresGradientes[j].getGreen() + (double) saltoG * i);
-                            colorB = (int) Math.nextUp(coloresGradientes[j].getBlue() + (double) saltoB * i);
+                            //colorR = (int) Math.nextUp(coloresGradientes[j].getRed() + (double) saltoR * i);
+                            //colorG = (int) Math.nextUp(coloresGradientes[j].getGreen() + (double) saltoG * i);
+                            //colorB = (int) Math.nextUp(coloresGradientes[j].getBlue() + (double) saltoB * i);
+
+                            //colorTemp = new Color(colorR, colorG, colorB);
+
+                            _AcumuladoColorR = _AcumuladoColorR + saltoR;
+                            _AcumuladoColorG = _AcumuladoColorG + saltoG;
+                            _AcumuladoColorB = _AcumuladoColorB + saltoB;
+
+//System.out.println(String.format("(%1s , %2s , %3s), salto=%4s",_AcumuladoColorR,_AcumuladoColorG,_AcumuladoColorB, saltoR));
+
+                            colorR = (int) Math.floor(coloresGradientes[j].getRed() + _AcumuladoColorR);
+                            colorG = (int) Math.floor(coloresGradientes[j].getGreen() + _AcumuladoColorG);
+                            colorB = (int) Math.floor(coloresGradientes[j].getBlue() + _AcumuladoColorB);
+
+//System.out.println(String.format("(%1s , %2s , %3s) ",colorR,colorG,colorB));
+
+                            colorR = colorR>255?255:colorR;
+                            colorR = colorR<0?0:colorR;
+                            colorG = colorG>255?255:colorG;
+                            colorG = colorG<0?0:colorG;
+                            colorB = colorB>255?255:colorB;
+                            colorB = colorB<0?0:colorB;
+
+//System.out.println(String.format("(%1s , %2s , %3s) ",colorR,colorG,colorB));
 
                             colorTemp = new Color(colorR, colorG, colorB);
                         }
@@ -1071,7 +1150,7 @@ public class Elementos_UI implements Runnable {
                     } else
                         //if(VentanaDeCrearRutina.instance.GRADIENTE_ALEATORIO.equalsIgnoreCase(tipo) ||
                         //        VentanaDeCrearRutina.instance.ALEATORIO.equalsIgnoreCase(tipo))
-                        if ("Gradiente Aleatorio".equalsIgnoreCase(tipo) || "Aleatorio".equalsIgnoreCase(tipo)) {
+                        if ("Aleatorio".equalsIgnoreCase(tipo)) {
                             // random
                             colorTemp = new Color((int) (Math.random() * 255),
                                     (int) (Math.random() * 255),
@@ -1105,8 +1184,12 @@ public class Elementos_UI implements Runnable {
                     panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_zoom.getValue() + ZoomSalto);
                     //panel_patron_inicial.js_zoom.setValue(panel_patron_inicial.js_POS_INI+ZoomSalto*i);
 
+
+
                     // evento de rotacion
-                    panel_patron_inicial.js_rotar.setValue((int) (rotacionInicial + i * RotarSalto));
+                    //panel_patron_inicial.js_rotar.setValue((int) (rotacionInicial + i * RotarSalto));
+                    RotarAcumulado += RotarSalto;
+                    panel_patron_inicial.js_rotar.setValue((int) (rotacionInicial + RotarAcumulado));
 
                     if (/*coloresGradientes[j] == null ||*/ colorTemp != null)
                     {

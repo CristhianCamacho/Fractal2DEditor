@@ -2,7 +2,7 @@ package com.cc.fractal2d_editor.Eventos_fractales;
 
 import com.cc.fractal2d_editor.IO_fractales.*;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.*;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 import com.cc.fractal2d_editor.Rutinas.VentaDeCrearEneagono;
 import com.cc.fractal2d_editor.Rutinas.VentaDeCrearEstrella;
@@ -77,7 +77,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             }
 
             else if( jmi.getText().equals("Imagen de Fondo Panel Patron Recursivo") ||
-                     jmi.getText().equals("Imagen de Fondo Panel Patron Inicial") )
+                    jmi.getText().equals("Imagen de Fondo Panel Patron Inicial") )
             {
                 Filtro_PNG_JPG filtro = new Filtro_PNG_JPG();
 
@@ -397,6 +397,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             if(aux.equals(Panel_resultado.CALCULAR))
             {
                 //if(elementos_ui.tabbedpane.getSelectedIndex()==elementos_ui.PANEL_DE_DIBUJO)
+                if ( !elementos_ui.getCalculandoFractales() )
                 {
                     //set_calcular_fractales(true);
                     elementos_ui.calcular_fractales();
@@ -420,6 +421,16 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             if(aux.equals(Panel_resultado.CLEAR))
             {
                 //System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
+                elementos_ui.setCalculandoFractales(false);
+                elementos_ui.detenerHilo();
+                elementos_ui.detenerRutina1();
+                elementos_ui.detenerRutina2();
+                try {
+                    Thread.sleep(40);
+                } catch (Exception e12) {
+                    System.err.println(e12);
+                }
+
                 elementos_ui.clear();
                 //set_calcular_fractales(true);
             }
@@ -431,6 +442,10 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 System.out.println(this.getClass().getName()+":color1="+color1);
                 elementos_ui.setColorLineas_Panel_resultado(color1);
                 //set_calcular_fractales(true);
+            }
+            if(aux.equals(Panel_resultado.STROKE_LINEAS))
+            {
+                JOptionFactory.showStrokeDialog(elementos_ui);
             }
             if(aux.equals(Panel_resultado.COLOR_FONDO))
             {
@@ -548,7 +563,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             Panel_patron_disenio ppr = Elementos_UI.instance.panel_patron_recursivo;
             // esto es para el zoom
             if ( ((JSlider)e.getSource()) == ppi.js_rotar ||
-                 ((JSlider)e.getSource()) == ppr.js_rotar
+                    ((JSlider)e.getSource()) == ppr.js_rotar
             )
             {
                 JSlider temp=(JSlider) e.getSource();
@@ -570,7 +585,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             }
             else
             if ( ((JSlider)e.getSource()) == ppi.js_zoom ||
-                 ((JSlider)e.getSource()) == ppr.js_zoom
+                    ((JSlider)e.getSource()) == ppr.js_zoom
             )
             {
                 JSlider temp=(JSlider) e.getSource();
@@ -628,6 +643,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
         }
 
     }
+
 
 
 }

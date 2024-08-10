@@ -114,12 +114,17 @@ public class Eventos_Panel_de_dibujo implements InternalFrameListener,MouseListe
 	}
 	
 	public void mouseDragged(MouseEvent e)
-	{	
-		MouseDraggedCommand mouseDraggedCommand = new MouseDraggedCommand(panel_patron,
-				  														  e.getPoint().getX(),
-				  														  e.getPoint().getY() );
-		mouseDraggedCommand.execute();
-		ListaDeAcciones.getInstance().undoStackPush(mouseDraggedCommand);
+	{
+		//if ( panel_patron.panel_de_dibujo.getSelectedPoint() != null ) {
+
+			MouseDraggedCommand mouseDraggedCommand = new MouseDraggedCommand(panel_patron,
+					e.getPoint().getX(),
+					e.getPoint().getY() );
+			mouseDraggedCommand.execute();
+			ListaDeAcciones.getInstance().undoStackPush(mouseDraggedCommand);
+
+		//}
+
 		/*
 		//System.out.println("mouseDragged");
 		if(panel_patron.esta_este_punto_en_la_lista(e.getX(), e.getY()))

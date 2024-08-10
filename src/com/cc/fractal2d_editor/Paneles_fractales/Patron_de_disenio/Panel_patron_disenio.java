@@ -23,10 +23,13 @@ public class Panel_patron_disenio extends JPanel {
 
     public JTextArea jta_nombre_del_modelo;
     public JTextArea jta_estado;
+    public JCheckBox check_pintarEjes;
 
     public JCheckBox check_previo;
     public JTextField jf_ultima_distancia;
     public JCheckBox check_siguiente;
+
+    public JCheckBox mover_puntos;
 
     //public JTextArea jta_zoom;
     //public JComboBox jcb_zoom;
@@ -49,8 +52,8 @@ public class Panel_patron_disenio extends JPanel {
     public JSlider js_rotar;
     public JTextField jl_rotar;
     public int js_POS_INI_ROTACION =0;
-    public int js_VAL_MAX_ROTACION =360;
-    int p_ini_rotacion = 0;
+    public int js_VAL_MAX_ROTACION =2*360;
+    int p_ini_rotacion = js_POS_INI_ROTACION;
 
     Elementos_UI elementos_UI;
 
@@ -132,6 +135,20 @@ public class Panel_patron_disenio extends JPanel {
         //panel_de_controles.add(L_1);
         //panel_de_controles.add(jta_estado);
         panelEstado.add(jta_estado, BorderLayout.CENTER);
+
+        check_pintarEjes = new JCheckBox("Ejes");
+        check_pintarEjes.setSelected(false);
+        //check_pintarEjes.addMouseListener(new Eventos(this, elementos_UI));
+        check_pintarEjes.addActionListener(new ActionListener()
+                                       {
+                                           public void actionPerformed(ActionEvent arg0) {
+                                               panel_de_dibujo.pintar_ejes = check_pintarEjes.isSelected();
+                                               panel_de_dibujo.repaint();
+                                           }
+                                       }
+        );
+        panelEstado.add(check_pintarEjes, BorderLayout.EAST);
+
         _panel_de_controles.add(panelEstado);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +201,7 @@ public class Panel_patron_disenio extends JPanel {
         mover_puntos.addMouseListener(new Eventos(this, elementos_UI));
         panelMoverBorrarPuntos.add(mover_puntos);
         */
-        JCheckBox mover_puntos = new JCheckBox("mover_puntos");
+        mover_puntos = new JCheckBox("mover_puntos");
         mover_puntos.setSelected(false);
         mover_puntos.addMouseListener(new Eventos(this, elementos_UI));
         mover_puntos.addActionListener(new ActionListener()
@@ -525,6 +542,13 @@ public class Panel_patron_disenio extends JPanel {
         js_zoom.setValueIsAdjusting(true);
         js_zoom.setValue(posInicial);
         js_zoom.setValueIsAdjusting(false);
+    }
+
+    public void setSliderROTACION_INI(int posInicial)
+    {
+        js_rotar.setValueIsAdjusting(true);
+        js_rotar.setValue(posInicial);
+        js_rotar.setValueIsAdjusting(false);
     }
 
     public void calcularEstrella(int nroPuntas, int lado, int salto, int sentidoDeAgregado)

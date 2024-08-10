@@ -521,6 +521,9 @@ public class VentanaDeCrearRutina extends JFrame{
 		);
 		result.add(jcb_porcentajeFinRotacion);
 
+		jcb_porcentajeIniRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
+		jcb_porcentajeFinRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
+
 		return result;
 	}
 
@@ -689,6 +692,9 @@ public class VentanaDeCrearRutina extends JFrame{
 		jcb_nivelDeRecursividad.setSelectedIndex(nivel);
 		//int iniZoom = elementosUI.panel_patron_inicial.js_zoom.getMinimum();//elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
 		//jcb_porcentajeIniZoom.setSelectedIndex(iniZoom);
+
+		jcb_porcentajeIniRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
+		jcb_porcentajeFinRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
 	}
 	
 	public void setElementosUI( Elementos_UI elementosUI )

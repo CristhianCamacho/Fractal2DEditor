@@ -12,6 +12,7 @@ public class Panel_de_dibujo_resultado extends JPanel{
 	//color de las lineas
 	Color color_lineas=Color.BLACK;
 	Color color_fondo=Color.WHITE;
+	Stroke stroke;
 
 	public void paint(Graphics g)
 	{
@@ -94,6 +95,27 @@ g.fillRect(0, 0, getWidth(), getHeight());
 	{
 		return color_fondo;
 	}
+
+	public Stroke getStroke() {
+		return stroke;
+	}
+/*
+	public void setStroke(Graphics2D g2,int a,int b,int c,int d,int e)
+	{
+		// Crea un stroke CON LOS PARAMETROS.
+		stroke = new BasicStroke(a, BasicStroke.CAP_SQUARE,
+				BasicStroke.JOIN_MITER, b,
+				new float[] { c, d }, e);
+		g2.setStroke(stroke);
+	}
+*/
+	public void setStroke(Stroke s)
+	{
+		// Crea un stroke CON LOS PARAMETROS.
+		stroke = s;
+		//((Graphics2D)getGraphics()).setStroke(stroke);
+	}
+
 	/*
 	public void updateColorLineas()
 	{

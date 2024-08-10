@@ -2,6 +2,7 @@ package com.cc.fractal2d_editor.Rutinas;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -117,7 +118,7 @@ public class VentaDeCrearEneagono extends JFrame{
 					public void actionPerformed(ActionEvent arg0) {
 						String sItem = (String) jcb_NroDePuntas.getSelectedItem();
 						
-						int max = getMaxSalto();
+						int max = Constants.getMaxSalto(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()));
 						String elementos[]=new String[max];
 						for(int i=0; i<elementos.length ; i++ )
 						{
@@ -149,7 +150,7 @@ public class VentaDeCrearEneagono extends JFrame{
 		result.setBorder(titleNombreModelo);
 		result.setLayout(new BorderLayout());
 		
-		int max = getMaxSalto();
+		int max = Constants.getMaxSalto(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()));
 		String elementos[]=new String[max];
 		for(int i=0; i<elementos.length ; i++ )
 			elementos[i]=""+(i+1);
@@ -328,22 +329,5 @@ public class VentaDeCrearEneagono extends JFrame{
 	{
 		this.setVisible(true);		
 	}
-	
-	private int getMaxSalto()
-	{
-		int iReturn = 1;
-		
-		int n = Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem());
-		
-		if(n%2==1)
-		{
-			iReturn = (int)(n/2);
-		}
-		else
-		{
-			iReturn = (int)(n/2) - 1;
-		}
-		
-		return iReturn;
-	}
+
 }

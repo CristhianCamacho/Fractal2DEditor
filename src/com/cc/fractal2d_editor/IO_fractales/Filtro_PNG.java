@@ -16,7 +16,7 @@ public class Filtro_PNG extends FileFilter{
 		
 		String nombre = archivo.getName();
 		
-		if( nombre.endsWith("."+extension) ||archivo.isDirectory()|| archivo.isFile())
+		if( nombre.endsWith("."+extension) || archivo.isDirectory() || archivo.isFile() )
 			res = true;
 		
 		return res;

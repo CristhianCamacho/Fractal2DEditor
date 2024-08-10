@@ -16,11 +16,19 @@ public class EventosKeyListenerMoverTodosLosPuntos implements KeyListener {
     public void keyPressed(KeyEvent e) {
         System.out.println(" : keyPressed()="+ this.getClass() + e.getKeyChar());
 
-        if(e.getSource() == Elementos_UI.instance.panel_patron_inicial.panel_de_dibujo) {
-            Elementos_UI.instance.panel_patron_inicial.mover_todos_los_puntos(e.getKeyCode());
-        }
-        if(e.getSource() == Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo) {
-            Elementos_UI.instance.panel_patron_recursivo.mover_todos_los_puntos(e.getKeyCode());
+        if  (e.getKeyCode() == KeyEvent.VK_UP ||
+                e.getKeyCode() == KeyEvent.VK_DOWN ||
+                e.getKeyCode() == KeyEvent.VK_RIGHT ||
+                e.getKeyCode() == KeyEvent.VK_LEFT
+        ) {
+
+            if(e.getSource() == Elementos_UI.instance.panel_patron_inicial.panel_de_dibujo ) {
+                Elementos_UI.instance.panel_patron_inicial.mover_todos_los_puntos(e.getKeyCode());
+            }
+            if(e.getSource() == Elementos_UI.instance.panel_patron_recursivo.panel_de_dibujo) {
+                Elementos_UI.instance.panel_patron_recursivo.mover_todos_los_puntos(e.getKeyCode());
+            }
+
         }
 
     }

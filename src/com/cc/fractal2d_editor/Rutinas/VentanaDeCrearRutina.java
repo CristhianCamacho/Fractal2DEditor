@@ -693,8 +693,8 @@ public class VentanaDeCrearRutina extends JFrame{
 		//int iniZoom = elementosUI.panel_patron_inicial.js_zoom.getMinimum();//elementosUI.panel_patron_inicial.js_zoom.getValue()-1;
 		//jcb_porcentajeIniZoom.setSelectedIndex(iniZoom);
 
-		jcb_porcentajeIniRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
-		jcb_porcentajeFinRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
+		//jcb_porcentajeIniRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
+		//jcb_porcentajeFinRotacion.setSelectedIndex(elementosUI.panel_patron_inicial.js_rotar.getValue());
 	}
 	
 	public void setElementosUI( Elementos_UI elementosUI )

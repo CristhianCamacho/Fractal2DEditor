@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Panel_de_dibujo extends JPanel {

@@ -23,6 +23,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Elementos_UI implements Runnable {
@@ -923,6 +924,119 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             //panel_de_dibujo.panel_de_dibujo.setBackground(color1);
         }
 
+        public void tiling(String tipoDeTiling)
+        {
+            setCalculandoFractales(true);
+
+            Vector oldPoints =  (Vector)panel_patron_inicial.panel_de_dibujo.v_puntos.clone();
+
+            // mover teseando
+
+            Vector v_puntos = panel_patron_inicial.panel_de_dibujo.v_puntos;
+
+            // mover los puntos
+            double xMin = ((Point2D)v_puntos.get(0)).getX();
+            double yMin = ((Point2D)v_puntos.get(0)).getY();
+
+            double xMax = ((Point2D)v_puntos.get(0)).getX();
+            double yMax = ((Point2D)v_puntos.get(0)).getY();
+
+            double diferenciaAnteriorYmaxActualYmax = 0;
+            double anteriorYMax = ((Point2D)v_puntos.get(0)).getY();
+
+            for(int i=0; i<v_puntos.size(); i++) {
+
+                Point2D valPoint2D = ((Point2D)v_puntos.get(i));
+                if ( valPoint2D.getX() < xMin )
+                {
+                    xMin = valPoint2D.getX();
+                }
+                if ( valPoint2D.getY() < yMin )
+                {
+                    yMin = valPoint2D.getY();
+                }
+
+                if ( valPoint2D.getX() > xMax )
+                {
+                    xMax = valPoint2D.getX();
+                }
+                if ( valPoint2D.getY() > yMax )
+                {
+                    anteriorYMax = yMax;
+                    yMax = valPoint2D.getY();
+                }
+            }
+
+            diferenciaAnteriorYmaxActualYmax = yMax - anteriorYMax;
+
+            double anchoFigura = xMax - xMin;
+            double altoFigura = yMax - yMin;
+
+            int MAX_X_SCREEN = (int)(panel_patron_inicial.panel_de_dibujo.getWidth()/anchoFigura);
+            int MAX_Y_SCREEN = (int)(panel_patron_inicial.panel_de_dibujo.getHeight()/altoFigura);
+
+            // por si pasa un error feo
+            if (MAX_X_SCREEN > 1000 ||
+                MAX_Y_SCREEN > 1000) {
+               return;
+            }
+
+            for(int fila=-1; fila<=MAX_X_SCREEN+1; fila++)
+            {
+                for(int columna=-1; columna<=MAX_Y_SCREEN+1; columna++)
+                {
+                    // para que no hagan mas calculos si se presiono el boton de Stop
+                    if ( !getCalculandoFractales() ) {
+                        return;
+                    }
+
+                    Vector nuevosPuntos = new Vector();
+
+                    for(int i=0; i<v_puntos.size(); i++)
+                    {
+                        Point2D valPoint2D = ((Point2D)v_puntos.get(i));
+
+                        double correccionX = 0;
+                        double correccionY = 0;
+
+
+                        switch (tipoDeTiling) {
+
+                            case Panel_resultado.TILING_CUADRADO:
+
+                                break;
+                            case Panel_resultado.TILING_HEXAGONAL:
+
+                                correccionY = columna*diferenciaAnteriorYmaxActualYmax;
+                                if (columna%2==0)
+                                {
+                                    correccionX = anchoFigura / 2;
+                                }
+
+                                break;
+
+                            default:
+                                throw new IllegalArgumentException("Invalid tipoDeTiling ");
+                        }
+
+                        Point2D newPoint2D = new Point2D.Double(
+                                valPoint2D.getX() - xMin + fila*anchoFigura - correccionX,
+                                valPoint2D.getY() - yMin + columna*altoFigura - correccionY
+                        );
+                        nuevosPuntos.add(newPoint2D);
+                    }
+                    panel_patron_inicial.panel_de_dibujo.v_puntos = nuevosPuntos;
+
+
+                    calcular_fractales();
+                }
+            }
+
+
+            panel_patron_inicial.panel_de_dibujo.v_puntos = oldPoints;
+
+        }
+
         ////
         //boolean isGradiente = true;
         String tipo;
@@ -1035,6 +1149,7 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             int ZoomSalto = 1;//(int)(panel_patron_inicial.totalZoom/(2*nroIteraciones));
             Double RotarSalto = 1.0;
 
+
             /// fijamos el mivel de recursividad si es 0
             //if(nivel==0)
             //{
@@ -1049,6 +1164,12 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
 panel_patron_inicial.setSliderPOS_INI(porcentajeZoomMin);
 
 panel_patron_inicial.setSliderROTACION_INI(porcentajeRotacionMin.intValue());
+
+if ( !getCalculandoFractales() )
+{
+    //set_calcular_fractales(true);
+    calcular_fractales();
+}
             //panel_patron_inicial.panel_de_dibujo.setOldZoom(1.0);
             //System.out.println("+panel_patron_inicial.js_zoom.getValue()"+panel_patron_inicial.js_zoom.getValue());
             //panel_patron_inicial.aplicarZoom(""+panel_patron_inicial.js_zoom.getValue());

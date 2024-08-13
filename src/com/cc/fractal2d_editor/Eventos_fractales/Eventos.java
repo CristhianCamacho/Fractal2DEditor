@@ -280,7 +280,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 				}
 				*/
             }
-
+            else
             if(aux.equals(Elementos_UI.MOVER_PUNTOS))
             {
                 StatePointsButtonCommand movepoint = new StatePointsButtonCommand(panel_patron,
@@ -311,7 +311,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 				}
 				*/
             }
-
+            else
             if(aux.equals(Elementos_UI.BORRAR_PUNTOS))
             {
                 StatePointsButtonCommand deletepoint = new StatePointsButtonCommand(panel_patron,
@@ -342,7 +342,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 				}
 				*/
             }
-
+            else
             if(aux.equals(Elementos_UI.BORRAR_TODO))
             {
                 StatePointsButtonCommand deleteallpoints = new StatePointsButtonCommand(panel_patron,
@@ -393,7 +393,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 //				elementos_ui.panel_patron_recursivo.aplicarZoom(elementos_ui.panel_patron_recursivo.jta_zoom.getText());
 //				}
 //			}
-
+            else
             if(aux.equals(Panel_resultado.CALCULAR))
             {
                 //if(elementos_ui.tabbedpane.getSelectedIndex()==elementos_ui.PANEL_DE_DIBUJO)
@@ -403,6 +403,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                     elementos_ui.calcular_fractales();
                 }
             }
+            else
             if(aux.equals(Panel_resultado.DETENER))
             {
                 System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
@@ -412,12 +413,14 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 elementos_ui.detenerRutina1();
                 elementos_ui.detenerRutina2();
             }
+            else
             if(aux.equals(Panel_resultado.CONTINUAR))
             {
                 //System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
                 elementos_ui.continuarHilo();
                 //set_calcular_fractales(true);
             }
+            else
             if(aux.equals(Panel_resultado.CLEAR))
             {
                 //System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
@@ -434,6 +437,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 elementos_ui.clear();
                 //set_calcular_fractales(true);
             }
+            else
             if(aux.equals(Panel_resultado.COLOR_LINEAS))
             {
                 //System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
@@ -443,10 +447,12 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 elementos_ui.setColorLineas_Panel_resultado(color1);
                 //set_calcular_fractales(true);
             }
+            else
             if(aux.equals(Panel_resultado.STROKE_LINEAS))
             {
                 JOptionFactory.showStrokeDialog(elementos_ui);
             }
+            else
             if(aux.equals(Panel_resultado.COLOR_FONDO))
             {
                 Color color1 = elementos_ui.panel_de_dibujo.panel_de_dibujo.getBackground() ;
@@ -454,6 +460,12 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                 System.out.println(this.getClass().getName()+":color1="+color1);
                 elementos_ui.setColorFondo_Panel_resultado(color1);
                 //set_calcular_fractales(true);
+            }
+            else
+            if(aux.equals(Panel_resultado.TILING_CUADRADO) ||
+                aux.equals(Panel_resultado.TILING_HEXAGONAL) )
+            {
+                elementos_ui.tiling(aux);
             }
 
         }

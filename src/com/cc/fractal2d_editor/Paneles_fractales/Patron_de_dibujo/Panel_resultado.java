@@ -33,7 +33,10 @@ public class Panel_resultado extends JPanel {
 	public JCheckBox check_liveDrawing;
 	public JCheckBox check_dibujarPrimeraLineaComoShape;
 	public JCheckBox check_no_dibujarPrimeraLineaPatronRecursivo;
-		
+
+	public JButton jb_tilig_cuadrado;
+    public JButton jb_tilig_hexagonal;
+
 	Elementos_UI elementos_UI;
 	
 	//Tabla tabla;
@@ -53,6 +56,9 @@ public class Panel_resultado extends JPanel {
 	public static String LIVE_DRAWING = "Live Drawing";
 	public static String DIBUJAR_PRIMERA_LINEA_RECURSIVA_COMO_SHAPE = "Prim rec.linea Shape";
 	public static String NO_DIBUJAR_PRIMERAS_LINEAS_PATRON_RECURSIVO = "No 1ra-ulti linea PR";
+
+	public static final String TILING_CUADRADO = "Tiling Cuadrado";
+	public static final String TILING_HEXAGONAL = "Tiling Hexagonal";
 
 	public Panel_resultado(Elementos_UI elementos_ui)
 	{
@@ -250,7 +256,7 @@ public class Panel_resultado extends JPanel {
 	_panel_de_controles.add(panelProgresoRutina);
 
 	JPanel panelLiveDrawingYOtros = new JPanel();
-	panelLiveDrawingYOtros.setLayout( new GridLayout(3,1));
+	panelLiveDrawingYOtros.setLayout( new GridLayout(5,1));
 	TitledBorder titleLiveDrawing;
 	titleLiveDrawing = BorderFactory.createTitledBorder(LIVE_DRAWING);
 	panelLiveDrawingYOtros.setBorder(titleLiveDrawing);
@@ -260,10 +266,17 @@ public class Panel_resultado extends JPanel {
 
 	check_dibujarPrimeraLineaComoShape = new JCheckBox(DIBUJAR_PRIMERA_LINEA_RECURSIVA_COMO_SHAPE);
 	check_dibujarPrimeraLineaComoShape.setSelected(false);
-	_panel_de_controles.add(check_dibujarPrimeraLineaComoShape);
+	panelLiveDrawingYOtros.add(check_dibujarPrimeraLineaComoShape);
 	check_no_dibujarPrimeraLineaPatronRecursivo = new JCheckBox(NO_DIBUJAR_PRIMERAS_LINEAS_PATRON_RECURSIVO);
-		check_no_dibujarPrimeraLineaPatronRecursivo.setSelected(false);
-	_panel_de_controles.add(check_no_dibujarPrimeraLineaPatronRecursivo);
+	check_no_dibujarPrimeraLineaPatronRecursivo.setSelected(false);
+	panelLiveDrawingYOtros.add(check_no_dibujarPrimeraLineaPatronRecursivo);
+
+	jb_tilig_cuadrado = new JButton(TILING_CUADRADO);
+	jb_tilig_cuadrado.addMouseListener(new Eventos(null, elementos_UI));
+	panelLiveDrawingYOtros.add(jb_tilig_cuadrado);
+    jb_tilig_hexagonal = new JButton(TILING_HEXAGONAL);
+    jb_tilig_hexagonal.addMouseListener(new Eventos(null, elementos_UI));
+    panelLiveDrawingYOtros.add(jb_tilig_hexagonal);
 
 	_panel_de_controles.add(panelLiveDrawingYOtros);
 

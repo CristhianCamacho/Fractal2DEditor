@@ -73,6 +73,8 @@ public class StatePointsButtonCommand implements Command {
 		{
 			panel_patron_inicial.jta_estado.setText(Elementos_UI.BORRAR_PUNTOS);
 
+			panel_patron_inicial.panel_de_dibujo.borrar_puntos_seleccionados();
+
 			panel_patron_inicial.mover_puntos.setSelected(false);
 		}
 		else

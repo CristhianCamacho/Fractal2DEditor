@@ -30,6 +30,9 @@ public class Panel_resultado extends JPanel {
 	public JProgressBar progresoRutina;
 	public JLabel tiempoRestanteRutina;
 
+	public JProgressBar progresoTiling;
+	public JLabel tiempoRestanteTiling;
+
 	public JCheckBox check_liveDrawing;
 	public JCheckBox check_dibujarPrimeraLineaComoShape;
 	public JCheckBox check_no_dibujarPrimeraLineaPatronRecursivo;
@@ -59,6 +62,8 @@ public class Panel_resultado extends JPanel {
 
 	public static final String TILING_CUADRADO = "Tiling Cuadrado";
 	public static final String TILING_HEXAGONAL = "Tiling Hexagonal";
+
+	public static final String SIN_TILING = "Sin Tiling";
 
 	public Panel_resultado(Elementos_UI elementos_ui)
 	{
@@ -254,6 +259,26 @@ public class Panel_resultado extends JPanel {
 	
 	//panel_de_controles.add(panelProgresoRutina);
 	_panel_de_controles.add(panelProgresoRutina);
+
+	/****/
+	JPanel panelProgresoTiling = new JPanel();
+	TitledBorder titleProgresoTiling;
+	titleProgresoTiling = BorderFactory.createTitledBorder("progreso tiling");
+	panelProgresoTiling.setBorder(titleProgresoTiling);
+	panelProgresoTiling.setLayout( new GridLayout(2,1));
+
+	progresoTiling = new JProgressBar();
+	progresoTiling.setMinimum(0);
+	progresoTiling.setMaximum(100);
+	progresoTiling.setStringPainted(true);
+	panelProgresoTiling.add(progresoTiling);
+
+	tiempoRestanteTiling = new JLabel("");
+	panelProgresoTiling.add(tiempoRestanteTiling);
+
+	//panel_de_controles.add(panelProgresoRutina);
+	_panel_de_controles.add(panelProgresoTiling);
+	/****/
 
 	JPanel panelLiveDrawingYOtros = new JPanel();
 	panelLiveDrawingYOtros.setLayout( new GridLayout(5,1));

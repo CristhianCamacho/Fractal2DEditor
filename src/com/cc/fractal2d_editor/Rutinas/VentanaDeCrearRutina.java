@@ -8,17 +8,12 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
+import com.cc.fractal2d_editor.utils.Constants;
 
 public class VentanaDeCrearRutina extends JFrame{
 
@@ -31,12 +26,12 @@ public class VentanaDeCrearRutina extends JFrame{
 	public String FIJO = "Fijo";
 	public String GRADIENTE_ALEATORIO = "Gradiente Aleatorio";
 	
-	JComboBox jcb_tipoDeDibujoDeColores;
+	public JComboBox jcb_tipoDeDibujoDeColores;
 	
 	//JButton jb_botonIni;
 	//JButton jb_botonFin;
 	JButton[] jb_botonesColoresGradientes = new JButton[2];
-	Color[] coloresGradientes = {Color.WHITE, Color.BLACK};
+	public Color[] coloresGradientes = {Color.WHITE, Color.BLACK};
 	JPanel p_botonesColoresGradiente;
 	//Color colorInicial=Color.WHITE;
 	//Color colorFinal=Color.BLACK;
@@ -51,17 +46,21 @@ public class VentanaDeCrearRutina extends JFrame{
 								 Color.RED,
 								 Color.YELLOW,
 								 Color.BLACK};
-	
-	JComboBox jcb_numeroDeGradientes;
-	JComboBox jcb_numeroDeLineas;
+
+	public JComboBox jcb_numeroDeGradientes;
+	public JComboBox jcb_numeroDeLineas;
 	
 	//JComboBox jcb_nroDeIteraciones;
-	JComboBox jcb_nivelDeRecursividad;
-	JComboBox jcb_porcentajeIniZoom;
-	JComboBox jcb_porcentajeFinZoom;
+	public JComboBox jcb_nivelDeRecursividad;
+	public JComboBox jcb_porcentajeIniZoom;
+	public JComboBox jcb_porcentajeFinZoom;
 
-	JComboBox jcb_porcentajeIniRotacion;
-	JComboBox jcb_porcentajeFinRotacion;
+	public JComboBox jcb_porcentajeIniRotacion;
+	public JComboBox jcb_porcentajeFinRotacion;
+
+	JRadioButton jrb_sinTiling;
+	JRadioButton jrb_tilingCuadrado;
+	JRadioButton jrb_tilingHexagonal;
 
 	private VentanaDeCrearRutina()
 	{
@@ -258,7 +257,7 @@ public class VentanaDeCrearRutina extends JFrame{
 					String sItem = (String) jcb_tipoDeDibujoDeColores.getSelectedItem();
 					if(sItem.equalsIgnoreCase(GRADIENTE))
 					{
-						updatePanelBotonesColorGradiente();
+						updatePanelBotonesColorGradiente(new Color[]{Color.WHITE, Color.BLACK});
 					}
 					else
 					if( sItem.equalsIgnoreCase(GRADIENTE_ALEATORIO) )
@@ -291,14 +290,14 @@ public class VentanaDeCrearRutina extends JFrame{
 						//JButton[] tmpBotones = jb_botonesColoresGradientes;
 
 						jb_botonesColoresGradientes = new JButton[nroBotones];
-						coloresGradientes = new Color[nroBotones];
+						//coloresGradientes = new Color[nroBotones];
 
 						for(int i=0;i<nroBotones;i++)
 						{
 							jb_botonesColoresGradientes[i] = new JButton(""+i);
 						}
 
-						updatePanelBotonesColorGradienteAleatorio();
+						updatePanelBotonesColorGradiente(new Color[]{Color.WHITE, Color.BLACK});
 					}
 				}
 			}	
@@ -532,11 +531,28 @@ public class VentanaDeCrearRutina extends JFrame{
 		JPanel result = new JPanel();
 		
 		result.setLayout(new BorderLayout());
+		//result.setLayout(new BoxLayout( result, BoxLayout.Y_AXIS));
 		TitledBorder titleNombreModelo;
 		titleNombreModelo = BorderFactory.createTitledBorder(Elementos_UI.CALCULAR);
 		result.setBorder(titleNombreModelo);
-		result.setLayout(new BorderLayout());
-		
+
+		JPanel p_radioTiling = new JPanel();
+		p_radioTiling.setLayout(new BoxLayout( p_radioTiling, BoxLayout.Y_AXIS));
+		jrb_sinTiling = new JRadioButton(Panel_resultado.SIN_TILING);
+		jrb_sinTiling.setVisible(true);
+		p_radioTiling.add(jrb_sinTiling);
+		jrb_tilingCuadrado = new JRadioButton(Panel_resultado.TILING_CUADRADO);
+		p_radioTiling.add(jrb_tilingCuadrado);
+		jrb_tilingHexagonal = new JRadioButton(Panel_resultado.TILING_HEXAGONAL);
+		p_radioTiling.add(jrb_tilingHexagonal);
+		ButtonGroup bg_tiling = new ButtonGroup();
+		bg_tiling.add(jrb_sinTiling);
+		bg_tiling.add(jrb_tilingCuadrado);
+		bg_tiling.add(jrb_tilingHexagonal);
+		jrb_sinTiling.setSelected(true);
+
+		result.add(p_radioTiling, BorderLayout.NORTH);
+
 		JButton jb_botonCalcular =new JButton(Elementos_UI.CALCULAR);
 		jb_botonCalcular.addActionListener(new ActionListener()
 				{
@@ -547,28 +563,42 @@ public class VentanaDeCrearRutina extends JFrame{
 						elementosUI.checkCurrentTabSelectedAndOpen(2);
 
 						elementosUI.setCalculandoFractales(false);
-						
-						elementosUI.ejecutarRutina1( ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()) // GRADIENTE, FIJO, GRADIENTE_ALEATORIO
-								                     ,
-								coloresGradientes,
-								Integer.parseInt((String)jcb_numeroDeLineas.getSelectedItem()),
-								//Integer.parseInt((String)jcb_nroDeIteraciones.getSelectedItem()),
-								coloresGradientes.length,//Integer.parseInt((String)jcb_numeroDeGradientes.getSelectedItem()+1),//int nroDeGradientes,
-								Integer.parseInt((String)jcb_nivelDeRecursividad.getSelectedItem()),//int nivelDeRecursividad,
-								Integer.parseInt((String)jcb_porcentajeIniZoom.getSelectedItem()),//int porcentajeZoomMin);
-								Integer.parseInt((String)jcb_porcentajeFinZoom.getSelectedItem()),
-								Double.parseDouble((String)jcb_porcentajeIniRotacion.getSelectedItem()),
-								Double.parseDouble((String)jcb_porcentajeFinRotacion.getSelectedItem())
+
+						if (jrb_sinTiling.isSelected()) {
+							elementosUI.ejecutarRutina1( ((String)jcb_tipoDeDibujoDeColores.getSelectedItem()) // GRADIENTE, FIJO, GRADIENTE_ALEATORIO
+									,
+									coloresGradientes,
+									Integer.parseInt((String)jcb_numeroDeLineas.getSelectedItem()),
+									//Integer.parseInt((String)jcb_nroDeIteraciones.getSelectedItem()),
+									coloresGradientes.length,//Integer.parseInt((String)jcb_numeroDeGradientes.getSelectedItem()+1),//int nroDeGradientes,
+									Integer.parseInt((String)jcb_nivelDeRecursividad.getSelectedItem()),//int nivelDeRecursividad,
+									Integer.parseInt((String)jcb_porcentajeIniZoom.getSelectedItem()),//int porcentajeZoomMin);
+									Integer.parseInt((String)jcb_porcentajeFinZoom.getSelectedItem()),
+									Double.parseDouble((String)jcb_porcentajeIniRotacion.getSelectedItem()),
+									Double.parseDouble((String)jcb_porcentajeFinRotacion.getSelectedItem())
 								);
+						}
+						else
+						{
+							elementosUI.tiling(
+									jrb_tilingCuadrado.isSelected()?
+											Panel_resultado.TILING_CUADRADO:
+											jrb_tilingHexagonal.isSelected()?
+													Panel_resultado.TILING_HEXAGONAL:
+													Panel_resultado.SIN_TILING
+									, true
+							);
+						}
+
 					}
 				}
 		);
-		result.add(jb_botonCalcular);
+		result.add(jb_botonCalcular, BorderLayout.CENTER);
 		
 		return result;
 	}
 	
-	public void updatePanelBotonesColorGradiente()
+	public void updatePanelBotonesColorGradiente(Color[] colores)
 	{
 		String s_value = (String)jcb_numeroDeGradientes.getSelectedItem();
 		int nroBotones = Integer.parseInt(s_value) + 1;
@@ -585,10 +615,17 @@ public class VentanaDeCrearRutina extends JFrame{
 			{
 				c_tmp[i]=coloresGradientes[i];
 			}
-			
+
+			int contColores = 0;
 			for(int j=i; j<nroBotones; j++)
 			{
-				c_tmp[j]=Color.WHITE;
+				c_tmp[j] = colores[contColores];//Color.WHITE;
+
+				if ((j-1)%colores.length==0) {
+					contColores = 0;
+				} else {
+					contColores++;
+				}
 			}
 			
 			coloresGradientes = c_tmp;

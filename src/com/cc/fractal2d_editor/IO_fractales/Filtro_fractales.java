@@ -5,7 +5,7 @@ import javax.swing.filechooser.FileFilter;
 
 public class Filtro_fractales extends FileFilter{
 
-	public String extension="FRACTALES";
+	public static String extension="FRACTALES";
 	
 	public String getDescription(){
 		return "."+extension;

@@ -40,12 +40,13 @@ public class MouseDraggedCommand implements Command{
 	}
 	
 	public void execute() {
-		
+
 //		System.out.println("mouseDragged");
-		
-		if(esta_este_punto_en_la_lista && mover_puntos_valorOriginal)
+		if(mover_puntos_valorOriginal)
 		{
-			panel_patron.mover_punto(puntoX_valorNuevo, puntoY_valorNuevo);
+			if (esta_este_punto_en_la_lista && mover_puntos_valorOriginal) {
+				panel_patron.mover_punto(puntoX_valorNuevo, puntoY_valorNuevo);
+			}
 		}
 		else
 		// esto es para hacer un drag de todos los puntos

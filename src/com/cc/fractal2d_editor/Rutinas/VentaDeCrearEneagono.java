@@ -25,6 +25,8 @@ public class VentaDeCrearEneagono extends JFrame{
 	JComboBox jcb_sentido_de_agregado;
 
 	JComboBox jcb_panel_patron_inicial_o_panel_patron_recursivo;
+
+	JCheckBox jcb_agregar_al_final;
 	
 	private VentaDeCrearEneagono()
 	{
@@ -63,6 +65,9 @@ public class VentaDeCrearEneagono extends JFrame{
 
 		JPanel panelPanelPatronIncial_O_PanelPatronRecursivo = crearPanelPatronIncial_O_PanelPatronRecursivo();
 		add(panelPanelPatronIncial_O_PanelPatronRecursivo);
+
+		JPanel panelCheckAgregarAlFinal = crearPanelCheckAgregarAlFInal();
+		add(panelCheckAgregarAlFinal);
 		
 		JPanel panelCalcular = crearPanelCalcular();
 		add(panelCalcular);
@@ -246,6 +251,23 @@ public class VentaDeCrearEneagono extends JFrame{
 		return result;
 
 	}
+
+	public JPanel crearPanelCheckAgregarAlFInal() {
+
+
+		JPanel result = new JPanel();
+		result.setLayout(new BorderLayout());
+		TitledBorder titlePatronIncial_O_PatronRecursivo;
+		titlePatronIncial_O_PatronRecursivo = BorderFactory.createTitledBorder("agregar al final de los pts actuales");
+		result.setBorder(titlePatronIncial_O_PatronRecursivo);
+
+		jcb_agregar_al_final = new JCheckBox("Agregar al final");
+		jcb_agregar_al_final.setSelected(false);
+
+		result.add(jcb_agregar_al_final);
+
+		return result;
+	}
 	
 	private JPanel crearPanelCalcular()
 	{
@@ -291,12 +313,12 @@ public class VentaDeCrearEneagono extends JFrame{
 						if(tipoEstrella.equalsIgnoreCase(TIPO1))
 						{
 							agregarAlPanel.calcularEneagono(nroPuntas, lado, salto,
-									jcb_sentido_de_agregado.getSelectedIndex());
+									jcb_sentido_de_agregado.getSelectedIndex(), jcb_agregar_al_final.isSelected());
 						}
 						if(tipoEstrella.equalsIgnoreCase(TIPO2))
 						{
 							agregarAlPanel.calcularEneagono1(nroPuntas, lado, salto,
-									jcb_sentido_de_agregado.getSelectedIndex());
+									jcb_sentido_de_agregado.getSelectedIndex(), jcb_agregar_al_final.isSelected());
 						}
 						
 						

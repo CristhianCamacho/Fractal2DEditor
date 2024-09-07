@@ -10,6 +10,7 @@ import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
 import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina2;
 import com.cc.fractal2d_editor.command.ListaDeAcciones;
 import com.cc.fractal2d_editor.command.StatePointsButtonCommand;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -407,11 +408,7 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             if(aux.equals(Panel_resultado.DETENER))
             {
                 System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
-                elementos_ui.setCalculandoFractales(false);
-                elementos_ui.detenerHilo();
-                //set_calcular_fractales(true);
-                elementos_ui.detenerRutina1();
-                elementos_ui.detenerRutina2();
+                Constants.DETENER_TODO();
             }
             else
             if(aux.equals(Panel_resultado.CONTINUAR))
@@ -465,7 +462,11 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             if(aux.equals(Panel_resultado.TILING_CUADRADO) ||
                 aux.equals(Panel_resultado.TILING_HEXAGONAL) )
             {
-                elementos_ui.tiling(aux);
+                // paar evitar cosas con un doble click al boton
+                if (!elementos_ui.getCalculandoFractales())
+                {
+                    elementos_ui.tiling(aux,false);
+                }
             }
 
         }
@@ -585,13 +586,13 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
 
                 if(panel_patron == elementos_ui.panel_patron_inicial)
                 {
-                    //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
+                    System.out.println(this.getClass().getName()+":stateChanged panel_patron_inicial temp.getValue()="+temp.getValue());
                     elementos_ui.panel_patron_inicial.aplicarRotacion(""+value);
                 }
                 else
                 if(panel_patron == elementos_ui.panel_patron_recursivo)
                 {
-                    //System.out.println(this.getClass().getName()+":stateChanged temp.getValue()="+temp.getValue());
+                    System.out.println(this.getClass().getName()+":stateChanged panel_patron_recursivo temp.getValue()="+temp.getValue());
                     elementos_ui.panel_patron_recursivo.aplicarRotacion(""+value);
                 }
             }

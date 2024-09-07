@@ -93,8 +93,9 @@ public class Abrir_fractales
 
 			if(i==0)
 			{
-			 
-			String aux_s=filechooser.getSelectedFile().getName(); 
+
+			File file = filechooser.getSelectedFile();
+			String aux_s=file.getName();
 				   aux_s=aux_s.substring( 0,aux_s.length()-filtro.extension.length() );
 			 	
 			
@@ -104,10 +105,11 @@ public class Abrir_fractales
 			Vector v =Flujo.leer(aux);
 			
 			elementos_UI.datos_para_abrir( v );
-				
+
+			Archivos_recientes.agregar_Archivo_reciente(file);
 			}
 			
-	}
+		}
 		
 	}
 	public void verificar_valor()

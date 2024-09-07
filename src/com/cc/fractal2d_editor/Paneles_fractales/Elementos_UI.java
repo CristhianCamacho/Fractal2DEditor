@@ -3,11 +3,13 @@ package com.cc.fractal2d_editor.Paneles_fractales;
 import com.cc.fractal2d_editor.Eventos_fractales.Eventos;
 import com.cc.fractal2d_editor.Eventos_fractales.EventosRedoUndo;
 import com.cc.fractal2d_editor.IO_fractales.Abrir_fractales;
+import com.cc.fractal2d_editor.IO_fractales.Archivos_recientes;
 import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales;
 import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Crear_Algoritmo;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
+import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
 import com.cc.fractal2d_editor.utils.Constants;
 import org.w3c.dom.Document;
 
@@ -23,7 +25,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.Vector;
 
 public class Elementos_UI implements Runnable {
@@ -84,6 +85,8 @@ public class Elementos_UI implements Runnable {
         public static String RUTINA_1 = "RUTINA_1";
         public static String RUTINA_2 = "RUTINA_2";
 
+        public static boolean ejecutandoRutina1 = false;
+
         public Point2D.Double puntoAleatorio = null;
 
         public boolean dibujarTriangulos = false;
@@ -116,6 +119,8 @@ public class Elementos_UI implements Runnable {
 
         public static int dimensionPrefPanel_de_controles_width = 80;
 
+        //public static JMenu archivo;
+
         public Elementos_UI(JFrame f)
         {
             instance = this;
@@ -144,6 +149,12 @@ public class Elementos_UI implements Runnable {
             m.addActionListener(new Eventos(null,this));
             archivo.add(m);
             archivo.addSeparator();
+
+            JMenu mr=new JMenu("Abrir Recientes");
+            mr.setToolTipText("abrir archivos recientes");
+            archivo.add(mr);
+            archivo.addSeparator();
+            Archivos_recientes.cargar_Archivos_recientes(mr);
 
             m=new JMenuItem("Guardar",KeyEvent.VK_G);
             //m.setIcon(new ImageIcon("Imagenes"+File.separatorChar+"icono_nuevo.gif"));
@@ -629,13 +640,13 @@ public class Elementos_UI implements Runnable {
 
             panel_patron_inicial.panel_de_dibujo.v_puntos=v_patron_inicial;
             panel_patron_inicial.panel_de_dibujo.mas_puntos=false;
-            panel_patron_inicial.panel_de_dibujo.mover_puntos=true;
+            panel_patron_inicial.panel_de_dibujo.mover_puntos=false;
             panel_patron_inicial.panel_de_dibujo.borrar_puntos=false;
             panel_patron_inicial.panel_de_dibujo.borrar_todo=false;
 
             panel_patron_recursivo.panel_de_dibujo.v_puntos=v_patron_recursivo;
             panel_patron_recursivo.panel_de_dibujo.mas_puntos=false;
-            panel_patron_recursivo.panel_de_dibujo.mover_puntos=true;
+            panel_patron_recursivo.panel_de_dibujo.mover_puntos=false;
             panel_patron_recursivo.panel_de_dibujo.borrar_puntos=false;
             panel_patron_recursivo.panel_de_dibujo.borrar_todo=false;
 
@@ -752,10 +763,12 @@ public class Elementos_UI implements Runnable {
 
         public boolean calculandoFractales = false;
 
+        // nunca synchronized se tira feo
         public void setCalculandoFractales(boolean calculandoFract) {
             calculandoFractales = calculandoFract;
         }
 
+        // nunca synchronized se tira feo
         public boolean getCalculandoFractales() {
             return calculandoFractales;
         }
@@ -766,6 +779,10 @@ public class Elementos_UI implements Runnable {
             //if(calcular_fractales)
             //{
             Point2D[] pb=panel_patron_inicial.panel_de_dibujo.get_puntos();
+            if (panel_patron_inicial.panel_de_dibujo.v_puntos.size() == 0)
+            {
+                System.out.println(this.getClass().getName()+":v_puntos.size() = " + panel_patron_inicial.panel_de_dibujo.v_puntos.size());
+            }
             Point2D[] pr=panel_patron_recursivo.panel_de_dibujo.get_puntos();
             //String[] si=panel_de_dibujo.get_signos();
             //Graphics g=panel_de_dibujo.panel_de_dibujo.getGraphics();
@@ -786,7 +803,7 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             boolean dibujarPrimeraLineaComoShape = panel_de_dibujo.check_dibujarPrimeraLineaComoShape.isSelected();
             boolean no_dibujarPrimeraLineaPatronRecursivo = panel_de_dibujo.check_no_dibujarPrimeraLineaPatronRecursivo.isSelected();
 
-            System.out.println(this.getClass().getName()+".calcular_fractales() Color"+g.getColor());
+//System.out.println(this.getClass().getName()+".calcular_fractales() Color"+g.getColor());
             //((Graphics2D)(g)).setBackground(Color.WHITE);
             int orden=panel_de_dibujo.jcb_nivel.getSelectedIndex();
             if (orden == 0)
@@ -924,15 +941,21 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             //panel_de_dibujo.panel_de_dibujo.setBackground(color1);
         }
 
-        public void tiling(String tipoDeTiling)
+        public void tiling(String tipoDeTiling, boolean ejecutar_rutina1)
         {
+            try {
+
+
             setCalculandoFractales(true);
+            detenerRutina1_tiling = false;
 
             Vector oldPoints =  (Vector)panel_patron_inicial.panel_de_dibujo.v_puntos.clone();
 
             // mover teseando
+            Vector v_puntos = (Vector)panel_patron_inicial.panel_de_dibujo.v_puntos.clone();
 
-            Vector v_puntos = panel_patron_inicial.panel_de_dibujo.v_puntos;
+            String s_oldZoom = panel_patron_inicial.jl_zoom.getText();
+            int int_oldZoom = panel_patron_inicial.js_zoom.getValue();
 
             // mover los puntos
             double xMin = ((Point2D)v_puntos.get(0)).getX();
@@ -941,39 +964,39 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             double xMax = ((Point2D)v_puntos.get(0)).getX();
             double yMax = ((Point2D)v_puntos.get(0)).getY();
 
-            double diferenciaAnteriorYmaxActualYmax = 0;
+            //double diferenciaAnteriorYmaxActualYmax = 0;
             double anteriorYMax = ((Point2D)v_puntos.get(0)).getY();
 
             for(int i=0; i<v_puntos.size(); i++) {
 
                 Point2D valPoint2D = ((Point2D)v_puntos.get(i));
-                if ( valPoint2D.getX() < xMin )
+                if ( valPoint2D.getX() <= xMin )
                 {
                     xMin = valPoint2D.getX();
                 }
-                if ( valPoint2D.getY() < yMin )
+                if ( valPoint2D.getY() <= yMin )
                 {
                     yMin = valPoint2D.getY();
                 }
 
-                if ( valPoint2D.getX() > xMax )
+                if ( valPoint2D.getX() >= xMax )
                 {
                     xMax = valPoint2D.getX();
                 }
-                if ( valPoint2D.getY() > yMax )
+                if ( valPoint2D.getY() >= yMax )
                 {
                     anteriorYMax = yMax;
                     yMax = valPoint2D.getY();
                 }
             }
 
-            diferenciaAnteriorYmaxActualYmax = yMax - anteriorYMax;
+            final double diferenciaAnteriorYmaxActualYmax = yMax - anteriorYMax;
 
             double anchoFigura = xMax - xMin;
             double altoFigura = yMax - yMin;
 
-            int MAX_X_SCREEN = (int)(panel_patron_inicial.panel_de_dibujo.getWidth()/anchoFigura);
-            int MAX_Y_SCREEN = (int)(panel_patron_inicial.panel_de_dibujo.getHeight()/altoFigura);
+            int MAX_X_SCREEN = (int)(panel_de_dibujo.panel_de_dibujo.getWidth()/anchoFigura);
+            int MAX_Y_SCREEN = (int)(panel_de_dibujo.panel_de_dibujo.getHeight()/altoFigura);
 
             // por si pasa un error feo
             if (MAX_X_SCREEN > 1000 ||
@@ -981,17 +1004,31 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
                return;
             }
 
-            for(int fila=-1; fila<=MAX_X_SCREEN+1; fila++)
+                final double _xMin = xMin;
+                final double _yMin = yMin;
+                Thread hiloRutina1 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+            int MIN_ROW = -1;
+            int MIN_COL = -1;
+
+            int MAX_ROW = MAX_Y_SCREEN + 1;
+            int MAX_COL = MAX_X_SCREEN;
+
+            settearBarraDeProgresoTilingValoresIniciales( (MAX_ROW - (MIN_ROW) +1)*(MAX_COL - (MIN_COL) +1) );
+
+            for(int columna=MIN_ROW; columna<=MAX_ROW; columna++)
             {
-                for(int columna=-1; columna<=MAX_Y_SCREEN+1; columna++)
+                for(int fila=MIN_COL; fila<=MAX_COL; fila++)
                 {
+
                     // para que no hagan mas calculos si se presiono el boton de Stop
-                    if ( !getCalculandoFractales() ) {
+                    if (detenerRutina1_tiling || !getCalculandoFractales() ) {
                         return;
                     }
 
                     Vector nuevosPuntos = new Vector();
-
                     for(int i=0; i<v_puntos.size(); i++)
                     {
                         Point2D valPoint2D = ((Point2D)v_puntos.get(i));
@@ -1007,40 +1044,224 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
                                 break;
                             case Panel_resultado.TILING_HEXAGONAL:
 
-                                correccionY = columna*diferenciaAnteriorYmaxActualYmax;
-                                if (columna%2==0)
+                                // triagulos
+                                if (v_puntos.size() == 4)
+                                {
+                                    correccionY = altoFigura;
+                                }
+                                // no triangulos
+                                else
+                                {
+                                    correccionY = columna*diferenciaAnteriorYmaxActualYmax;
+                                }
+
+                                if (columna == -1)
                                 {
                                     correccionX = anchoFigura / 2;
+                                }
+                                else
+                                if(columna%2==1)
+                                {
+                                    correccionX = -anchoFigura/2;
+                                } else
+                                {
+                                    correccionX = -anchoFigura;
                                 }
 
                                 break;
 
                             default:
                                 throw new IllegalArgumentException("Invalid tipoDeTiling ");
+
                         }
 
                         Point2D newPoint2D = new Point2D.Double(
-                                valPoint2D.getX() - xMin + fila*anchoFigura - correccionX,
-                                valPoint2D.getY() - yMin + columna*altoFigura - correccionY
+                                valPoint2D.getX() - _xMin + fila*anchoFigura - correccionX,
+                                valPoint2D.getY() - _yMin + columna*altoFigura - correccionY
                         );
                         nuevosPuntos.add(newPoint2D);
                     }
                     panel_patron_inicial.panel_de_dibujo.v_puntos = nuevosPuntos;
 
+                    try {
+                        Thread.sleep(2);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                   //panel_patron_inicial.panel_de_dibujo.v_puntos = oldPoints;
 
-                    calcular_fractales();
+                    // tiling de no triangulos
+                    if (v_puntos.size() != 4)
+                    {
+                        ejecutarFractalesORutina1(ejecutar_rutina1);
+                    }
+                    else // tiling de triangulos
+                    if (v_puntos.size() == 4)
+                    {
+                        ejecutarFractalesORutina1(ejecutar_rutina1);
+
+                        Vector nuevosPuntosTriang = new Vector();
+                        Vector v_puntosTriang = Constants.aplicarRotacion(v_puntos, 60, panel_patron_inicial.panel_de_dibujo.TAM);
+
+                        for(int i=0; i<v_puntosTriang.size(); i++)
+                        {
+                            Point2D valPoint2D = ((Point2D) v_puntosTriang.get(i));
+
+                            double correccionX;// = -anchoFigura/2;
+                            double correccionY = -altoFigura*0.3333;
+
+                            switch (tipoDeTiling) {
+
+                                case Panel_resultado.TILING_CUADRADO:
+                                    correccionX = -anchoFigura/2;
+                                    //correccionY = -altoFigura*0.3333;
+
+                                    break;
+                                case Panel_resultado.TILING_HEXAGONAL:
+                                    //correccionY = -altoFigura*0.3333;
+                                    if(columna%2==1)
+                                    {
+                                        correccionX = -anchoFigura/2;
+                                    } else
+                                    {
+                                        correccionX = -anchoFigura;
+                                    }
+
+                                    break;
+
+                                default:
+                                    throw new IllegalArgumentException("Invalid tipoDeTiling ");
+
+                            }
+
+                            Point2D newPoint2D = new Point2D.Double(
+                                    valPoint2D.getX() - _xMin + fila * anchoFigura - correccionX,
+                                    valPoint2D.getY() - _yMin + columna * altoFigura - correccionY
+                            );
+                            nuevosPuntosTriang.add(newPoint2D);
+                        }
+
+                        panel_patron_inicial.panel_de_dibujo.v_puntos = nuevosPuntosTriang;
+
+                        if (panel_patron_inicial.panel_de_dibujo.v_puntos.size() == 0)
+                        {
+                            System.out.println("3 tiling: v_puntos.size() = " + v_puntos.size());
+                        }
+                        try {
+                            Thread.sleep(2);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        ejecutarFractalesORutina1(ejecutar_rutina1);
+                    }
+
+                    incrementarBarraDeProgresoTilingEnUno();
                 }
+
+
+            }
+                    }
+                    });
+                hiloRutina1.start();
+
+                (new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        while ( hiloRutina1.isAlive() || ejecutandoRutina1 || getCalculandoFractales() ) {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        try {
+                            hiloRutina1.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (ejecutar_rutina1) {
+                            Constants.DETENER_TODO();
+                        }
+
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                panel_patron_inicial.jl_zoom.setText(s_oldZoom);
+                                panel_patron_inicial.js_zoom.setValue(int_oldZoom);
+                                panel_patron_inicial.panel_de_dibujo.v_puntos = oldPoints;
+
+                                panel_patron_inicial.panel_de_dibujo.repaint();
+                            }
+                        });
+
+                    }})).start();
+            //???
+            // incrementarBarraDeProgresoEnUno();
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
+        }
 
-            panel_patron_inicial.panel_de_dibujo.v_puntos = oldPoints;
+        public synchronized void ejecutarFractalesORutina1(boolean ejecutar_rutina1)
+        {
+            if (ejecutar_rutina1) {
+/*
+                Thread hiloRutina1 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+*/
+                //coloresGradientes =
 
+                        VentanaDeCrearRutina vcr = VentanaDeCrearRutina.getInstance();
+                        ejecutarRutina1( ((String)vcr.jcb_tipoDeDibujoDeColores.getSelectedItem()) // GRADIENTE, FIJO, GRADIENTE_ALEATORIO
+                                ,
+                                vcr.coloresGradientes,
+                                Integer.parseInt((String)vcr.jcb_numeroDeLineas.getSelectedItem()),
+                                //Integer.parseInt((String)jcb_nroDeIteraciones.getSelectedItem()),
+                                vcr.coloresGradientes.length,//Integer.parseInt((String)jcb_numeroDeGradientes.getSelectedItem()+1),//int nroDeGradientes,
+                                Integer.parseInt((String)vcr.jcb_nivelDeRecursividad.getSelectedItem()),//int nivelDeRecursividad,
+                                Integer.parseInt((String)vcr.jcb_porcentajeIniZoom.getSelectedItem()),//int porcentajeZoomMin);
+                                Integer.parseInt((String)vcr.jcb_porcentajeFinZoom.getSelectedItem()),
+                                Double.parseDouble((String)vcr.jcb_porcentajeIniRotacion.getSelectedItem()),
+                                Double.parseDouble((String)vcr.jcb_porcentajeFinRotacion.getSelectedItem())
+                        );
+/*
+                    }
+                });
+                hiloRutina1.start();
+*/
+            }
+            else
+            {
+                calcular_fractales();
+            }
         }
 
         ////
         //boolean isGradiente = true;
         String tipo;
-        Color[] coloresGradientes = {Color.WHITE, Color.BLACK};
+        Color[] _coloresGradientes = {Color.WHITE, Color.BLACK};
         //Color colorIni = Color.WHITE;
         //Color colorFin = Color.BLACK;
         //int nroIteraciones = 50;
@@ -1053,7 +1274,7 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
         Double porcentajeRotacionMax = 0.0;
         //// rutina 1
         // tipo = GRADIENTE, GRADIENTE_ALEATORIO, FIJO,
-        public void ejecutarRutina1(String tipo,
+        public synchronized void ejecutarRutina1(String tipo,
                                     Color[] coloresGradiente,
                                     int nroLineas,
                 /*int nroIteraciones,*/
@@ -1069,7 +1290,7 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
 
             this.tipo = tipo;
             //this.isGradiente = isGradiente;
-            coloresGradientes = coloresGradiente;
+            _coloresGradientes = coloresGradiente;
             //this.colorIni = colorIni;
             //this.colorFin = colorFin;
             //this.nroIteraciones = nroIteraciones;
@@ -1099,6 +1320,7 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
         public void run()
         {
             if(RutinaActual == RUTINA_1) {
+                setCalculandoFractales(false);
                 ejecutarRutina1_run();
             } else
             if(RutinaActual == RUTINA_2) {
@@ -1120,6 +1342,9 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
         public boolean isDentro = false;
         public boolean isFuera = false;
 
+        public boolean detenerRutina1_tiling = false;
+
+
         public void detenerRutina1()
         {
             detenerRutina1 = true;
@@ -1129,6 +1354,12 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
         {
             detenerRutina2 = true;
         }
+
+        public void detenerRutina1_tiling()
+        {
+            detenerRutina1_tiling = true;
+        }
+
 
         public synchronized void ejecutarRutina1_run()
         {
@@ -1191,10 +1422,10 @@ if ( !getCalculandoFractales() )
                 double saltoB = -1;
 
                 // transparente viene null del dialogo de colores
-                if (coloresGradientes[j] != null && coloresGradientes[(j+1)%nroDeGradientes] != null) {
-                    saltoR = (double) ((-coloresGradientes[j].getRed()+coloresGradientes[(j+1)%nroDeGradientes].getRed())/nroIteraciones) ;
-                    saltoG = (double) ((-coloresGradientes[j].getGreen()+coloresGradientes[(j+1)%nroDeGradientes].getGreen())/nroIteraciones) ;
-                    saltoB = (double) ((-coloresGradientes[j].getBlue()+coloresGradientes[(j+1)%nroDeGradientes].getBlue())/nroIteraciones) ;
+                if (_coloresGradientes[j] != null && _coloresGradientes[(j+1)%nroDeGradientes] != null) {
+                    saltoR = (double) ((-_coloresGradientes[j].getRed()+_coloresGradientes[(j+1)%nroDeGradientes].getRed())/nroIteraciones) ;
+                    saltoG = (double) ((-_coloresGradientes[j].getGreen()+_coloresGradientes[(j+1)%nroDeGradientes].getGreen())/nroIteraciones) ;
+                    saltoB = (double) ((-_coloresGradientes[j].getBlue()+_coloresGradientes[(j+1)%nroDeGradientes].getBlue())/nroIteraciones) ;
                 }
 
 
@@ -1221,7 +1452,7 @@ if ( !getCalculandoFractales() )
                         int colorB;
 
                         // transparente viene null del dialogo de colores
-                        if (coloresGradientes[j] != null) {
+                        if (_coloresGradientes[j] != null) {
                             //colorR = (int) Math.nextUp(coloresGradientes[j].getRed() + (double) saltoR * i);
                             //colorG = (int) Math.nextUp(coloresGradientes[j].getGreen() + (double) saltoG * i);
                             //colorB = (int) Math.nextUp(coloresGradientes[j].getBlue() + (double) saltoB * i);
@@ -1234,9 +1465,9 @@ if ( !getCalculandoFractales() )
 
 //System.out.println(String.format("(%1s , %2s , %3s), salto=%4s",_AcumuladoColorR,_AcumuladoColorG,_AcumuladoColorB, saltoR));
 
-                            colorR = (int) Math.floor(coloresGradientes[j].getRed() + _AcumuladoColorR);
-                            colorG = (int) Math.floor(coloresGradientes[j].getGreen() + _AcumuladoColorG);
-                            colorB = (int) Math.floor(coloresGradientes[j].getBlue() + _AcumuladoColorB);
+                            colorR = (int) Math.floor(_coloresGradientes[j].getRed() + _AcumuladoColorR);
+                            colorG = (int) Math.floor(_coloresGradientes[j].getGreen() + _AcumuladoColorG);
+                            colorB = (int) Math.floor(_coloresGradientes[j].getBlue() + _AcumuladoColorB);
 
 //System.out.println(String.format("(%1s , %2s , %3s) ",colorR,colorG,colorB));
 
@@ -1292,8 +1523,8 @@ if ( !getCalculandoFractales() )
                                 }
 
                                 // transparente viene null del dialogo de colores
-                                if (coloresGradientes[(i_cont_colores_lineas) % nroDeGradientes] != null) {
-                                    colorTemp = coloresGradientes[(i_cont_colores_lineas) % nroDeGradientes];
+                                if (_coloresGradientes[(i_cont_colores_lineas) % nroDeGradientes] != null) {
+                                    colorTemp = _coloresGradientes[(i_cont_colores_lineas) % nroDeGradientes];
                                 }
 
                             } else {
@@ -1320,7 +1551,7 @@ if ( !getCalculandoFractales() )
                         // to draw one fractal until the end before to begin to draw another one, when doing Rutina1
                         while (getCalculandoFractales()) {
                             try {
-                                Thread.sleep(1);
+                                Thread.sleep(40);
                             } catch (Exception e) {
                                 System.out.println(e.getMessage());
                             }
@@ -1373,7 +1604,7 @@ if ( !getCalculandoFractales() )
         int v_puntos_incial_size = panel_patron_inicial.panel_de_dibujo.v_puntos.size();
         if (v_puntos_incial_size!=0) {
 
-            Shape s_p0 = panel_patron_inicial.panel_de_dibujo.get_punto_de_control(
+            Shape s_p0 = Constants.get_punto_de_control(
                     ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(0) ), panel_patron_inicial.panel_de_dibujo.TAM
             );
 
@@ -1918,6 +2149,57 @@ if(dibujarNoRectaDeEuler_linea) {
          return Math.sqrt( Math.pow(p1.x - p2.x,2) + Math.pow(p1.y - p2.y,2) );
     }
 */
+
+    long inicioParaCalcTimeTiling = -1;
+    long finParaCalcTimeTiling = -1;
+    long diferenciaParaCalcTimeTiling = -1;
+    public void settearBarraDeProgresoTilingValoresIniciales(int maximo)
+    {
+        //// esto es para settear la barra de progreso VALORES INICIALES
+        panel_de_dibujo.progresoTiling.setMinimum(0);
+        panel_de_dibujo.progresoTiling.setMaximum(maximo);
+        panel_de_dibujo.progresoTiling.setValue(0);
+        //System.out.println(this.getClass().getName()+":curvaKoch() maximo="+maximo);
+        //System.out.println(this.getClass().getName()+":curvaKoch() elementos_UI.panel_de_dibujo.progresoDibujo.getMaximum()="+elementos_UI.panel_de_dibujo.progresoFractal.getMaximum());
+        ////
+
+        inicioParaCalcTimeTiling = -1;
+        finParaCalcTimeTiling = -1;
+        diferenciaParaCalcTimeTiling = -1;
+    }
+
+    public void incrementarBarraDeProgresoTilingEnUno()
+    {
+        int valIni = panel_de_dibujo.progresoTiling.getValue();
+        panel_de_dibujo.progresoTiling.setValue(valIni+1);
+
+        // para setear el tiempo que falta
+        if(inicioParaCalcTimeTiling == -1)
+        {
+            inicioParaCalcTimeTiling = System.nanoTime();
+            return;
+        }
+        if(finParaCalcTimeTiling == -1)
+        {
+            finParaCalcTimeTiling = System.nanoTime();
+            return;
+        }
+        if(diferenciaParaCalcTimeTiling == -1)
+        {
+            diferenciaParaCalcTimeTiling = finParaCalcTimeTiling - inicioParaCalcTimeTiling;
+        }
+        long actual = panel_de_dibujo.progresoTiling.getValue();
+        long maximo = panel_de_dibujo.progresoTiling.getMaximum();
+        BigInteger tiempoRestante = BigInteger.valueOf(((maximo-actual)*diferenciaParaCalcTimeTiling));
+
+        BigInteger tiempoRestanteEnSeg = BigInteger.valueOf((long) (tiempoRestante.longValue()/Math.pow(10,6)) );
+
+        long tiempoRestanteMin = (long)(tiempoRestanteEnSeg.longValue()/60);
+        long tiempoRestanteSeg = (long)(tiempoRestanteEnSeg.longValue()%60);
+
+        //panel_de_dibujo.tiempoRestanteRutina.setText("faltan "+tiempoRestanteMin+":"+tiempoRestanteSeg);
+        panel_de_dibujo.tiempoRestanteTiling.setText("faltan "+tiempoRestanteEnSeg.longValue());
+    }
 
 
 

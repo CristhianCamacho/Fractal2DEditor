@@ -1,6 +1,7 @@
 package com.cc.fractal2d_editor;
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +31,7 @@ public class Main {
 
             @Override
             public void run() {
+                Constants.set_Directorios();
                 createUI();
             }
         });

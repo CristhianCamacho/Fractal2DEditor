@@ -1,9 +1,6 @@
 package com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio;
 
-import com.cc.fractal2d_editor.Eventos_fractales.Eventos;
-import com.cc.fractal2d_editor.Eventos_fractales.EventosKeyListenerMoverTodosLosPuntos;
-import com.cc.fractal2d_editor.Eventos_fractales.Eventos_Panel_de_dibujo;
-import com.cc.fractal2d_editor.Eventos_fractales.RedoUndoKeyListener;
+import com.cc.fractal2d_editor.Eventos_fractales.*;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 
 import javax.swing.*;
@@ -14,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
 
 public class Panel_patron_disenio extends JPanel {
 
@@ -211,6 +209,9 @@ public class Panel_patron_disenio extends JPanel {
                                                {
                                                    panel_de_dibujo.mSelectedPoint = null;
                                                    panel_de_dibujo.i_mSelectedPoint = -1;
+
+                                                   panel_de_dibujo.mListSelectedPoints = new LinkedList<>();
+                                                   panel_de_dibujo.index_ListSelectedPoints = new LinkedList<>();
                                                }
                                            }
                                        }
@@ -419,6 +420,10 @@ public class Panel_patron_disenio extends JPanel {
         //panel_de_dibujo.setBounds(5+(int)(ancho/4),5,(int)(ancho*3/4-40),(int)(alto-100) );
         panel_de_dibujo.addMouseListener(new Eventos_Panel_de_dibujo(this, elementos_UI));
         panel_de_dibujo.addMouseMotionListener(new Eventos_Panel_de_dibujo(this, elementos_UI));
+
+        panel_de_dibujo.addMouseListener(new Evento_SeleccionDePuntos_Panel_de_dibujo(this, elementos_UI));
+        panel_de_dibujo.addMouseMotionListener(new Evento_SeleccionDePuntos_Panel_de_dibujo(this, elementos_UI));
+
         panel_de_dibujo.setFocusable(true);
         panel_de_dibujo.addKeyListener(new RedoUndoKeyListener());
         panel_de_dibujo.addKeyListener(new EventosKeyListenerMoverTodosLosPuntos());
@@ -560,14 +565,14 @@ public class Panel_patron_disenio extends JPanel {
         panel_de_dibujo.calcularEstrella1(nroPuntas, lado, salto, sentidoDeAgregado);
     }
 
-    public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
+    public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado, boolean agregarAlFinal)
     {
-        panel_de_dibujo.calcularEneagono(nroPuntas, lado, salto, sentidoDeAgregado);
+        panel_de_dibujo.calcularEneagono(nroPuntas, lado, salto, sentidoDeAgregado, agregarAlFinal);
     }
 
-    public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
+    public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado, boolean agregarAlFinal)
     {
-        panel_de_dibujo.calcularEneagono1(nroPuntas, lado, salto, sentidoDeAgregado);
+        panel_de_dibujo.calcularEneagono1(nroPuntas, lado, salto, sentidoDeAgregado, agregarAlFinal);
     }
 
 }

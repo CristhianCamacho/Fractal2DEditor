@@ -110,17 +110,16 @@ public class Guardar_fractales
 
 			if(i==0)
 			{
-			Flujo.escribir(elementos_UI.datos_para_guardar(),aux);
-			
+
+				Flujo.escribir(elementos_UI.datos_para_guardar(),aux);
+				Archivos_recientes.agregar_Archivo_reciente(aux);
 			}
 		}	
 		else
-		{	Flujo.escribir(elementos_UI.datos_para_guardar(),aux);			
-		
+		{
+			Flujo.escribir(elementos_UI.datos_para_guardar(),aux);
+			Archivos_recientes.agregar_Archivo_reciente(aux);
 		}
-		
-	
-		
 	}
 	public void verificar_valor()
 	{

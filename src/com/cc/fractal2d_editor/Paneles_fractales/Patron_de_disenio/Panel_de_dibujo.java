@@ -6,9 +6,10 @@ import com.cc.fractal2d_editor.utils.Constants;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Vector;
 
 public class Panel_de_dibujo extends JPanel {
@@ -24,6 +25,9 @@ public class Panel_de_dibujo extends JPanel {
 
     Point2D mSelectedPoint;
     int i_mSelectedPoint;
+
+    LinkedList<Point2D> mListSelectedPoints = new LinkedList<>();
+    LinkedList<Integer> index_ListSelectedPoints = new LinkedList<>();
 
     Panel_patron_disenio panel_patron_inicial;
 
@@ -73,7 +77,7 @@ public class Panel_de_dibujo extends JPanel {
             for (int i = 0; i < v_puntos.size(); i++)
             {
 
-                Shape s = get_punto_de_control((Point2D)v_puntos.get(i), TAM);
+                Shape s = Constants.get_punto_de_control((Point2D)v_puntos.get(i), TAM);
                 if (s.contains(punto) &&
                         mSelectedPoint != (Point2D)v_puntos.get(i))
                 {
@@ -101,7 +105,7 @@ public class Panel_de_dibujo extends JPanel {
             for (int i = 0; i < v_puntos.size(); i++)
             {
 
-                Shape s = get_punto_de_control((Point2D)v_puntos.get(i), TAM);
+                Shape s = Constants.get_punto_de_control((Point2D)v_puntos.get(i), TAM);
                 if (s.contains(punto))
                 {
                     mSelectedPoint = (Point2D)v_puntos.get(i);
@@ -129,8 +133,12 @@ public class Panel_de_dibujo extends JPanel {
         {
             panel_patron_inicial.jta_estado.setText("borrar_todo");
             v_puntos=new Vector();
+
             mSelectedPoint = null;
             i_mSelectedPoint = -1;
+
+            mListSelectedPoints = new LinkedList<>();
+            index_ListSelectedPoints = new LinkedList<>();
         }
 
         this.repaint();
@@ -158,17 +166,7 @@ public class Panel_de_dibujo extends JPanel {
             );
         }
 
-        //
-        if( Elementos_UI.instance.panel_de_dibujo.check_liveDrawing.isSelected() && !Elementos_UI.instance.getCalculandoFractales() ) {
-
-            //if (Math.random()>0.75)
-            {
-                Elementos_UI.instance.clear();
-            }
-
-            Elementos_UI.instance.calcular_fractales();
-
-        }
+        Constants.verificarLiveDrawing();
 
 
     }
@@ -252,9 +250,31 @@ public class Panel_de_dibujo extends JPanel {
             v_puntos.setElementAt(mSelectedPoint, i_mSelectedPoint);
             this.repaint();
 
+            Constants.verificarLiveDrawing();
+
+            return;
+        }
+        else
+        if(!mListSelectedPoints.isEmpty())
+        {
+            for(int i=0; i<mListSelectedPoints.size(); i++)
+            {
+                Point2D punto_fin = new Point2D.Double(
+                        deltaX + mListSelectedPoints.get(i).getX(),
+                        deltaY + mListSelectedPoints.get(i).getY());
+
+                mListSelectedPoints.set(i, punto_fin);
+                v_puntos.setElementAt(mListSelectedPoints.get(i), index_ListSelectedPoints.get(i));
+            }
+
+            this.repaint();
+
+            Constants.verificarLiveDrawing();
+
             return;
         }
 
+        // movemos todos los puntos
         for(int i=0; i<v_puntos.size(); i++)
         {
             Point2D punto_i = (Point2D) v_puntos.get(i);
@@ -294,6 +314,19 @@ public class Panel_de_dibujo extends JPanel {
             v_puntos=v;
 
             //pintar_puntos();
+            this.repaint();
+        }
+    }
+
+    public void borrar_puntos_seleccionados()
+    {
+        if (!mListSelectedPoints.isEmpty())
+        {
+            v_puntos.removeAll(mListSelectedPoints);
+
+            mListSelectedPoints = new LinkedList<>();
+            index_ListSelectedPoints = new LinkedList<>();
+
             this.repaint();
         }
     }
@@ -339,10 +372,30 @@ public class Panel_de_dibujo extends JPanel {
         return (int)p1.distance(p2);
     }
 
+    public void seleccionarVariosPuntos()
+    {
+        mListSelectedPoints = new LinkedList<>();
+        index_ListSelectedPoints = new LinkedList<>();
+
+        Rectangle2D areaSeleccionada = getRectangle2DDouble(
+                x_selection_1, y_selection_1, x_selection_2, y_selection_2
+        );
+
+        for(int i=0; i<v_puntos.size(); i++)
+        {
+            Point2D punto_i = (Point2D) v_puntos.get(i);
+            if(areaSeleccionada.contains(punto_i))
+            {
+                mListSelectedPoints.add(punto_i);
+                index_ListSelectedPoints.add(i);
+            }
+        }
+    }
+
     public boolean esta_este_punto_en_la_lista(double x ,double y)
     {
         boolean resultado = false;
-        Shape s = get_punto_de_control( new Point2D.Double(x, y), 4*TAM );
+        Shape s = Constants.get_punto_de_control( new Point2D.Double(x, y), 4*TAM );
 
         for(int i=0; i<v_puntos.size(); i++)
         {
@@ -361,7 +414,7 @@ public class Panel_de_dibujo extends JPanel {
     public int pos_de_este_punto_en_la_lista(double x ,double y)
     {
         int resultado = -1;
-        Shape s = get_punto_de_control( new Point2D.Double(x, y), TAM );
+        Shape s = Constants.get_punto_de_control( new Point2D.Double(x, y), TAM );
 
         for(int i=0; i<v_puntos.size(); i++)
         {
@@ -466,7 +519,7 @@ public class Panel_de_dibujo extends JPanel {
 
         int max_i=v_puntos.size();
         if(!v_puntos.isEmpty())
-            if(this.get_punto_de_control((Point2D)v_puntos.get(0), TAM)
+            if(Constants.get_punto_de_control((Point2D)v_puntos.get(0), TAM)
                     .contains((Point2D)v_puntos.get(v_puntos.size()-1)))
             {
                 // para que el ultimo punto no influya en el centro de gravedad
@@ -501,7 +554,7 @@ public class Panel_de_dibujo extends JPanel {
 
         int max_i=v_puntos.size();
         if(!v_puntos.isEmpty())
-            if(this.get_punto_de_control((Point2D)v_puntos.get(0), TAM)
+            if(Constants.get_punto_de_control((Point2D)v_puntos.get(0), TAM)
                     .contains((Point2D)v_puntos.get(v_puntos.size()-1)))
             {
                 max_i=v_puntos.size()-1;
@@ -556,12 +609,7 @@ public class Panel_de_dibujo extends JPanel {
         this.repaint();
     }
 
-    public Shape get_punto_de_control(Point2D p, int tam)
-    {
-        //int tam=10;//Integer.parseInt(tama�o_del_punto.getText());
-        int lado=tam;
-        return new Rectangle2D.Double( p.getX()-lado/2 , p.getY()-lado/2 , lado , lado );
-    }
+
 
     public void pintar_puntos(Graphics g)
     {
@@ -579,10 +627,12 @@ public class Panel_de_dibujo extends JPanel {
             ////
             if(mostrarPuntosDeControl)
             {
-                if(punto_temp_1==mSelectedPoint)	g2.setPaint(Color.RED);
-                else								g2.setPaint(Color.BLUE);
+                if(punto_temp_1==mSelectedPoint || Constants.contieneElIndice(index_ListSelectedPoints, i))
+                    g2.setPaint(Color.RED);
+                else
+                    g2.setPaint(Color.BLUE);
 
-                g2.fill( get_punto_de_control(punto_temp_1, TAM) );
+                g2.fill( Constants.get_punto_de_control(punto_temp_1, TAM) );
 
             }
             ////
@@ -603,14 +653,12 @@ public class Panel_de_dibujo extends JPanel {
             if(v_puntos.size()>0)
             {
                 //g2.setPaint(Color.BLACK);
-                Constants.setRenderingHConstants(g2);
+                Constants.setRenderingHConstants(g2, false);
                 /*
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
                 */
                 g2.setFont(new Font("Calibri", Font.BOLD, 10));
-
-
 
 
                 Point2D punto_0 =(Point2D)v_puntos.get(0);
@@ -643,7 +691,7 @@ public class Panel_de_dibujo extends JPanel {
                     {
                         Paint p_tmp = g2.getPaint();
 
-                        if (i_mSelectedPoint == i){
+                        if (i_mSelectedPoint == i || Constants.contieneElIndice(index_ListSelectedPoints, i)){
                             g2.setPaint(new Color(153,0,0));
                         } else {
                             g2.setPaint(new Color(0,0,153));
@@ -738,7 +786,59 @@ public class Panel_de_dibujo extends JPanel {
             }
         }
 
+        if (mover_puntos) {
+            dibujarRectanguloDeSeleccion(g);
+        }
+
         pintarPanelSizeEnLaEsquinaInferiorDerecha(g);
+    }
+
+    public void dibujarFlechaSiLosPuntosNoSonVisibles(Graphics g)
+    {
+        if (v_puntos==null || v_puntos.isEmpty()) {
+            return;
+        }
+
+        boolean allPointsAreVisible = false;
+
+        // Get the bounds of the device.
+        GraphicsDevice graphicsDevice = this.getGraphicsConfiguration().getDevice();
+        Rectangle graphicsConfigurationBounds = new Rectangle();
+        graphicsConfigurationBounds.setRect(
+                graphicsDevice.getDefaultConfiguration().getBounds().x,
+                graphicsDevice.getDefaultConfiguration().getBounds().y,
+                Panel_de_dibujo.this.getWidth()-1,
+                Panel_de_dibujo.this.getHeight()-1 );
+
+        // Is the location in this bounds?
+        graphicsConfigurationBounds.setRect(graphicsConfigurationBounds.x, graphicsConfigurationBounds.y,
+                graphicsConfigurationBounds.width, graphicsConfigurationBounds.height);
+
+        for(int i=0; i<v_puntos.size(); i++)
+        {
+            Point2D p_tmp = (Point2D) v_puntos.get(i);
+            if ( graphicsConfigurationBounds.contains(p_tmp.getX(), p_tmp.getY()) )
+            {
+                allPointsAreVisible = true;
+                break;
+            }
+        }
+
+        if (!allPointsAreVisible)
+        {
+            Point2D centro_del_panel = new Point2D.Double(this.getWidth()/2, this.getHeight()/2);
+            Point2D centro_de_gravedad = getCentroDeGravedad();
+
+            ((Graphics2D)g).setPaint(Color.red);
+            ((Graphics2D)g).draw(graphicsConfigurationBounds);
+
+            ((Graphics2D)g).setPaint(Color.GRAY);
+            ((Graphics2D)g).draw(Constants.get_punto_de_control(centro_del_panel, TAM));
+            ((Graphics2D)g).draw(new Line2D.Double(centro_de_gravedad ,centro_del_panel));
+            g.drawString(""+(int)centro_del_panel.distance(centro_de_gravedad),
+                    (int)centro_del_panel.getX() + 20,
+                    (int)centro_del_panel.getY() + 20 );
+        }
     }
 
     public void pintarPanelSizeEnLaEsquinaInferiorDerecha(Graphics g)
@@ -855,6 +955,11 @@ public class Panel_de_dibujo extends JPanel {
 
     public Point2D[] get_puntos()
     {
+        if (v_puntos.size() == 0)
+        {
+            System.out.println(this.getClass().getName()+":v_puntos.size() = " + v_puntos.size());
+        }
+
         Point2D[] aux=new Point2D[v_puntos.size()];
 
         for (int i=0;i<aux.length;i++)
@@ -875,12 +980,14 @@ public class Panel_de_dibujo extends JPanel {
         }
 
         if (pintar_ejes) {
-            Constants.setRenderingHConstants(g2d);
+            Constants.setRenderingHConstants(g2d, false);
 
             pintar_ejes(g);
         }
 
         pintar_puntos(g);
+
+        dibujarFlechaSiLosPuntosNoSonVisibles(g);
     }
 
     public void pintar_ejes(Graphics g)
@@ -1091,9 +1198,9 @@ public class Panel_de_dibujo extends JPanel {
 
 
     //// para calcular una estrella de n puntas
-    public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
+    public void calcularEneagono(int nroPuntas, int lado, int salto, int sentidoDeAgregado, boolean agregarAlFinal)
     {
-        //int lado = 100;
+        Vector oldPoints = (Vector)v_puntos.clone();
 
         int centroX = this.getWidth()/2;
         int centroY = this.getHeight()/2;
@@ -1131,12 +1238,19 @@ public class Panel_de_dibujo extends JPanel {
             v_puntos = invertiVector(v_puntos);
         }
 
+        if (agregarAlFinal) {
+            oldPoints.addAll(v_puntos);
+            v_puntos = oldPoints;
+        }
+
         this.repaint();
     }
 
     ////para calcular una estrella de n puntas
-    public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado)
+    public void calcularEneagono1(int nroPuntas, int lado, int salto, int sentidoDeAgregado, boolean agregarAlFinal)
     {
+        Vector oldPoints = (Vector)v_puntos.clone();
+
         v_puntos = Constants.calcularEneagono1(this.getWidth()/2, this.getHeight()/2, nroPuntas, lado, salto);
 
         if (sentidoDeAgregado == 0) {
@@ -1144,6 +1258,11 @@ public class Panel_de_dibujo extends JPanel {
         } else {
             // invertir los valores del vector
             v_puntos = invertiVector(v_puntos);
+        }
+
+        if (agregarAlFinal) {
+            oldPoints.addAll(v_puntos);
+            v_puntos = oldPoints;
         }
 
         this.repaint();
@@ -1191,10 +1310,45 @@ public class Panel_de_dibujo extends JPanel {
 
         return v_result;
     }
-/*
-    public Point2D getSelectedPoint()
-    {
-        return mSelectedPoint;
+
+    public void drawPerfectRect(Graphics g, int x, int y, int x2, int y2) {
+        int px = Math.min(x,x2);
+        int py = Math.min(y,y2);
+        int pw=Math.abs(x-x2);
+        int ph=Math.abs(y-y2);
+        g.drawRect(px, py, pw, ph);
     }
-*/
+
+    public int x_selection_1, y_selection_1, x_selection_2, y_selection_2;
+
+    public void dibujarRectanguloDeSeleccion(Graphics g)
+    {
+        Graphics2D g2d = (Graphics2D) g;
+
+        Stroke oldStroke = ((Graphics2D)g).getStroke();
+        g2d.setStroke(Constants.dashedBasicStroke);
+        g.setColor(Color.cyan.darker());
+//System.out.println(String.format("(%1s, %2s) --> (%3s, %4s)",
+//                x_selection_1, y_selection_1, x_selection_2, y_selection_2));
+        drawPerfectRect(g, x_selection_1, y_selection_1, x_selection_2, y_selection_2);
+        g2d.setStroke(oldStroke);
+
+        g2d.dispose();
+    }
+
+    public Rectangle2D getRectangle2DDouble(
+            int x,
+            int y,
+            int x2,
+            int y2
+    )
+    {
+        int px = Math.min(x,x2);
+        int py = Math.min(y,y2);
+        int pw=Math.abs(x-x2);
+        int ph=Math.abs(y-y2);
+
+        return new Rectangle2D.Double(px, py, pw, ph);
+    }
+
 }

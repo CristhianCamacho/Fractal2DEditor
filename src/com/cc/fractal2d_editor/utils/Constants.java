@@ -7,12 +7,24 @@ import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_de_dibu
 import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Vector;
 
 public class Constants {
+
+    public static File DIR_ACTUAL;
+    public static File DIR_DE_PROPIEDADES;
+
+    public static void set_Directorios()
+    {
+        DIR_ACTUAL = new File(System.getProperty("user.dir"));
+
+        DIR_DE_PROPIEDADES = new File(DIR_ACTUAL, "propiedades");
+    }
 
     public static Vector calcularEneagono1(
             int centroX,
@@ -266,31 +278,54 @@ public class Constants {
 
     public static final float InitialBasicStrokeWidth = 1;
     public static final float InitialBasicStrokeMiterlimit = 3;
-    public static final float[] InitialBasicStrokeDashArray = new float[] { 1, 0 };
+    public static final float[] InitialBasicStrokeDashArray = new float[] { 0, 1 };
     public static final float InitialBasicStrokeDash_phase = 0;
     public static BasicStroke initialBasicStroke =
             new BasicStroke(
                     InitialBasicStrokeWidth,
-                    BasicStroke.CAP_SQUARE,
-                    BasicStroke.JOIN_MITER,
+                    BasicStroke.CAP_ROUND, //BasicStroke.CAP_SQUARE,
+                    BasicStroke.JOIN_ROUND, //BasicStroke.JOIN_MITER,
                     InitialBasicStrokeMiterlimit,
                     InitialBasicStrokeDashArray,
                     InitialBasicStrokeDash_phase);
+
+    public static BasicStroke dashedBasicStroke =
+            new BasicStroke(
+                    2,
+                    BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_BEVEL,
+                    5,
+                    new float[] { 5 },
+                    5);
 
     public static BasicStroke getInitialBasicStroke()
     {
         return initialBasicStroke;
     }
 
-    public static void setRenderingHConstants(Graphics2D g2d) {
+    public static void setRenderingHConstants(Graphics2D g2d, boolean all) {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        //g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+        if (all)
+        {
+            //g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
+            //g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            //g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+
+            g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE );
+        }
     }
 
     public static void setRenderingHConstantsANTIALIAS_OFF(Graphics2D g2d) {
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF));
     }
 
     public static void updatePanel_de_dibujoBackground()
@@ -332,5 +367,106 @@ public class Constants {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Vector aplicarRotacion(Vector v_puntos, int rotarGrados, int TAM)
+    {
+        Point2D punto_centro_de_gravedad = getCentroDeGravedad(v_puntos, TAM);
+
+        Vector v_result = new Vector();
+        for(int i=0; i<v_puntos.size(); i++)
+        {
+            Point2D punto_i = (Point2D) v_puntos.get(i);
+            Double alpha_radianes = Math.toRadians( rotarGrados );
+
+//System.out.println("Constants:aplicarRotacion alpha_radianes="+alpha_radianes);
+
+            Double x = punto_centro_de_gravedad.getX() +
+                    (punto_i.getX() - punto_centro_de_gravedad.getX() )*Math.cos( alpha_radianes )
+                    - (punto_i.getY() - punto_centro_de_gravedad.getY() )*Math.sin( alpha_radianes );
+            Double y = punto_centro_de_gravedad.getY() +
+                    (punto_i.getX() - punto_centro_de_gravedad.getX() )*Math.sin( alpha_radianes )
+                    + (punto_i.getY() - punto_centro_de_gravedad.getY() )*Math.cos( alpha_radianes );
+
+            Point2D punto_fin = new Point2D.Double( x,y);
+            v_result.add(punto_fin);
+            //v_puntos.setElementAt(punto_fin, i);
+        }
+
+        return v_result;
+    }
+
+    public static Point2D getCentroDeGravedad(Vector v_puntos, int TAM)
+    {
+        Point2D result = null;
+        double x_centro_de_gravedad = 0;
+        double y_centro_de_gravedad = 0;
+
+        int max_i=v_puntos.size();
+        if(!v_puntos.isEmpty())
+            if(get_punto_de_control((Point2D)v_puntos.get(0), TAM)
+                    .contains((Point2D)v_puntos.get(v_puntos.size()-1)))
+            {
+                max_i=v_puntos.size()-1;
+            }
+
+        for(int i=0; i<max_i; i++)
+        {
+            Point2D punto_i = (Point2D) v_puntos.get(i);
+
+            x_centro_de_gravedad += punto_i.getX();
+            y_centro_de_gravedad += punto_i.getY();
+        }
+        x_centro_de_gravedad = x_centro_de_gravedad/max_i;
+        y_centro_de_gravedad = y_centro_de_gravedad/max_i;
+
+        result = new Point2D.Double(x_centro_de_gravedad ,
+                y_centro_de_gravedad );
+
+        return result;
+    }
+
+    public static Shape get_punto_de_control(Point2D p, int tam)
+    {
+        int lado=tam;
+        return new Rectangle2D.Double( p.getX()-lado/2 , p.getY()-lado/2 , lado , lado );
+    }
+
+    public static boolean contieneElIndice(LinkedList<Integer> index_ListSelectedPoints, int i)
+    {
+        boolean result = false;
+        for (Integer inte: index_ListSelectedPoints) {
+            if (inte.intValue() == i) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public static void verificarLiveDrawing()
+    {
+        //
+        if( Elementos_UI.instance.panel_de_dibujo.check_liveDrawing.isSelected() && !Elementos_UI.instance.getCalculandoFractales() ) {
+
+            //if (Math.random()>0.75)
+            {
+                Elementos_UI.instance.clear();
+            }
+
+            Elementos_UI.instance.calcular_fractales();
+
+        }
+    }
+
+    public static void DETENER_TODO()
+    {
+        Elementos_UI.instance.setCalculandoFractales(false);
+        Elementos_UI.instance.detenerHilo();
+        Elementos_UI.instance.detenerRutina1();
+        Elementos_UI.instance.detenerRutina2();
+
+        Elementos_UI.instance.detenerRutina1_tiling();
     }
 }

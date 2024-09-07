@@ -54,7 +54,7 @@ public class Crear_Algoritmo implements Runnable{
 		no_dibujarPrimeraLineaPatronRecursivo = no_dibujarPrimeraLineaPatronR;
 
 		Graphics2D g2=(Graphics2D)grafico;
-		Constants.setRenderingHConstants(g2);
+		Constants.setRenderingHConstants(g2, true);
 		/*
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 						RenderingHints.VALUE_ANTIALIAS_ON);

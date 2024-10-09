@@ -19,6 +19,8 @@ public class Constants {
     public static File DIR_ACTUAL;
     public static File DIR_DE_PROPIEDADES;
 
+    public static File Last_DIR_used = null;
+
     public static void set_Directorios()
     {
         DIR_ACTUAL = new File(System.getProperty("user.dir"));
@@ -266,11 +268,11 @@ public class Constants {
 
         if(n%2==1)
         {
-            iReturn = (int)(n/2);
+            iReturn = n / 2;
         }
         else
         {
-            iReturn = (int)(n/2) - 1;
+            iReturn = (n / 2) - 1;
         }
 
         return iReturn;

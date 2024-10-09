@@ -8,6 +8,7 @@ import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales;
 import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Crear_Algoritmo;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_de_dibujo;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 import com.cc.fractal2d_editor.Rutinas.VentanaDeCrearRutina;
 import com.cc.fractal2d_editor.utils.Constants;
@@ -399,11 +400,11 @@ public class Elementos_UI implements Runnable {
                     }
                     splitPanePatrones.setLeftComponent(panel_patron_inicial);
                     splitPanePatrones.setRightComponent(panel_patron_recursivo);
-                    splitPanePatrones.setDividerLocation((int)(jf_principal.getWidth()*1/3)-splitPanePatrones.getDividerSize());
+                    splitPanePatrones.setDividerLocation((jf_principal.getWidth() * 1 / 3) - splitPanePatrones.getDividerSize());
 
                     splitPane.setLeftComponent(splitPanePatrones);
                     splitPane.setRightComponent(panel_de_dibujo);
-                    splitPane.setDividerLocation((int)(jf_principal.getWidth()*2/3)-2*splitPanePatrones.getDividerSize());
+                    splitPane.setDividerLocation((jf_principal.getWidth() * 2 / 3) - 2 * splitPanePatrones.getDividerSize());
 
                     panelUnoSolo.add(splitPane);
 
@@ -587,13 +588,13 @@ public class Elementos_UI implements Runnable {
 
                             if ( tercero.substring(j-1,j).equalsIgnoreCase("X") )
                             {
-                                s_x=concatenar_hasta( tercero.substring(j+1,tercero.length()) , "_" );
+                                s_x = concatenar_hasta(tercero.substring(j + 1), "_");
                                 System.out.println("Elementos_UI:datos_para_abrir:s_x="+s_x);
                             }
                             else
                             if ( tercero.substring(j-1,j).equalsIgnoreCase("Y") )
                             {
-                                s_y=concatenar_hasta( tercero.substring(j+1,tercero.length()) , "_" );
+                                s_y = concatenar_hasta(tercero.substring(j + 1), "_");
                                 System.out.println("Elementos_UI:datos_para_abrir:s_y="+s_y);
                             }
                         }
@@ -627,9 +628,9 @@ public class Elementos_UI implements Runnable {
 
 
                         if ( tercero.substring(j-1,j).equalsIgnoreCase("X") )
-                            s_x=concatenar_hasta( tercero.substring(j+1,tercero.length()) , "_" );
+                            s_x = concatenar_hasta(tercero.substring(j + 1), "_");
                         if ( tercero.substring(j-1,j).equalsIgnoreCase("Y") )
-                            s_y=concatenar_hasta( tercero.substring(j+1,tercero.length()) , "_" );
+                            s_y = concatenar_hasta(tercero.substring(j + 1), "_");
                     }
 
                     punto=new Point2D.Double( Double.parseDouble(s_x), Double.parseDouble(s_y) );
@@ -926,9 +927,9 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             panel_de_dibujo.color_lineas.setBackground(color1);
             panel_de_dibujo.panel_de_dibujo.setColorLineas(color1);
 
-            Color colorOpuesto = new Color((int)(255-color1.getRed()),
-                    (int)(255-color1.getGreen()),
-                    (int)(255-color1.getBlue()));
+            Color colorOpuesto = new Color((255 - color1.getRed()),
+                    (255 - color1.getGreen()),
+                    (255 - color1.getBlue()));
 
             panel_de_dibujo.color_lineas.setForeground(colorOpuesto);
             //panel_de_dibujo.panel_de_dibujo.repaint();
@@ -1013,8 +1014,8 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
             int MIN_ROW = -1;
             int MIN_COL = -1;
 
-            int MAX_ROW = MAX_Y_SCREEN + 1;
-            int MAX_COL = MAX_X_SCREEN;
+                        int MAX_ROW = MAX_Y_SCREEN + 1 + 1;
+                        int MAX_COL = MAX_X_SCREEN + 1 + 1;
 
             settearBarraDeProgresoTilingValoresIniciales( (MAX_ROW - (MIN_ROW) +1)*(MAX_COL - (MIN_COL) +1) );
 
@@ -1101,7 +1102,7 @@ g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
                         ejecutarFractalesORutina1(ejecutar_rutina1);
 
                         Vector nuevosPuntosTriang = new Vector();
-                        Vector v_puntosTriang = Constants.aplicarRotacion(v_puntos, 60, panel_patron_inicial.panel_de_dibujo.TAM);
+                        Vector v_puntosTriang = Constants.aplicarRotacion(v_puntos, 60, Panel_de_dibujo.TAM);
 
                         for(int i=0; i<v_puntosTriang.size(); i++)
                         {
@@ -1423,9 +1424,9 @@ if ( !getCalculandoFractales() )
 
                 // transparente viene null del dialogo de colores
                 if (_coloresGradientes[j] != null && _coloresGradientes[(j+1)%nroDeGradientes] != null) {
-                    saltoR = (double) ((-_coloresGradientes[j].getRed()+_coloresGradientes[(j+1)%nroDeGradientes].getRed())/nroIteraciones) ;
-                    saltoG = (double) ((-_coloresGradientes[j].getGreen()+_coloresGradientes[(j+1)%nroDeGradientes].getGreen())/nroIteraciones) ;
-                    saltoB = (double) ((-_coloresGradientes[j].getBlue()+_coloresGradientes[(j+1)%nroDeGradientes].getBlue())/nroIteraciones) ;
+                    saltoR = (-_coloresGradientes[j].getRed() + _coloresGradientes[(j + 1) % nroDeGradientes].getRed()) / nroIteraciones;
+                    saltoG = (-_coloresGradientes[j].getGreen() + _coloresGradientes[(j + 1) % nroDeGradientes].getGreen()) / nroIteraciones;
+                    saltoB = (-_coloresGradientes[j].getBlue() + _coloresGradientes[(j + 1) % nroDeGradientes].getBlue()) / nroIteraciones;
                 }
 
 
@@ -1583,10 +1584,10 @@ if ( !getCalculandoFractales() )
             // calcular Punto Aletorio inicial
             if (isDentro) {
                 //panel_patron_inicial.calcularPuntoAleatorioDentro();
-                puntoAleatorio = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.getPuntoAleatorioDentro();
+                puntoAleatorio = panel_patron_inicial.panel_de_dibujo.getPuntoAleatorioDentro();
             } else if(isFuera) {
                 //panel_patron_inicial.calcularPuntoAleatorioFuera();
-                puntoAleatorio = (Point2D.Double)panel_patron_inicial.panel_de_dibujo.getPuntoAleatorioFuera();
+                puntoAleatorio = panel_patron_inicial.panel_de_dibujo.getPuntoAleatorioFuera();
             }
 
 
@@ -1605,7 +1606,7 @@ if ( !getCalculandoFractales() )
         if (v_puntos_incial_size!=0) {
 
             Shape s_p0 = Constants.get_punto_de_control(
-                    ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(0) ), panel_patron_inicial.panel_de_dibujo.TAM
+                    ((Point2D.Double) panel_patron_inicial.panel_de_dibujo.v_puntos.get(0)), Panel_de_dibujo.TAM
             );
 
             /*
@@ -2194,8 +2195,8 @@ if(dibujarNoRectaDeEuler_linea) {
 
         BigInteger tiempoRestanteEnSeg = BigInteger.valueOf((long) (tiempoRestante.longValue()/Math.pow(10,6)) );
 
-        long tiempoRestanteMin = (long)(tiempoRestanteEnSeg.longValue()/60);
-        long tiempoRestanteSeg = (long)(tiempoRestanteEnSeg.longValue()%60);
+        long tiempoRestanteMin = (tiempoRestanteEnSeg.longValue() / 60);
+        long tiempoRestanteSeg = (tiempoRestanteEnSeg.longValue() % 60);
 
         //panel_de_dibujo.tiempoRestanteRutina.setText("faltan "+tiempoRestanteMin+":"+tiempoRestanteSeg);
         panel_de_dibujo.tiempoRestanteTiling.setText("faltan "+tiempoRestanteEnSeg.longValue());
@@ -2250,8 +2251,8 @@ if(dibujarNoRectaDeEuler_linea) {
 
             BigInteger tiempoRestanteEnSeg = BigInteger.valueOf((long) (tiempoRestante.longValue()/Math.pow(10,6)) );
 
-            long tiempoRestanteMin = (long)(tiempoRestanteEnSeg.longValue()/60);
-            long tiempoRestanteSeg = (long)(tiempoRestanteEnSeg.longValue()%60);
+            long tiempoRestanteMin = (tiempoRestanteEnSeg.longValue() / 60);
+            long tiempoRestanteSeg = (tiempoRestanteEnSeg.longValue() % 60);
 
             //panel_de_dibujo.tiempoRestanteRutina.setText("faltan "+tiempoRestanteMin+":"+tiempoRestanteSeg);
             panel_de_dibujo.tiempoRestanteRutina.setText("faltan "+tiempoRestanteEnSeg.longValue());

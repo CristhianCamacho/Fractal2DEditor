@@ -2,19 +2,18 @@ package com.cc.fractal2d_editor.IO_fractales;
 
 
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-
-//package utils_IO.IO_GRAFICO_2D;
-//import utils_IO.IO_GRAFICO_2D.*;
-
-//import utils_PANELES.Panel_2D.Panel_grafico2d;
-//import algoritmos.algoritmo_SIMPLEX.Administrador_de_E_S;
-
-//import utils_IO.IO_SIMPLEX.Flujo;
-
-import java.io.*;
+import com.cc.fractal2d_editor.utils.Constants;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+
+//package utils_IO.IO_GRAFICO_2D;
+//import utils_IO.IO_GRAFICO_2D.*;
+//import utils_PANELES.Panel_2D.Panel_grafico2d;
+//import algoritmos.algoritmo_SIMPLEX.Administrador_de_E_S;
+//import utils_IO.IO_SIMPLEX.Flujo;
 
 public class Guardar_fractales_como_PNG
 {
@@ -77,8 +76,13 @@ public class Guardar_fractales_como_PNG
 			aux_2+="/Modelos_fractales";
 		}
 
-		filechooser.setCurrentDirectory(new File(aux_2));
-				
+        if (Constants.Last_DIR_used == null) {
+            filechooser.setCurrentDirectory(new File(aux_2));
+        } else {
+            filechooser.setCurrentDirectory(Constants.Last_DIR_used);
+            aux_2 = filechooser.getCurrentDirectory().getAbsolutePath();
+        }
+
 		nomb_model=elementos_UI.get_nombre_del_modelo();
 		
 		File aux_=new File (aux_2+"/"+nomb_model);
@@ -162,6 +166,7 @@ public class Guardar_fractales_como_PNG
 			 
 			
 			System.out.println(nomb_model);
+            Constants.Last_DIR_used = filechooser.getCurrentDirectory();
 			guardar(filechooser.getCurrentDirectory().getAbsolutePath()+File.separatorChar
 			+aux+"."+filtro.extension);
 			

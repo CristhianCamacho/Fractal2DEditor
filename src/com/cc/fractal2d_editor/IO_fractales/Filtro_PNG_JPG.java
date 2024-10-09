@@ -1,7 +1,7 @@
 package com.cc.fractal2d_editor.IO_fractales;
 
-        import java.io.*;
-        import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
 
 public class Filtro_PNG_JPG extends FileFilter {
 

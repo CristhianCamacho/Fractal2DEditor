@@ -1,8 +1,12 @@
 package com.cc.fractal2d_editor.Eventos_fractales;
 
-import com.cc.fractal2d_editor.IO_fractales.*;
+import com.cc.fractal2d_editor.IO_fractales.Abrir_fractales;
+import com.cc.fractal2d_editor.IO_fractales.Filtro_PNG_JPG;
+import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales;
+import com.cc.fractal2d_editor.IO_fractales.Guardar_fractales_como_PNG;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
-import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.*;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.JOptionFactory;
+import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_dibujo.Panel_resultado;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 import com.cc.fractal2d_editor.Rutinas.VentaDeCrearEneagono;
 import com.cc.fractal2d_editor.Rutinas.VentaDeCrearEstrella;
@@ -421,10 +425,14 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             if(aux.equals(Panel_resultado.CLEAR))
             {
                 //System.out.println(this.getClass().getName()+":elementos_ui.detenerHilo();");
+                /*
                 elementos_ui.setCalculandoFractales(false);
                 elementos_ui.detenerHilo();
                 elementos_ui.detenerRutina1();
                 elementos_ui.detenerRutina2();
+                */
+                Constants.DETENER_TODO();
+
                 try {
                     Thread.sleep(40);
                 } catch (Exception e12) {
@@ -575,8 +583,8 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
             Panel_patron_disenio ppi = Elementos_UI.instance.panel_patron_inicial;
             Panel_patron_disenio ppr = Elementos_UI.instance.panel_patron_recursivo;
             // esto es para el zoom
-            if ( ((JSlider)e.getSource()) == ppi.js_rotar ||
-                    ((JSlider)e.getSource()) == ppr.js_rotar
+            if (e.getSource() == ppi.js_rotar ||
+                    e.getSource() == ppr.js_rotar
             )
             {
                 JSlider temp=(JSlider) e.getSource();
@@ -595,10 +603,8 @@ public class Eventos implements ActionListener, MouseListener, MouseMotionListen
                     System.out.println(this.getClass().getName()+":stateChanged panel_patron_recursivo temp.getValue()="+temp.getValue());
                     elementos_ui.panel_patron_recursivo.aplicarRotacion(""+value);
                 }
-            }
-            else
-            if ( ((JSlider)e.getSource()) == ppi.js_zoom ||
-                    ((JSlider)e.getSource()) == ppr.js_zoom
+            } else if (e.getSource() == ppi.js_zoom ||
+                    e.getSource() == ppr.js_zoom
             )
             {
                 JSlider temp=(JSlider) e.getSource();

@@ -58,11 +58,9 @@ public class Panel_de_dibujo extends JPanel {
 
         if(mas_puntos)
         {
-            if (Elementos_UI.instance.sentidoColocadoDePuntos.equalsIgnoreCase(Elementos_UI.instance.AL_FINAL)) {
+            if (Elementos_UI.instance.sentidoColocadoDePuntos.equalsIgnoreCase(Elementos_UI.AL_FINAL)) {
                 v_puntos.add(punto);
-            }
-            else
-            if (Elementos_UI.instance.sentidoColocadoDePuntos.equalsIgnoreCase(Elementos_UI.instance.AL_INICIO))
+            } else if (Elementos_UI.instance.sentidoColocadoDePuntos.equalsIgnoreCase(Elementos_UI.AL_INICIO))
             {
                 v_puntos.add(0, punto);
             }
@@ -79,7 +77,7 @@ public class Panel_de_dibujo extends JPanel {
 
                 Shape s = Constants.get_punto_de_control((Point2D)v_puntos.get(i), TAM);
                 if (s.contains(punto) &&
-                        mSelectedPoint != (Point2D)v_puntos.get(i))
+                        mSelectedPoint != v_puntos.get(i))
                 {
                     mSelectedPoint = (Point2D)v_puntos.get(i);
                     i_mSelectedPoint=i;
@@ -303,12 +301,12 @@ public class Panel_de_dibujo extends JPanel {
         {
             for(int i=0;i<i_mSelectedPoint;i++)
             {
-                v.add((Point2D)v_puntos.get(i));
+                v.add(v_puntos.get(i));
             }
 
             for(int i=i_mSelectedPoint+1;i<v_puntos.size();i++)
             {
-                v.add((Point2D)v_puntos.get(i));
+                v.add(v_puntos.get(i));
             }
 
             v_puntos=v;
@@ -673,7 +671,7 @@ public class Panel_de_dibujo extends JPanel {
                         g2.setPaint(new Color(0,0,153));
                     }
 
-                    g2.drawString("P("+(int)0+")=("+Math.round(punto_0.getX())+", "+Math.round(punto_0.getY())+")",
+                    g2.drawString("P(" + 0 + ")=(" + Math.round(punto_0.getX()) + ", " + Math.round(punto_0.getY()) + ")",
                             (float)( punto_0.getX() + ((Math.random()>0.5)? 5 : (-1)*(5) )),
                             (float)( punto_0.getY() + ((Math.random()>0.5)? 35 : (-1)*(35) )) );
 
@@ -714,8 +712,8 @@ public class Panel_de_dibujo extends JPanel {
                                 (int)punto_0.getY(),
                                 (int)punto_0.getX() + largoLineaEjeX,
                                 (int)punto_0.getY() );
-                        g.drawArc((int)punto_0.getX()-(int)(largoLineaEjeX),
-                                (int)punto_0.getY()-(int)(largoLineaEjeX),
+                        g.drawArc((int) punto_0.getX() - largoLineaEjeX,
+                                (int) punto_0.getY() - largoLineaEjeX,
                                 2*largoLineaEjeX,
                                 2*largoLineaEjeX,
                                 0,
@@ -741,8 +739,8 @@ public class Panel_de_dibujo extends JPanel {
 
                             double ang_i_rad_inicial = calcular_angulos(punto_0, (Point2D)v_puntos.get(i-2));
                             g2.setPaint(new Color(0,0,153));
-                            g.drawArc((int)punto_0.getX()-(int)(2*largoLineaEjeX),
-                                    (int)punto_0.getY()-(int)(2*largoLineaEjeX),
+                            g.drawArc((int) punto_0.getX() - (2 * largoLineaEjeX),
+                                    (int) punto_0.getY() - (2 * largoLineaEjeX),
                                     4*largoLineaEjeX,
                                     4*largoLineaEjeX,
                                     (int) Math.toDegrees ( ang_i_rad_inicial ),
@@ -880,7 +878,7 @@ public class Panel_de_dibujo extends JPanel {
         Point2D a,b;
         double _x,_y;
 
-        _x=1-0;
+        _x = 1;
         _y=0;
         a=new Point2D.Double( _x , _y );
         _x=p1.getX()-p0.getX();
@@ -1006,22 +1004,22 @@ public class Panel_de_dibujo extends JPanel {
 
         for(int i=0;i<=n_f;i++)
         {
-            g2d.drawLine( (int)(ancho/2-i*escala),(int)(0),(int)(ancho/2-i*escala),(int)(alto) );
+            g2d.drawLine((int) (ancho / 2 - i * escala), 0, (int) (ancho / 2 - i * escala), (alto));
         }
         for(int i=0;i<=n_f;i++)
         {
-            g2d.drawLine( (int)(ancho/2+i*escala),(int)(0),(int)(ancho/2+i*escala),(int)(alto) );
+            g2d.drawLine((int) (ancho / 2 + i * escala), 0, (int) (ancho / 2 + i * escala), (alto));
         }
 
         int n_c=(int)((alto/2)/escala);
 
         for(int i=0;i<=n_c;i++)
         {
-            g2d.drawLine( (int)(0),(int)(alto/2-i*escala),(int)(ancho),(int)(alto/2-i*escala) );
+            g2d.drawLine(0, (int) (alto / 2 - i * escala), (ancho), (int) (alto / 2 - i * escala));
         }
         for(int i=0;i<=n_c;i++)
         {
-            g2d.drawLine( (int)(0),(int)(alto/2+i*escala),(int)(ancho),(int)(alto/2+i*escala) );
+            g2d.drawLine(0, (int) (alto / 2 + i * escala), (ancho), (int) (alto / 2 + i * escala));
         }
 
         {
@@ -1034,19 +1032,19 @@ public class Panel_de_dibujo extends JPanel {
 
             for(int i=0;i<=2*n_f;i++)
             {
-                g2d.drawLine( (int)(ancho/2-i*escala/2),(int)(0),(int)(ancho/2-i*escala/2),(int)(alto) );
+                g2d.drawLine((int) (ancho / 2 - i * escala / 2), 0, (int) (ancho / 2 - i * escala / 2), (alto));
             }
             for(int i=0;i<=2*n_f;i++)
             {
-                g2d.drawLine( (int)(ancho/2+i*escala/2),(int)(0),(int)(ancho/2+i*escala/2),(int)(alto) );
+                g2d.drawLine((int) (ancho / 2 + i * escala / 2), 0, (int) (ancho / 2 + i * escala / 2), (alto));
             }
             for(int i=0;i<=2*n_c;i++)
             {
-                g2d.drawLine( (int)(0),(int)(alto/2-i*escala/2),(int)(ancho),(int)(alto/2-i*escala/2) );
+                g2d.drawLine((0), (int) (alto / 2 - i * escala / 2), (ancho), (int) (alto / 2 - i * escala / 2));
             }
             for(int i=0;i<=2*n_c;i++)
             {
-                g2d.drawLine( (int)(0),(int)(alto/2+i*escala/2),(int)(ancho),(int)(alto/2+i*escala/2) );
+                g2d.drawLine((0), (int) (alto / 2 + i * escala / 2), (ancho), (int) (alto / 2 + i * escala / 2));
             }
 
             for(int i=0;i<=2*n_c+4;i++)
@@ -1067,9 +1065,9 @@ public class Panel_de_dibujo extends JPanel {
 
         g2d.setColor(Color.BLACK);
         //eje y
-        g2d.drawLine( (int)(ancho/2),(int)(2),(int)(ancho/2),(int)(alto-2) );
+        g2d.drawLine((ancho / 2), (2), (ancho / 2), (alto - 2));
         //eje x
-        g2d.drawLine( (int)(2),(int)(alto/2),(int)(ancho-2),(int)(alto/2) );
+        g2d.drawLine((2), (alto / 2), (ancho - 2), (alto / 2));
 
         g2d.setColor(oldColor);
     }

@@ -3,7 +3,6 @@ package com.cc.fractal2d_editor.Rutinas;
 import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 import com.cc.fractal2d_editor.Paneles_fractales.Patron_de_disenio.Panel_patron_disenio;
 
-import javax.media.j3d.Switch;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -118,8 +117,8 @@ public class VentaDeCrearEstrella extends JFrame{
 				{
 					public void actionPerformed(ActionEvent arg0) {
 						String sItem = (String) jcb_NroDePuntas.getSelectedItem();
-						
-						int max = (int)((Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem()))/2);
+
+                        int max = ((Integer.parseInt((String) jcb_NroDePuntas.getSelectedItem())) / 2);
 						String elementos[]=new String[max];
 						for(int i=0; i<elementos.length ; i++ )
 						{
@@ -178,8 +177,8 @@ public class VentaDeCrearEstrella extends JFrame{
 			titleNombreModelo = BorderFactory.createTitledBorder("Salto entre puntos");
 			result.setBorder(titleNombreModelo);
 			result.setLayout(new BorderLayout());
-			
-			int max = (int)(Integer.parseInt((String)jcb_NroDePuntas.getSelectedItem())/2);
+
+            int max = (Integer.parseInt((String) jcb_NroDePuntas.getSelectedItem()) / 2);
 			String elementos[]=new String[max];
 			for(int i=0; i<elementos.length ; i++ )
 				elementos[i]=""+(i+1);

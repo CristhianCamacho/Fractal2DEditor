@@ -1,6 +1,14 @@
 # Fractal2DEditor
 Java Application to Edit (Koch) Fractals in 2D
 
+Tested on Linux Fedora and Windows 11
+
+Requirements: java 1.8 JDK
+
+To run it on Windows Terminal for instance just type (where Main.java is stored)
+
+java Main.java
+
 https://www.youtube.com/watch?v=nCdMs6PH7og&amp;t=3s 
 https://www.youtube.com/watch?v=CpKhuRDwrKE&amp;t=3s
 

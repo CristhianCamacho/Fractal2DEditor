@@ -1,19 +1,14 @@
 package com.cc.fractal2d_editor.Rutinas;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
-
-import com.cc.fractal2d_editor.Paneles_fractales.Elementos_UI;
 
 public class VentanaDeCrearRutina2 extends JFrame{
 
@@ -341,12 +336,29 @@ public class VentanaDeCrearRutina2 extends JFrame{
 		Double tmp = Double.parseDouble((String)jcb_showRatioOfMiddlePointInteger.getSelectedItem()) +
 					  Double.parseDouble((String)jcb_showRatioOfMiddlePointDecimal.getSelectedItem());
 		jtf_showRatioOfMiddlePoint = new JTextField(tmp.toString());
+		/*
 		jtf_showRatioOfMiddlePoint.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Elementos_UI.instance.ratioOfMiddlePoint = Double.parseDouble((String)jtf_showRatioOfMiddlePoint.getText());
 			}
 		});
+		*/
+        ////Fis para notificar texfiels de reatio paa la rutina Sierpinski
+        jtf_showRatioOfMiddlePoint.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                try {
+                    Elementos_UI.instance.ratioOfMiddlePoint = Double.parseDouble(jtf_showRatioOfMiddlePoint.getText());
+                } catch (Exception e1) {
+                    JOptionPane.showMessageDialog(null,
+                            "El Texto de "
+                                    + Elementos_UI.instance.SIERPINSKI +
+                                    " debe ser un numero valido ", "Error Message",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
 		jtf_showRatioOfMiddlePoint.setVisible(false);
 		contenedorSeccionTipoDeCalculo.add(jtf_showRatioOfMiddlePoint);
 

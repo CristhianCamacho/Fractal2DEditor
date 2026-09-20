@@ -1764,7 +1764,9 @@ if ( !getCalculandoFractales() )
         g.setColor(panel_de_dibujo.panel_de_dibujo.getColor_lineas());
         }
 
-        g.drawOval((int)(inPunto_a_calcular.getX()-lado/2) , (int)(inPunto_a_calcular.getY()-lado/2) , lado , lado);
+        //g.drawOval((int)(inPunto_a_calcular.getX()-lado/2) , (int)(inPunto_a_calcular.getY()-lado/2) , lado , lado);
+        g.drawLine((int) (inPunto_a_calcular.getX() - lado / 2), (int) (inPunto_a_calcular.getY() - lado / 2),
+                (int) (inPunto_a_calcular.getX() - lado / 2), (int) (inPunto_a_calcular.getY() - lado / 2));
 
         if(count % 1000 == 0) {
             // this is to keep the dot visible if there is repaint or rezise o se cambia a tabbeds
